@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="jar" name="coffeeshop">
+    <property environment="env"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.5"/>
+    <property name="source" value="1.5"/>
+    <property name="version" value="1.0"/>
+    <target name="init">
+        <mkdir dir="bin/core"/>
+    	<mkdir dir="bin/application"/>
+    	<mkdir dir="bin/swing"/>
+    	<mkdir dir="bin/packages"/>
+    	<mkdir dir="deploy"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="core" excludes="**/*.launch, **/*.java"/>
+            <fileset dir="application" excludes="**/*.launch, **/*.java"/>
+            <fileset dir="swing" excludes="**/*.launch, **/*.java"/>
+            <fileset dir="packages" excludes="**/*.launch, **/*.java"/>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="bin"/>
+    	<delete dir="deploy"/>
+    </target>
+    <target depends="clean" name="cleanall"/>
+    <target name="build-core"> 
+        <echo message="Building Core package"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin/core" source="${source}" target="${target}">
+            <src path="core"/>
+            <classpath>
+            	<path location="bin/core"/>
+            </classpath>	
+        </javac>
+    </target>
+    <target name="build-application" depends="build-core"> 
+        <echo message="Building Application package"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin/application" source="${source}" target="${target}">
+            <src path="application"/>
+            <classpath>
+            	<path location="bin/core"/>
+            	<path location="bin/application"/>
+            </classpath>	
+        </javac>
+    </target>
+    <target name="build-swing" depends="build-core"> 
+        <echo message="Building Swing package"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin/swing" source="${source}" target="${target}">
+            <src path="swing"/>
+            <classpath>
+            	<path location="bin/core"/>
+            	<path location="bin/swing"/>
+            </classpath>	
+        </javac>
+    </target>
+    <target name="build-packages" depends="build-core"> 
+        <echo message="Building Package package"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin/packages" source="${source}" target="${target}">
+            <src path="packages"/>
+            <classpath>
+            	<path location="bin/core"/>
+            	<path location="bin/packages"/>
+            </classpath>	
+        </javac>
+    </target>
+    <target name="build" depends="init,build-core,build-application,build-packages,build-swing" />
+	<target name="jar" depends="build">
+		  <jar destfile="deploy/coffeeshop.jar"
+		       basedir="bin/core">
+		  	 <manifest>
+		  	      <attribute name="Built-By" value="${user.name}"/>
+		  	 	<attribute name="CoffeeShop-Version" value="${version}"/>
+		  	 </manifest>
+		  </jar>
+		  <jar destfile="deploy/coffeeshop.application.jar"
+		       basedir="bin/application">
+		  	 <manifest>
+		  	      <attribute name="Built-By" value="${user.name}"/>
+		  	 	<attribute name="CoffeeShop-Version" value="${version}"/>
+		  	 </manifest>
+		  </jar>
+		  <jar destfile="deploy/coffeeshop.swing.jar"
+		       basedir="bin/swing">
+		  	 <manifest>
+		  	      <attribute name="Built-By" value="${user.name}"/>
+		  	 	<attribute name="CoffeeShop-Version" value="${version}"/>
+		  	 </manifest>
+		  </jar>
+		  <jar destfile="deploy/coffeeshop.packages.jar"
+		       basedir="bin/packages">
+		  	 <manifest>
+		  	      <attribute name="Built-By" value="${user.name}"/>
+		  	 	<attribute name="CoffeeShop-Version" value="${version}"/>
+		  	 </manifest>
+		  </jar>
+	</target>
+</project>
