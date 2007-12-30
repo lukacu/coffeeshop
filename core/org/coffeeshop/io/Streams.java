@@ -29,6 +29,7 @@ package org.coffeeshop.io;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * This class provides static some handy static methods for streams usage.
@@ -88,4 +89,21 @@ public class Streams {
 		return byteStream.toByteArray();
 	}
 
+	/**
+	 * Copies data from input stream to output stream.
+	 * 
+	 * @param in the input stream
+	 * @param out the ouptut stream
+	 * @throws IOException
+	 */
+	public static void copyStream(InputStream in, OutputStream out) throws IOException {
+		
+	    byte [] b = new byte[512];
+	    int len = 0;
+	    while ( (len = in.read(b))!= -1 ) {
+	    	out.write(b,0,len);
+	    }
+	   
+	}
+	
 }

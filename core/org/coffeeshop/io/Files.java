@@ -27,7 +27,9 @@
 package org.coffeeshop.io;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -344,6 +346,46 @@ public class Files {
 		return s;
 	}
 	
+	/**
+	 * Copies source file to destination file
+	 * 
+	 * @param src source file
+	 * @param dst destination file
+	 * @return <code>true</code> if successful, <code>false</code> if not.
+	 */
+	public static boolean copy(File src, File dst) {
+		
+		if (src == null || dst == null)
+			throw new IllegalArgumentException("Null argument");
+		
+		if (src.isDirectory() || dst.isDirectory())
+			throw new IllegalArgumentException("Cannot copy directory");
+		
+		if (!src.exists())
+			throw new IllegalArgumentException("Source file does not exist");
+		
+		boolean dstExists = dst.exists();
+		
+		try {
 
+			FileInputStream in = new FileInputStream(src);
+			FileOutputStream out = new FileOutputStream(dst);
+			
+			Streams.copyStream(in, out);
+			
+			in.close();
+			out.close();
+			
+		} catch (IOException e) {
+			
+			if (!dstExists && dst.exists())
+				dst.delete();
+			
+			return false;
+		}
+		
+		return true;
+		
+	}
 	
 }
