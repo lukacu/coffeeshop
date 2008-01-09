@@ -29,12 +29,15 @@ package org.coffeeshop.awt;
 
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import javax.imageio.ImageIO;
 
 import org.coffeeshop.io.Streams;
 
@@ -60,22 +63,24 @@ public class Images {
 	public static Image loadImageFromStream(InputStream stream) 
 		throws IOException {
 		
-		Image img = Toolkit.getDefaultToolkit().createImage(
-				Streams.getStreamAsByteArray(stream));
+		/*Image img = Toolkit.getDefaultToolkit().createImage(
+				Streams.getStreamAsByteArray(stream));*/
 		
-		ImageWaiter waiter = new ImageWaiter(img);
+		return ImageIO.read(stream);
+		
+		/*ImageWaiter waiter = new ImageWaiter(img);
 		
 		if (!waiter.waitForImage()) {
 			throw new IOException("Error occured during image loading");
-		}
+		}*/
 		
-		return img;
+		//return img;
 	}
 	
 	/**
 	 * Loads image from the specified URL.
 	 * <b>Note:</b> This method loads the image completely. It waits 
-	 * untill the image is loaded so there is no need for ImageObservers 
+	 * until the image is loaded so there is no need for ImageObservers 
 	 * later.
 	 * 
 	 * @param url URL of the image
@@ -88,7 +93,9 @@ public class Images {
 		
 		URL location = new URL(url);
 		
-		Image img = Toolkit.getDefaultToolkit().createImage(location);
+		return ImageIO.read(location);
+		
+		/*Image img = Toolkit.getDefaultToolkit().createImage(location);
 		
 		ImageWaiter waiter = new ImageWaiter(img);
 		
@@ -96,13 +103,13 @@ public class Images {
 			throw new IOException("Error occured during image loading");
 		}
 		
-		return img;
+		return img;*/
 	}
 
 	/**
 	 * Loads image from the specified filename.
 	 * <b>Note:</b> This method loads the image completely. It waits 
-	 * untill the image is loaded so there is no need for ImageObservers 
+	 * until the image is loaded so there is no need for ImageObservers 
 	 * later.
 	 * 
 	 * @param file filename of the image
@@ -118,7 +125,9 @@ public class Images {
 		if (!f.exists())
 			throw new FileNotFoundException(file + " not found");
 		
-		Image img = Toolkit.getDefaultToolkit().createImage(file);
+		return ImageIO.read(f);
+		
+		/*Image img = Toolkit.getDefaultToolkit().createImage(file);
 		
 		ImageWaiter waiter = new ImageWaiter(img);
 		
@@ -126,7 +135,7 @@ public class Images {
 			throw new IOException("Error occured during image loading");
 		}
 		
-		return img;
+		return img;*/
 	}
 	
 	/**
@@ -142,8 +151,8 @@ public class Images {
 	public static Image loadImageFromArray(byte[] array) 
 		throws IOException {
 		
-		
-		Image img = Toolkit.getDefaultToolkit().createImage(array);
+		return ImageIO.read(new ByteArrayInputStream(array));
+		/*Image img = Toolkit.getDefaultToolkit().createImage(array);
 		
 		ImageWaiter waiter = new ImageWaiter(img);
 		
@@ -151,7 +160,7 @@ public class Images {
 			throw new IOException("Error occured during image loading");
 		}
 		
-		return img;
+		return img;*/
 	}
 	
 }
