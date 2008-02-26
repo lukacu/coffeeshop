@@ -28,7 +28,6 @@
 package org.coffeeshop.awt;
 
 import java.awt.Image;
-import java.awt.Toolkit;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -39,7 +38,6 @@ import java.net.URL;
 
 import javax.imageio.ImageIO;
 
-import org.coffeeshop.io.Streams;
 
 /**
  * This class provides some methods for easier loading of Images in AWT.

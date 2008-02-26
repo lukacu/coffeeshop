@@ -45,7 +45,7 @@ import java.util.zip.ZipEntry;
 public class PackageElement {
 
 	private String _name, _pack, _archive;
-	private Class _neighbor = null;
+	private Class<?> _neighbor = null;
 	
 	/**
 	 * Constructs a new package element.
@@ -67,7 +67,7 @@ public class PackageElement {
 	 * @param neighborClass the class that shares the package with the
 	 * element
 	 */
-	public PackageElement(String name, Class neighborClass) {
+	public PackageElement(String name, Class<?> neighborClass) {
 		this._name = name;
 		this._neighbor = neighborClass;
 		this._pack = "";

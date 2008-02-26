@@ -78,7 +78,7 @@ public class ClassStringParser implements StringParser {
      * @see org.coffeeshop.string.parsers.StringParser#parse(String)
      */
     public Object parse(String arg) throws ParseException {
-        Class result = null;
+        Class<?> result = null;
         try {
             result = Class.forName(arg);
         } catch (Exception e) {

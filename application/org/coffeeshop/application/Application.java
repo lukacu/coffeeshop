@@ -212,7 +212,7 @@ public abstract class Application {
 			
 			if (!reconfigured.success()) {
 				
-				Iterator i = reconfigured.getErrorMessageIterator();
+				Iterator<?> i = reconfigured.getErrorMessageIterator();
 				
 				for (; i.hasNext(); ) {
 					System.out.println((String) i.next());

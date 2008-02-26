@@ -2,8 +2,8 @@ package org.coffeeshop.swing;
 
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.TreeSet;
 
 import javax.swing.Action;
 
@@ -15,7 +15,7 @@ public class ActionSetManager {
 	
 	public ActionSet newSet(String name, Action ... actions) {
 		
-		if (sets.containsKey(name) || !StringUtils.empty(name)) 
+		if (sets.containsKey(name) || StringUtils.empty(name)) 
 			throw new IllegalArgumentException("Name already exists or empty");
 		
 		ActionSet set = new ActionSet(actions);
@@ -81,7 +81,7 @@ public class ActionSetManager {
 		
 		Enumeration<ActionSet> sets =  this.sets.elements();
 		
-		TreeSet<Action> actions = new TreeSet<Action>();
+		HashSet<Action> actions = new HashSet<Action>();
 		
 		while (sets.hasMoreElements()) {
 			ActionSet set = sets.nextElement();

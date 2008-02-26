@@ -31,7 +31,6 @@ import java.io.File;
 
 import javax.swing.filechooser.FileFilter;
 
-import org.coffeeshop.io.Files;
 import org.coffeeshop.string.StringUtils;
 
 /**

@@ -46,10 +46,10 @@ import java.lang.reflect.Method;
 public class ForNameStringParser implements StringParser {
 
 	/** The class array describing the parameters (a string) of <code>forName</code>. */
-	private final static Class[] PARAMETERS = new Class[] { String.class };
+	private final static Class<?>[] PARAMETERS = new Class<?>[] { String.class };
 	
 	/** The class given to the constructor. */
-	private final Class c;
+	private final Class<?> c;
 	/** The <code>forName(String)</code> static method of {@link #klass}. */
 	private final Method forName;
 
@@ -67,7 +67,7 @@ public class ForNameStringParser implements StringParser {
 	 * @param klass a class with a static method of signature <code>forName(String)</code>.
 	 */
 	
-	public static ForNameStringParser getParser( final Class c ) throws SecurityException, NoSuchMethodException {
+	public static ForNameStringParser getParser( final Class<?> c ) throws SecurityException, NoSuchMethodException {
 		return new ForNameStringParser( c );
 	}
 	
