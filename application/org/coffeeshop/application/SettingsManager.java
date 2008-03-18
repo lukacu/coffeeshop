@@ -53,12 +53,59 @@ public class SettingsManager {
     // hash map that stores opened files
     private HashMap<String, Settings> files; 
     
+	private static class SettingsAutosave extends Thread {
+		
+		private ArrayList<SettingsManager> dirList = new ArrayList<SettingsManager>();
+		
+	    public synchronized void add(SettingsManager dir) {
+	    	if (!dirList.contains(dir))
+	    		dirList.add(dir);
+	    }
+	    
+	    public synchronized void remove(SettingsManager dir) {
+	    	dirList.remove(dir);
+	    }
+	    
+	    public void run() {
+	        synchronized (this)
+	        {
+	            Iterator<SettingsManager> iterator = dirList.iterator();
+	            while (iterator.hasNext()) {
+	            	try {
+	            		iterator.next().storeAllSettings();
+	            	} catch (FileNotFoundException e) {
+	            		Application.getApplicationLogger().report(e);
+	            	}
+	            }
+	        }
+	    }
+	}
+    
+    private static SettingsAutosave autosave;
+    
+    static {
+        autosave = new SettingsAutosave();
+        Runtime.getRuntime().addShutdownHook(autosave);        
+    }
+	
     /**
      * Initalization of SettingsManager
      * 
      *  @param a application object
      */
     public SettingsManager(Application a) {
+    	
+    	this(a, true);
+    }
+    
+    /**
+     * Initalization of SettingsManager
+     * 
+     *  @param a application object
+     *  @param autosave settings should be automatically saved if application
+     *  exits 
+     */
+    public SettingsManager(Application a, boolean autosave) {
     	
     	if (a == null)
     		throw new IllegalArgumentException("Application must not be null");
@@ -68,8 +115,12 @@ public class SettingsManager {
 		// attempt to check for the directory and possibly create it 
 		hasDirectory = createRepository(); 
 		files = new HashMap<String, Settings>();
+		
+		if (autosave)
+			SettingsManager.autosave.add(this);
+		
     }
-        
+    
     /**
      * Attempts to check for the directory and possibly create it.
      * 
