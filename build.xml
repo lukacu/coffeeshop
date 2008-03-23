@@ -62,6 +62,16 @@
             </classpath>	
         </javac>
     </target>
+    <target name="build-animation" depends="build-core"> 
+        <echo message="Building Animation package"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin/animation" source="${source}" target="${target}">
+            <src path="animation"/>
+            <classpath>
+            	<path location="bin/core"/>
+            	<path location="bin/animation"/>
+            </classpath>	
+        </javac>
+    </target>
     <target name="build" depends="init,build-core,build-application,build-packages,build-swing" />
 	<target name="jar" depends="build">
 		  <jar destfile="deploy/coffeeshop.jar"
@@ -87,6 +97,13 @@
 		  </jar>
 		  <jar destfile="deploy/coffeeshop.packages.jar"
 		       basedir="bin/packages">
+		  	 <manifest>
+		  	      <attribute name="Built-By" value="${user.name}"/>
+		  	 	<attribute name="CoffeeShop-Version" value="${version}"/>
+		  	 </manifest>
+		  </jar>
+		  <jar destfile="deploy/coffeeshop.animation.jar"
+		       basedir="bin/animation">
 		  	 <manifest>
 		  	      <attribute name="Built-By" value="${user.name}"/>
 		  	 	<attribute name="CoffeeShop-Version" value="${version}"/>

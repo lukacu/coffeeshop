@@ -82,9 +82,7 @@ public class StackLayout implements LayoutManager {
 	 * @param vPadding vertical padding
 	 */
 	public StackLayout(Orientation orientation, int hPadding, int vPadding) {
-		this.orientation = orientation;
-		this.hPadding = hPadding;
-		this.vPadding = vPadding;
+		this(orientation, hPadding, vPadding, false);
 	}
 	
 	/**
@@ -95,11 +93,25 @@ public class StackLayout implements LayoutManager {
 	 * @param align align option
 	 */
 	public StackLayout(Orientation orientation, boolean align) {
-		this.orientation = orientation;
-
-		this.align = align;
+		this(orientation, 0, 0, align);
 	}
 
+	/**
+	 * Create a layout with a specific orientation. Aligning can be
+	 * enabled or disabled.
+	 * 
+	 * @param orientation orientation of the layout
+	 * @param hPadding horizontal padding
+	 * @param vPadding vertical padding
+	 * @param align align option
+	 */
+	public StackLayout(Orientation orientation, int hPadding, int vPadding, boolean align) {
+		this.orientation = orientation;
+		this.hPadding = hPadding;
+		this.vPadding = vPadding;
+		this.align = align;
+	}
+	
 	/**
 	 * @see LayoutManager#addLayoutComponent(String, Component)
 	 */
