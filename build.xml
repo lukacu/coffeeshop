@@ -10,6 +10,7 @@
     	<mkdir dir="bin/application"/>
     	<mkdir dir="bin/swing"/>
     	<mkdir dir="bin/packages"/>
+    	<mkdir dir="bin/animation"/>
     	<mkdir dir="deploy"/>
         <copy includeemptydirs="false" todir="bin">
             <fileset dir="core" excludes="**/*.launch, **/*.java"/>
@@ -72,7 +73,7 @@
             </classpath>	
         </javac>
     </target>
-    <target name="build" depends="init,build-core,build-application,build-packages,build-swing" />
+    <target name="build" depends="init,build-core,build-application,build-packages,build-swing,build-animation" />
 	<target name="jar" depends="build">
 		  <jar destfile="deploy/coffeeshop.jar"
 		       basedir="bin/core">
