@@ -31,6 +31,7 @@ import java.util.*;
 
 import org.coffeeshop.settings.ReadableSettings;
 import org.coffeeshop.settings.Settings;
+import org.coffeeshop.string.StringUtils;
 
 /**
  * This static class keeps track of all the opened settings files that are 
@@ -239,4 +240,14 @@ public class SettingsManager {
         else return false;
     }
  
+    
+    public File storageFileName(String name) {
+    	if (StringUtils.empty(name))
+    		return null;
+    	
+    	return new File(settingsDirectory, name);
+    }
+    
+    
+    
 }
