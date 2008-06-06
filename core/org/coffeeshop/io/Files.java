@@ -233,7 +233,7 @@ public class Files {
 	}
 
 	/**
-	 * Returns a file object without extension part (the part after
+	 * Returns a file object without extension part (the part before
 	 * the last dot).
 	 * 
 	 * Example: 
@@ -241,7 +241,7 @@ public class Files {
 	 * 	output "foo"
 	 * 
 	 * @param f source file object
-	 * @return extensionless file object
+	 * @return extension-less file object
 	 */
 	public static File removeExtension(File f) {
 		
@@ -253,6 +253,30 @@ public class Files {
 			return new File(path);
 		
 		return new File(path.substring(0, i));
+		
+	}
+	
+	/**
+	 * Returns the extension part of the file (the part after
+	 * the last dot).
+	 * 
+	 * Example: 
+	 * 	input "foo.txt"
+	 * 	output "txt"
+	 * 
+	 * @param f source file object
+	 * @return extension of the file or empty string
+	 */
+	public static String getExtension(File f) {
+		
+		String path = f.getAbsolutePath();
+		
+		int i = path.lastIndexOf(".");
+		
+		if (i == -1)
+			return "";
+		
+		return path.substring(i+1);
 		
 	}
 	

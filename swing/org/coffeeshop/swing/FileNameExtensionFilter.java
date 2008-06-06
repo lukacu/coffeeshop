@@ -43,16 +43,26 @@ import org.coffeeshop.string.StringUtils;
 public class FileNameExtensionFilter extends FileFilter {
 	
 	private String description, extension;
+
+	private boolean directories = true;
 	
-	public FileNameExtensionFilter(String description, String extension) {
+	public FileNameExtensionFilter(String description, String extension, boolean directories) {
 		this.description = description;
 		this.extension = extension;
+		this.directories = directories;
+	}
+	
+	public FileNameExtensionFilter(String description, String extension) {
+		this(description, extension, true);
 	}
 	
 	
 	@Override
 	public boolean accept(File arg0) {
 
+		if (arg0.isDirectory())
+			return directories;
+		
 		int i = arg0.getName().lastIndexOf(".");
 		
 		if (i == -1)
