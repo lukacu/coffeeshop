@@ -126,4 +126,16 @@ public class OperatingSystem {
 		return true;
 	}
 	
+	/**
+	 * This method returns the number of CPUs in the machine.
+	 * 
+	 * @return the number of CPUs in the machine
+	 */
+	public static int getProcessorCount() {
+		
+		return Runtime.getRuntime().availableProcessors();
+		
+	}
+	
+	
 }
