@@ -26,6 +26,8 @@
 
 package org.coffeeshop.settings;
 
+import java.util.Set;
+
 
 /**
  * 
@@ -54,4 +56,9 @@ public interface ReadableSettings {
 	public String getString(String key) throws SettingsNotFoundException;
 	  
 	public boolean containsKey(String key);
+	
+	public Set<String> getKeys();
+	
+	public Set<String> getAllKeys();
+	
 }

@@ -27,6 +27,7 @@
 package org.coffeeshop.settings;
 
 import java.util.HashMap;
+import java.util.Set;
 
 // TODO: javadoc
 public class Defaults extends AbstractSettings {
@@ -79,6 +80,13 @@ public class Defaults extends AbstractSettings {
 		DefaultElement e = map.get(key);
 		if (e == null) return null;
 		return e.value;
+	}
+
+	public Set<String> getKeys() {
+		
+		Set<String> keys = map.keySet();
+		
+		return keys;
 	}
 	
 }

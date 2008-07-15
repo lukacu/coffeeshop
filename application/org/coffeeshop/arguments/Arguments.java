@@ -114,7 +114,7 @@ public class Arguments {
     /**
      * List of UnflaggedOptions, in order of declaration.
      */
-    private List<Parameter> unflaggedOptions = null;
+    private List<UnflaggedOption> unflaggedOptions = null;
 
     /**
      * List of all of AbstractParameters, in order of
@@ -375,7 +375,7 @@ public class Arguments {
         paramsByID = new java.util.HashMap<String, Parameter>();
         paramsByShortFlag = new java.util.HashMap<Character, Parameter>();
         paramsByLongFlag = new java.util.HashMap<String, Parameter>();
-        unflaggedOptions = new java.util.ArrayList<Parameter>();
+        unflaggedOptions = new java.util.ArrayList<UnflaggedOption>();
         paramsByDeclarationOrder = new java.util.ArrayList<Parameter>();
         defaultSources = new java.util.ArrayList<DefaultSource>();    	
     }
@@ -436,7 +436,7 @@ public class Arguments {
             int wrapWidth = screenWidth - 8;
 
             // now loop through all the params again and display their help info
-            for (Iterator i = paramsByDeclarationOrder.iterator();
+            for (Iterator<Parameter> i = paramsByDeclarationOrder.iterator();
                 i.hasNext();) {
                 Parameter param = (Parameter) i.next();
                 StringBuffer defaultText = new StringBuffer();
@@ -449,7 +449,7 @@ public class Arguments {
                     }
                     defaultText.append(")");
                 }
-                Iterator helpInfo =
+                Iterator<String> helpInfo =
                     StringUtils
                         .wrapToList(param.getHelp() + defaultText, wrapWidth)
                         .iterator();
@@ -481,7 +481,7 @@ public class Arguments {
         String result = usage;
         if (result == null) {
             StringBuffer buf = new StringBuffer();
-            for (Iterator i = paramsByDeclarationOrder.iterator();
+            for (Iterator<Parameter> i = paramsByDeclarationOrder.iterator();
                 i.hasNext();) {
                 Parameter param = (Parameter) i.next();
                 if (buf.length() > 0) {
@@ -512,13 +512,13 @@ public class Arguments {
      */
     public IDMap getIDMap() {
         List<String> ids = new java.util.ArrayList<String>(paramsByDeclarationOrder.size());
-        for (Iterator i = paramsByDeclarationOrder.iterator(); i.hasNext();) {
+        for (Iterator<Parameter> i = paramsByDeclarationOrder.iterator(); i.hasNext();) {
             Parameter param = (Parameter) i.next();
             ids.add(param.getID());
         }
 
         Map<Character, String> byShortFlag = new java.util.HashMap<Character, String>();
-        for (Iterator i = paramsByShortFlag.keySet().iterator();
+        for (Iterator<Character> i = paramsByShortFlag.keySet().iterator();
           i.hasNext();) {
             Character c = (Character) i.next();
             byShortFlag.put(
@@ -527,7 +527,7 @@ public class Arguments {
         }
 
         Map<String, String> byLongFlag = new java.util.HashMap<String, String>();
-        for (Iterator i = paramsByLongFlag.keySet().iterator(); i.hasNext();) {
+        for (Iterator<String> i = paramsByLongFlag.keySet().iterator(); i.hasNext();) {
             String s = (String) i.next();
             byLongFlag.put(
                 s,
@@ -602,7 +602,7 @@ public class Arguments {
      * this parser.
      * @see java.util.Iterator
      */
-    public Iterator getUnflaggedOptionsIterator() {
+    public Iterator<UnflaggedOption> getUnflaggedOptionsIterator() {
         return (unflaggedOptions.iterator());
     }
 
@@ -638,7 +638,7 @@ public class Arguments {
      */
     private Defaults getSystemDefaults() {
         Defaults defaults = new Defaults();
-        for (Iterator i = paramsByDeclarationOrder.iterator(); i.hasNext();) {
+        for (Iterator<Parameter> i = paramsByDeclarationOrder.iterator(); i.hasNext();) {
             Parameter param = (Parameter) i.next();
             defaults.setDefault(param.getID(), param.getDefault());
         }
@@ -656,7 +656,7 @@ public class Arguments {
      */
     private void combineDefaults(Defaults dest, Defaults src) {
         if (src != null) {
-            for (Iterator i = src.idIterator(); i.hasNext();) {
+            for (Iterator<String> i = src.idIterator(); i.hasNext();) {
                 String paramID = (String) i.next();
                 dest.setDefaultIfNeeded(paramID, src.getDefault(paramID));
             }
@@ -676,7 +676,7 @@ public class Arguments {
     protected Defaults getDefaults(ExceptionMap exceptionMap) {
         Defaults defaults = new Defaults();
         IDMap idMap = getIDMap();
-        for (Iterator dsi = defaultSources.iterator(); dsi.hasNext();) {
+        for (Iterator<DefaultSource> dsi = defaultSources.iterator(); dsi.hasNext();) {
             DefaultSource ds = (DefaultSource) dsi.next();
             combineDefaults(defaults, ds.getDefaults(idMap, exceptionMap));
         }
@@ -769,8 +769,8 @@ public class Arguments {
             if (f.getLongFlag() != null) {
                 paramsByLongFlag.put(f.getLongFlag(), param);
             }
-        } else if (param instanceof Option) {
-            unflaggedOptions.add(param);
+        } else if (param instanceof UnflaggedOption) {
+            unflaggedOptions.add((UnflaggedOption)param);
         }
     }
 

@@ -26,6 +26,8 @@
 
 package org.coffeeshop.settings;
 
+import java.util.Set;
+
 
 /**
  * 
@@ -129,5 +131,16 @@ public abstract class AbstractSettings implements ReadableSettings {
  
 	public boolean containsKey(String key) {
 		return getProperty(key) != null;
+	}
+	
+	public Set<String> getAllKeys() {
+		
+		Set<String> keys = getKeys();
+		
+		if (parent != null)
+			keys.addAll(parent.getAllKeys());
+		
+		return keys;
+		
 	}
 }

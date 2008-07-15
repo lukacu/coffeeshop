@@ -52,7 +52,7 @@ class Parser {
      * An Iterator through the declared unflagged options, in order of their 
      * declaration.
      */
-    private Iterator unflaggedOptions = null;
+    private Iterator<UnflaggedOption> unflaggedOptions = null;
 
     /**
      * A reference to the currently expected UnflaggedOption.
@@ -168,7 +168,7 @@ class Parser {
      */
     private void processDefaults() {
         Defaults defaults = config.getDefaults(result);
-        for (Iterator i = defaults.idIterator(); i.hasNext();) {
+        for (Iterator<String> i = defaults.idIterator(); i.hasNext();) {
             String paramID = (String) i.next();
             if (result.getObject(paramID) == null) {
                 String[] paramValues = defaults.getDefault(paramID);
@@ -192,7 +192,7 @@ class Parser {
      */
     private void enforceRequirements() {
         IDMap idMap = config.getIDMap();
-        for (Iterator i = idMap.idIterator(); i.hasNext();) {
+        for (Iterator<String> i = idMap.idIterator(); i.hasNext();) {
             String id = (String) i.next();
             Object o = config.getByID(id);
             if (o instanceof Option) {
@@ -238,7 +238,7 @@ class Parser {
      * of any QualifiedSwitches so it can assume they're not present.
      */
     private void preregisterQualifiedSwitches() {
-    	for (Iterator iter = config.getIDMap().idIterator(); iter.hasNext();) {
+    	for (Iterator<String> iter = config.getIDMap().idIterator(); iter.hasNext();) {
     		String thisID = (String) iter.next();
     		Parameter param = config.getByID(thisID);
     		if (param instanceof QualifiedSwitch) {

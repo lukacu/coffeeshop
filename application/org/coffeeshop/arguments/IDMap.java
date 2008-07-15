@@ -83,7 +83,7 @@ class IDMap {
      * @return an Iterator over all parameter IDs stored in this IDMap.
      * @see java.util.Iterator
      */
-    public Iterator idIterator() {
+    public Iterator<String> idIterator() {
         return (ids.iterator());
     }
 

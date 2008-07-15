@@ -25,7 +25,9 @@
  */
 package org.coffeeshop.settings;
 
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.Vector;
 import java.io.*;
 
@@ -226,7 +228,19 @@ public class Settings extends AbstractSettings implements WriteableSettings {
 	}
 
 	public void remove(String key) {
-		storage.remove(key);
+		storage.remove(key); 
 	}
     
+	public Set<String> getKeys() {
+		
+		Set<String> keys = new HashSet<String>();
+		
+		for (Object o : storage.keySet()) {
+			keys.add((String)o);
+		}
+		
+		return keys;
+		
+	}
+		
 }

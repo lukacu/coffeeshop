@@ -193,7 +193,7 @@ public class ArgumentsResult implements ExceptionMap {
      */
     public Object getObject(String id) {
         Object result = null;
-        List al = (List) allResults.get(id);
+        List<Object> al = allResults.get(id);
         if ((al != null) && (al.size() > 0)) {
             result = al.get(0);
         }
@@ -211,9 +211,9 @@ public class ArgumentsResult implements ExceptionMap {
      * the specified ID, an empty (zero-length) array is returned.
      */
     public Object[] getObjectArray(String id) {
-        List al = (List) allResults.get(id);
+        List<Object> al = allResults.get(id);
         if (al == null) {
-            al = new java.util.ArrayList(0);
+            al = new java.util.ArrayList<Object>(0);
         }
         return (al.toArray());
     }
@@ -361,7 +361,7 @@ public class ArgumentsResult implements ExceptionMap {
      */
     public String getQualifiedSwitchValue(String id) {
     	Object result = null;
-    	List al = (List) allResults.get(id);
+    	List<Object> al = allResults.get(id);
     	if ((al != null) && (al.size() == 2)) {
     		result = al.get(1);
     	}
@@ -919,8 +919,8 @@ public class ArgumentsResult implements ExceptionMap {
      * @see #getClassArray(String)
      * @see java.lang.Class
      */
-    public Class getClass(String id) {
-        return ((Class) getObject(id));
+    public Class<?> getClass(String id) {
+        return ((Class<?>) getObject(id));
     }
 
     /**
@@ -944,8 +944,8 @@ public class ArgumentsResult implements ExceptionMap {
      * @see #getClassArray(String)
      * @see java.lang.Class
      */
-    public Class getClass(String id, Class defaultValue) {
-        Class result = (Class) getObject(id);
+    public Class<?> getClass(String id, Class<?> defaultValue) {
+        Class<?> result = (Class<?>) getObject(id);
         return ((result == null) ? defaultValue : result);
     }
 
@@ -962,8 +962,8 @@ public class ArgumentsResult implements ExceptionMap {
      * @see #getClass(String,Class)
      * @see java.lang.Class
      */
-    public Class[] getClassArray(String id) {
-        return ((Class[]) getObjectArray(id, new Class[0]));
+    public Class<?>[] getClassArray(String id) {
+        return ((Class<?>[]) getObjectArray(id, new Class<?>[0]));
     }
 
     /**
@@ -1309,7 +1309,7 @@ public class ArgumentsResult implements ExceptionMap {
      */
     public Exception getException(String id) {
         Exception result = null;
-        List el = (List) allExceptions.get(id);
+        List<Exception> el = allExceptions.get(id);
         if ((el != null) && (el.size() > 0)) {
             result = (Exception) el.get(0);
         }
@@ -1348,10 +1348,10 @@ public class ArgumentsResult implements ExceptionMap {
      * @return an Iterator over ALL exceptions associated with the specified
      * parameter ID
      */
-    public Iterator getExceptionIterator(String id) {
-        List el = (List) allExceptions.get(id);
+    public Iterator<Exception> getExceptionIterator(String id) {
+        List<Exception> el = allExceptions.get(id);
         if (el == null) {
-            el = new java.util.ArrayList();
+            el = new java.util.ArrayList<Exception>();
         }
         return (el.iterator());
     }
@@ -1361,7 +1361,7 @@ public class ArgumentsResult implements ExceptionMap {
      * If no errors occured, the iterator will be empty.
      * @return an iterator over all error messages generated during parsing.
      */
-    public Iterator getErrorMessageIterator() {
+    public Iterator<String> getErrorMessageIterator() {
         return (chronologicalErrorMessages.iterator());
     }
 
@@ -1375,7 +1375,7 @@ public class ArgumentsResult implements ExceptionMap {
      * @return an Iterator over the IDs of all parameters with associated
      * exceptions.
      */
-    public Iterator getBadParameterIDIterator() {
+    public Iterator<String> getBadParameterIDIterator() {
         return (allExceptions.keySet().iterator());
     }
 

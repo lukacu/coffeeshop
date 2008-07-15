@@ -164,7 +164,7 @@ public class Defaults {
      * defined in this Defaults object.
      * @see java.util.Iterator
      */
-    public Iterator idIterator() {
+    public Iterator<String> idIterator() {
         return (defaults.keySet().iterator());
     }
 
