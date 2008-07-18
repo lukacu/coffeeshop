@@ -117,27 +117,8 @@ public class TempDirectory {
      * temporary directory is not writeable.
      */
 	public TempDirectory(String prefix) throws IOException {
-		
-		String tmpRoot = null;
-		
-		switch (OperatingSystem.getOperatingSystemType()) {
-		case LINUX:
-		case OSX:
-			tmpRoot = "/tmp/";
-			break;
-
-		case WINDOWS:
-			tmpRoot = "C:\\Temp\\";
-			
-			break;
-		default:
-			throw new IOException("This operating system is not supported.");
-		}
-		
-		File root = new File(tmpRoot);
-		
-		if (!root.canWrite())
-			throw new IOException("Unable to write directory: " + tmpRoot + ".");
+				
+		File root = OperatingSystem.getSystemTemporaryDirectory();
 		
 		handle = randomFile(root, prefix);
 		
