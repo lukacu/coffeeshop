@@ -27,7 +27,6 @@
 package org.coffeeshop.application;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -458,7 +457,7 @@ public abstract class Application {
 		settings = a;
 	}
 	
-	public TempDirectory getTempDirectory() throws IOException {
+	public TempDirectory getTempDirectory() {
 		if (temp == null)
 			temp = new TempDirectory(getUnixName());
 		

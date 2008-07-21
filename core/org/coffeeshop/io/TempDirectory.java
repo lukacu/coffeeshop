@@ -116,14 +116,14 @@ public class TempDirectory {
      * @throws IOException if unable to create the directory or the main
      * temporary directory is not writeable.
      */
-	public TempDirectory(String prefix) throws IOException {
+	public TempDirectory(String prefix) {
 				
 		File root = OperatingSystem.getSystemTemporaryDirectory();
 		
-		handle = randomFile(root, prefix);
+		handle = randomFile(root, prefix, null);
 		
 		if (!handle.mkdir())
-			throw new IOException("Unable to create temporary directory.");
+			throw new RuntimeException("Unable to create temporary directory.");
 		
 		if (DEFAULT_DELETE_ON_EXIT)
 			deleter.add(this);
@@ -143,18 +143,22 @@ public class TempDirectory {
 		return b.toString();
 	}
 	
-	private String randomName(String prefix) {
-		if (StringUtils.empty(prefix))
-			return randomString(RANDOM_APPENDIX_LENGTH);
-		else
-			return prefix + "-" + randomString(RANDOM_APPENDIX_LENGTH);
+	private String randomName(String prefix, String suffix) {
+		String s = randomString(RANDOM_APPENDIX_LENGTH);
+		if (!StringUtils.empty(prefix))
+			s = prefix + "-" + s;
+		
+		if (!StringUtils.empty(suffix))
+			s = s + "." + suffix;
+		
+		return s;
 	}
 	
-	private File randomFile(File dir, String prefix) {
+	private File randomFile(File dir, String prefix, String suffix) {
 	
 		while (true) {
 			
-			File file = new File(dir, randomName(prefix));
+			File file = new File(dir, randomName(prefix, suffix));
 			
 			if (!file.exists())
 				return file;
@@ -194,7 +198,19 @@ public class TempDirectory {
 	 * @return file handle
 	 */
 	public synchronized File tempFileName(String prefix) {
-		return randomFile(handle, prefix);
+		return randomFile(handle, prefix, null);
+	}
+	
+	/**
+	 * Generates a random file handle using prefix and returns it. The
+	 * file generated does not exist in the directory.
+	 * 
+	 * @param prefix prefix (the first, fixed part) for the name
+	 * @param suffix suffix/extension of the file
+	 * @return file handle
+	 */
+	public synchronized File tempFileName(String prefix, String suffix) {
+		return randomFile(handle, prefix, suffix);
 	}
 	
 	/**

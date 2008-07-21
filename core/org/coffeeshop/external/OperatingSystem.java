@@ -27,7 +27,6 @@
 package org.coffeeshop.external;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
@@ -139,7 +138,7 @@ public class OperatingSystem {
 		
 	}
 	
-	public static File getSystemTemporaryDirectory() throws IOException {
+	public static File getSystemTemporaryDirectory() {
 		String tmpRoot = null;
 		
 		switch (OperatingSystem.getOperatingSystemType()) {
@@ -153,18 +152,18 @@ public class OperatingSystem {
 			
 			break;
 		default:
-			throw new IOException("This operating system is not supported.");
+			throw new RuntimeException("This operating system is not supported.");
 		}
 		
 		File f = new File(tmpRoot); 
 		if (!f.exists())
-			throw new IOException("Cannot locate temporary directory " + tmpRoot);
+			throw new RuntimeException("Cannot locate temporary directory " + tmpRoot);
 		
 		if (!f.isDirectory())
-			throw new IOException("Not a directory: " + tmpRoot);
+			throw new RuntimeException("Not a directory: " + tmpRoot);
 			
 		if (!f.canWrite())
-			throw new IOException("Not writeable: " + tmpRoot);
+			throw new RuntimeException("Not writeable: " + tmpRoot);
 		
 		return f;
 		
