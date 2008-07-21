@@ -54,12 +54,12 @@ public class Logger {
 	public static final int WARNING = 4;
 
 	/**
-	 * Coffeeshop toolbox internal debug channel.
-	 * <br><b>Note:</b> this channel is used by Coffeeshop toolbox
-	 * classes. Do not use it for anything else.
+	 * Coffeeshop toolbox internal debug channel. <br>
+	 * <b>Note:</b> this channel is used by Coffeeshop toolbox classes. Do not
+	 * use it for anything else.
 	 */
 	public static final int COFFEESHOP = 8;
-	
+
 	/**
 	 * Internal application debug messages channel 1.
 	 */
@@ -100,12 +100,12 @@ public class Logger {
 	 */
 	public static final int APPLICATION_INTERNAL_8 = 32768;
 
-	private PrintStream output = System.err;
+	private PrintStream[] outputs;
 
-	private int mask = 0;
+	private int[] masks;
 
 	private LogFormat formatter = null;
-	
+
 	/**
 	 * Constructs new logger with a default formatter.
 	 * 
@@ -114,7 +114,7 @@ public class Logger {
 	public Logger() {
 		this(new DefaultFormat());
 	}
-	
+
 	/**
 	 * Construct new logger object with a formatter.
 	 * 
@@ -123,20 +123,24 @@ public class Logger {
 	public Logger(LogFormat formatter) {
 		if (formatter == null)
 			throw new IllegalArgumentException("Null pointer");
-		
+
 		this.formatter = formatter;
+
+		this.masks = new int[] { 0 };
+		this.outputs = new PrintStream[] { System.err };
 	}
-	
+
 	/**
 	 * Changes the log format interface
 	 * 
-	 * @param formatter a new log format interface
+	 * @param formatter
+	 *            a new log format interface
 	 */
 	public void setLogFormat(LogFormat formatter) {
 		if (formatter != null)
 			this.formatter = formatter;
 	}
-	
+
 	/**
 	 * Reports a message through a specific channel. In case the channel is
 	 * disabled it does nothing.
@@ -148,7 +152,7 @@ public class Logger {
 	 */
 	public synchronized void report(int channel, String message) {
 		if (isChannelEnabled(channel))
-			output.println(formatter.formatReport(channel, message));
+			print(formatter.formatReport(channel, message), channel);
 	}
 
 	/**
@@ -163,9 +167,9 @@ public class Logger {
 	 */
 	public synchronized void report(int channel, Object object) {
 		if (isChannelEnabled(channel))
-			output.println(formatter.formatReport(channel, object.toString()));
+			print(formatter.formatReport(channel, object.toString()), channel);
 	}
-	
+
 	/**
 	 * Reports a message through a specific channel. In case the channel is
 	 * disabled it does nothing. Message is assemled from format and objects
@@ -175,14 +179,16 @@ public class Logger {
 	 *            channel to use
 	 * @param forma
 	 *            message to report
-	 *            
+	 * 
 	 * @see String#format(String, Object[])
 	 */
-	public synchronized void report(int channel, String format, Object ... objects) {
+	public synchronized void report(int channel, String format,
+			Object... objects) {
 		if (isChannelEnabled(channel))
-			output.println(formatter.formatReport(channel, String.format(format, objects)));
+			print((formatter.formatReport(channel, String.format(format,
+					objects))), channel);
 	}
-	
+
 	/**
 	 * Reports a throwable object through the error channel (if it is enabled).
 	 * 
@@ -191,9 +197,9 @@ public class Logger {
 	 */
 	public synchronized void report(Throwable throwable) {
 		if (isChannelEnabled(ERROR))
-			output.println(formatter.formatThrowable(ERROR, throwable));
+			print(formatter.formatThrowable(ERROR, throwable), ERROR);
 	}
-	
+
 	/**
 	 * Reports a throwable object through the error channel (if it is enabled).
 	 * 
@@ -202,20 +208,104 @@ public class Logger {
 	 */
 	public synchronized void report(int channel, Throwable throwable) {
 		if (isChannelEnabled(channel))
-			output.println(formatter.formatThrowable(channel, throwable));
+			print(formatter.formatThrowable(channel, throwable), channel);
 	}
-	
+
 	/**
 	 * Sets the output stream.
 	 * 
 	 * @param out
+	 *            the output stream
+	 * @deprecated use {@link Logger#addOutputStream(PrintStream, int)} from now
+	 *             on
 	 */
 	public void setOutputStream(PrintStream out) {
 		if (out == null)
 			throw new IllegalArgumentException(
-					"Disable output with disableAllChannels()");
+					"Disable output with Logger.disableAllChannels()");
 
-		output = out;
+		addOutputStream(out, 0);
+	}
+	/**
+	 * Adds a stream to logger with all channels disabled
+	 * 
+	 * @param stream the stream
+	 */
+	public synchronized void addOutputStream(PrintStream stream) {
+		addOutputStream(stream, 0);
+	}
+
+	/**
+	 * Adds a stream to logger
+	 * 
+	 * @param stream the stream
+	 * @param channels channels mask
+	 */
+	public synchronized void addOutputStream(PrintStream stream, int channels) {
+
+		if (stream == null)
+			return;
+
+		boolean found = false;
+		for (int i = 0; i < outputs.length; i++) {
+
+			if (outputs[i].equals(stream))
+				found = true;
+		}
+
+		if (found)
+			return;
+
+		PrintStream[] tmpoutputs = new PrintStream[outputs.length + 1];
+		int[] tmpmasks = new int[masks.length + 1];
+
+		System.arraycopy(outputs, 0, tmpoutputs, 0, outputs.length);
+		System.arraycopy(masks, 0, tmpmasks, 0, masks.length);
+
+		tmpoutputs[outputs.length] = stream;
+		tmpmasks[masks.length] = channels;
+
+		outputs = tmpoutputs;
+		masks = tmpmasks;
+
+	}
+
+	/**
+	 * Removes the stream that was so far subscribed to display logger events 
+	 * 
+	 * @param stream stream to remove
+	 */
+	public synchronized void removeOutputStream(PrintStream stream) {
+
+		if (stream == null)
+			return;
+
+		int index = -1;
+		for (int i = 0; i < outputs.length; i++) {
+
+			if (outputs[i].equals(stream))
+				index = i;
+		}
+
+		if (index == -1)
+			return;
+
+		PrintStream[] tmpoutputs = new PrintStream[outputs.length - 1];
+		int[] tmpmasks = new int[masks.length - 1];
+
+		if (index != 0) {
+			System.arraycopy(outputs, 0, tmpoutputs, 0, index);
+			System.arraycopy(masks, 0, tmpmasks, 0, index);
+		}
+
+		if (index != outputs.length - 1) {
+			System.arraycopy(outputs, index+1, tmpoutputs, index, outputs.length - index - 1);
+			System.arraycopy(masks, index+1, tmpmasks, index, masks.length - index - 1);
+		}
+
+		outputs = tmpoutputs;
+		masks = tmpmasks;
+
 	}
 
 	/**
@@ -225,7 +315,9 @@ public class Logger {
 	 *            channel to enable
 	 */
 	public synchronized void enableChannel(int channel) {
-		mask |= channel;
+		for (int i = 0; i < outputs.length; i++) {
+			masks[i] |= channel;
+		}
 	}
 
 	/**
@@ -235,7 +327,11 @@ public class Logger {
 	 *            channel to disable
 	 */
 	public synchronized void disableChannel(int channel) {
-		mask &= ~channel;
+		for (int i = 0; i < outputs.length; i++) {
+
+			masks[i] &= ~channel;
+
+		}
 	}
 
 	/**
@@ -243,7 +339,9 @@ public class Logger {
 	 * 
 	 */
 	public synchronized void disableAllChannels() {
-		mask = 0;
+		for (int i = 0; i < outputs.length; i++) {
+			masks[i] = 0;
+		}
 	}
 
 	/**
@@ -251,7 +349,9 @@ public class Logger {
 	 * 
 	 */
 	public synchronized void enableAllChannels() {
-		mask = 0xFFFFFFFF;
+		for (int i = 0; i < outputs.length; i++) {
+			masks[i] = 0xFFFFFFFF;
+		}
 	}
 
 	/**
@@ -259,17 +359,113 @@ public class Logger {
 	 * 
 	 * @param channel
 	 *            channel to check
-	 * @return <code>true</code> if the channel is enabled, <code>false</code>
-	 *         otherwise.
+	 * @return <code>true</code> if the channel is enabled for any output
+	 *         stream, <code>false</code> otherwise.
 	 */
-	public boolean isChannelEnabled(int channel) {
-		return (mask & channel) != 0;
+	public synchronized boolean isChannelEnabled(int channel) {
+
+		for (int i = 0; i < outputs.length; i++) {
+
+			if ((masks[i] & channel) != 0)
+				return true;
+
+		}
+
+		return false;
+	}
+
+	/**
+	 * Enables a specific channel for a stream
+	 * 
+	 * @param stream
+	 *            the stream of interest
+	 * @param channel
+	 *            channel to enable
+	 */
+	public synchronized void enableChannel(PrintStream stream, int channel) {
+		for (int i = 0; i < outputs.length; i++) {
+
+			if (outputs[i].equals(stream))
+				masks[i] |= channel;
+
+		}
+	}
+
+	/**
+	 * Disables a specific channel for a stream
+	 * 
+	 * @param stream
+	 *            the stream of interest
+	 * @param channel
+	 *            channel to disable
+	 */
+	public synchronized void disableChannel(PrintStream stream, int channel) {
+		for (int i = 0; i < outputs.length; i++) {
+
+			if (outputs[i].equals(stream))
+				masks[i] &= ~channel;
+
+		}
+	}
+
+	/**
+	 * Disables output through all channels.
+	 * 
+	 * @param stream
+	 *            the stream of interest
+	 */
+	public synchronized void disableAllChannels(PrintStream stream) {
+		for (int i = 0; i < outputs.length; i++) {
+
+			if (outputs[i].equals(stream))
+				masks[i] = 0;
+
+		}
+	}
+
+	/**
+	 * Enables output through all channels.
+	 * 
+	 * @param stream
+	 *            the stream of interest
+	 */
+	public synchronized void enableAllChannels(PrintStream stream) {
+
+		for (int i = 0; i < outputs.length; i++) {
+
+			if (outputs[i].equals(stream))
+				masks[i] = 0xFFFFFFFF;
+
+		}
+	}
+
+	/**
+	 * Checks weather the channel is enabled.
+	 * 
+	 * @param stream
+	 *            the stream of interest
+	 * @param channel
+	 *            channel to check
+	 * @return <code>true</code> if the channel is enabled for this stream,
+	 *         <code>false</code> otherwise.
+	 */
+	public synchronized boolean isChannelEnabled(PrintStream stream, int channel) {
+
+		for (int i = 0; i < outputs.length; i++) {
+
+			if (outputs[i].equals(stream) && (masks[i] & channel) != 0)
+				return true;
+
+		}
+
+		return false;
 	}
 
 	/**
 	 * Enables output through the specific channels.
 	 * 
-	 * @param channels an array of chars each representing a channel to open.
+	 * @param channels
+	 *            an array of chars each representing a channel to open.
 	 * 
 	 * <ul>
 	 * <li><code>d</code> - default channel</li>
@@ -337,4 +533,14 @@ public class Logger {
 			}
 		}
 	}
+
+	private synchronized void print(String str, int channel) {
+
+		for (int i = 0; i < outputs.length; i++) {
+			if ((masks[i] & channel) != 0)
+				outputs[i].println(str);
+		}
+
+	}
+
 }
