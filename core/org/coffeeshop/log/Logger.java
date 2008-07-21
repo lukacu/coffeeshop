@@ -195,6 +195,17 @@ public class Logger {
 	}
 	
 	/**
+	 * Reports a throwable object through the error channel (if it is enabled).
+	 * 
+	 * @param throwable
+	 *            throwable object
+	 */
+	public synchronized void report(int channel, Throwable throwable) {
+		if (isChannelEnabled(channel))
+			output.println(formatter.formatThrowable(channel, throwable));
+	}
+	
+	/**
 	 * Sets the output stream.
 	 * 
 	 * @param out

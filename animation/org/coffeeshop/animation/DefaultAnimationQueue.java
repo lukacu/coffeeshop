@@ -44,6 +44,7 @@ public class DefaultAnimationQueue extends AnimationQueue {
 				
 				if (sleepTime > 0) {
 					try {
+						System.out.println(sleepTime);
 						Thread.sleep(sleepTime);
 					} catch (InterruptedException e) {
 						break;
