@@ -41,6 +41,7 @@ import org.coffeeshop.arguments.UnflaggedOption;
 import org.coffeeshop.external.OperatingSystem;
 import org.coffeeshop.io.TempDirectory;
 import org.coffeeshop.log.Logger;
+import org.coffeeshop.settings.ReadableSettings;
 import org.coffeeshop.settings.Settings;
 import org.coffeeshop.settings.SettingsNotFoundException;
 import org.coffeeshop.string.parsers.StringParser;
@@ -146,7 +147,7 @@ public abstract class Application {
 		private Settings storage = null;
 		
 		public ApplicationSettingsImpl(Application a) {
-			super(null);
+			super((ReadableSettings)null);
 			this.storage = Application.getApplication().getSettingsManager().getSettings(Application.getApplication().getUnixName() + ".ini", null);
 		}
 		

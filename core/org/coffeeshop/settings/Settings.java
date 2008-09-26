@@ -1,27 +1,25 @@
-/* THIS FILE IS A MEMBER OF THE COFFEESHOP LIBRARY
- * 
+/*
  * License:
  * 
- * Coffeeshop is a conglomerate of handy general purpose Java classes.  
  * 
- * Copyright (C) 2006-2008 Luka Cehovin
- * This library is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as 
- *  published by the Free Software Foundation; either version 2.1 of 
- *  the License, or (at your option) any later version.
- *  
- *  This library is distributed in the hope that it will be useful, 
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of 
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- *  GNU Lesser General Public License for more details. 
- *  
- *  http://www.opensource.org/licenses/lgpl-license.php
- *  
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the 
- *  Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- *  Boston, MA 02111-1307 USA 
  * 
+ * Copyright (C) 2008 Luka Cehovin
+ * 
+ * This program is free software; you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by 
+ * the Free Software Foundation; either version 2 of the License, or (at 
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General 
+ * Public License for more details.
+ * 
+ * http://www.opensource.org/licenses/gpl-license.php
+ * 
+ * You should have received a copy of the GNU General Public License along 
+ * with this program; if not, write to the Free Software Foundation, 
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 package org.coffeeshop.settings;
 
@@ -35,7 +33,7 @@ import org.coffeeshop.Coffeeshop;
 
 /**
  * Represents a group of name=value settings. Class is builded upon
- * java.util.Properties class and provides additional convenience 
+ * java.util.Properties class and provides additional convenience
  * methods for accessing different types of values.
  * 
  * @author Luka Cehovin
@@ -45,22 +43,25 @@ import org.coffeeshop.Coffeeshop;
  */
 public class Settings extends AbstractSettings implements WriteableSettings {
 	
+	/** The Constant COMMENT. */
 	private static final String COMMENT = Coffeeshop.NAME + " " + Coffeeshop.VERSION + " managed settings file";
 	
-	// Serializable interface version or something
+	/** The Constant serialVersionUID. */
 	static final long serialVersionUID = 1;
 	
-	// At least one setting was modified...
-    private boolean modified;
+    /** The modified flag. If true at least one setting was modified. */
+	private boolean modified;
     
+    /** The listeners. */
     private Vector<SettingsListener> listeners = new Vector<SettingsListener>();
 
+    /** The storage. */
     private Properties storage;
     
     /**
-     * Construct new empty <code>Settings</code> object.
-     *
-     * @param a application object
+     * Construct a new empty <code>Settings</code> object with a parent settings storage.
+     * 
+     * @param parent the parent
      */
     public Settings(ReadableSettings parent) {
         super(parent);
@@ -71,8 +72,25 @@ public class Settings extends AbstractSettings implements WriteableSettings {
     }
     
     /**
-     * Toggle internal modified flag to <code>true</code>. 
-     *
+     * Construct a new <code>Settings</code> object with a parent settings storage.
+     * 
+     * @param fileName the file name
+     */
+    public Settings(File fileName) throws IOException {
+        super(null);
+        
+        if (fileName == null || !fileName.exists())
+        	throw new IOException("File does not exist");
+        
+    	storage = new Properties();
+    	
+    	loadSettings(fileName);
+    	
+        modified = false;
+    }
+    
+    /**
+     * Toggle internal modified flag to <code>true</code>.
      */    
     public void touch() {
         modified = true;
@@ -82,7 +100,7 @@ public class Settings extends AbstractSettings implements WriteableSettings {
      * Adds settings listener to the internal list. Listener is subscibed to
      * the events of this settings object.
      * 
-     * @param l
+     * @param l the listener object
      */
     public void addSettingsListener(SettingsListener l) {
     	if (l == null)
@@ -94,7 +112,7 @@ public class Settings extends AbstractSettings implements WriteableSettings {
     /**
      * Removes listener form the subsribers list.
      * 
-     * @param l
+     * @param l the listener object
      */
     public void removeSettingsListener(SettingsListener l) {
     	if (l == null)
@@ -103,6 +121,9 @@ public class Settings extends AbstractSettings implements WriteableSettings {
     	listeners.remove(l);
     }    
     
+    /**
+     * Notify on store.
+     */
     private void notifyStore() {
     	
     	for (SettingsListener l : listeners) {
@@ -115,8 +136,12 @@ public class Settings extends AbstractSettings implements WriteableSettings {
      * Overrides method of <code>java.util.Properties</code> just to
      * turn on modified flag.
      * 
-     * @see Properties#setProperty(java.lang.String, java.lang.String)
+     * @param key the key
+     * @param value the value
      * 
+     * @return the string
+     * 
+     * @see Properties#setProperty(java.lang.String, java.lang.String)
      */    
     private String setProperty(String key, String value) {
         modified = true;
@@ -135,30 +160,47 @@ public class Settings extends AbstractSettings implements WriteableSettings {
     /**
      * Loads settings from file.
      * 
-     * 
      * @param fileName target file
+     * 
      * @return <code>true</code> if successful, <code>false</code> otherwise
-     * @see Properties#load(java.io.InputStream)
+     * 
+     * @deprecated Use {@link #loadSettings(File)} instead.
      */
     public boolean loadSettings(String fileName) {
-        try {
-            FileInputStream in = new FileInputStream(fileName);
-            storage.load(in);
-            in.close();
-            return true;
-        }
-        catch (Exception e) {
-            return false;
-        }
+    	try {
+    		loadSettings(new File(fileName));
+    		return true;
+    	} catch (IOException e) {
+    		return false;
+    	}
     }
 
     /**
-     * Convenience method for loading settings from a data stream
+     * Loads settings from file.
      * 
+     * @param fileName target file
+     * 
+     * @return <code>true</code> if successful, <code>false</code> otherwise
+     * 
+     * @see Properties#load(java.io.InputStream)
+     */
+    public void loadSettings(File fileName) throws IOException {
+
+    	FileInputStream in = new FileInputStream(fileName);
+        storage.load(in);
+        in.close();
+        
+    }
+    
+    /**
+     * Convenience method for loading settings from a data stream.
      * 
      * @param source data stream
+     * 
      * @return <code>true</code> if successful, <code>false</code> otherwise
+     * 
      * @see Properties#load(java.io.InputStream)
+     * 
      */
     public boolean loadSettings(InputStream source) {
         try {
@@ -171,66 +213,114 @@ public class Settings extends AbstractSettings implements WriteableSettings {
         }
     }
 
+    /**
+     * Store settings.
+     * 
+     * @param fileName the file name
+     * 
+     * @return true, if successful
+     * @deprecated Use {@link #storeSettings(File)} instead.
+     */
     public boolean storeSettings(String fileName) {
-    	notifyStore();
-    	
     	try {
-    		FileOutputStream out = new FileOutputStream(fileName);
-    		
-    		storage.store(out, COMMENT);
-    		
-    		out.close();
-    		
+    		storeSettings(new File(fileName));
+    		return true;
     	} catch (IOException e) {
     		return false;
     	}
-    	
-    	return true;
     }
     
+    /**
+     * Store settings.
+     * 
+     * @param fileName the file name
+     * 
+     * @return true, if successful
+     * @throws IOException if IO exception occurs
+     */
+    public void storeSettings(File fileName) throws IOException {
+    	notifyStore();
+    	
+		FileOutputStream out = new FileOutputStream(fileName);
+		
+		storage.store(out, COMMENT);
+		
+		out.close();
+    		
+    }
     
+	/* (non-Javadoc)
+	 * @see org.coffeeshop.settings.WriteableSettings#isModified()
+	 */
 	public boolean isModified() {
 		return modified;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.coffeeshop.settings.WriteableSettings#setDouble(java.lang.String, double)
+	 */
 	public void setDouble(String key, double value) {
 		setProperty(key, String.valueOf(value));
 		
 	}
 
+	/* (non-Javadoc)
+	 * @see org.coffeeshop.settings.WriteableSettings#setFloat(java.lang.String, float)
+	 */
 	public void setFloat(String key, float value) {
 		setProperty(key, String.valueOf(value));
 		
 	}
 
+	/* (non-Javadoc)
+	 * @see org.coffeeshop.settings.WriteableSettings#setInt(java.lang.String, int)
+	 */
 	public void setInt(String key, int value) {
 		setProperty(key, String.valueOf(value));
 		
 	}
 
+	/* (non-Javadoc)
+	 * @see org.coffeeshop.settings.WriteableSettings#setLong(java.lang.String, long)
+	 */
 	public void setLong(String key, long value) {
 		setProperty(key, String.valueOf(value));
 		
 	}
 
+	/* (non-Javadoc)
+	 * @see org.coffeeshop.settings.WriteableSettings#setBoolean(java.lang.String, boolean)
+	 */
 	public void setBoolean(String key, boolean value) {
 		setProperty(key, String.valueOf(value));
 		
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.coffeeshop.settings.WriteableSettings#setString(java.lang.String, java.lang.String)
+	 */
 	public void setString(String key, String value) {
 		setProperty(key, value);
 		
 	}
 
+	/* (non-Javadoc)
+	 * @see org.coffeeshop.settings.AbstractSettings#getProperty(java.lang.String)
+	 */
 	protected String getProperty(String key) {
 		return storage.getProperty(key);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.coffeeshop.settings.WriteableSettings#remove(java.lang.String)
+	 */
 	public void remove(String key) {
 		storage.remove(key); 
 	}
     
+	/* (non-Javadoc)
+	 * @see org.coffeeshop.settings.ReadableSettings#getKeys()
+	 */
 	public Set<String> getKeys() {
 		
 		Set<String> keys = new HashSet<String>();
