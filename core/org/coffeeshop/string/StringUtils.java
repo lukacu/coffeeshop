@@ -277,9 +277,29 @@ public final class StringUtils {
 	 * @param delimiter the delimiter string
 	 * @param string the string with items
 	 * 
-	 * @return a string array with all strings
+	 * @return a string array with all tokens
 	 */
 	public static String[] explode(String delimiter, String string) {
+		
+		List<String> v = StringUtils.explodeToList(delimiter, string);
+		
+		String[] sa = new String[v.size()];
+		for (int i = 0; i < v.size(); i++)
+			sa[i] = v.get(i).toString();
+		return sa;
+	}
+	
+	/**
+	 * This method splits a string into substrings and returns the result in a
+	 * string list. 
+	 * 
+	 * @param delimiter the delimiter string
+	 * @param string the string with items
+	 * 
+	 * @return a list of strings with all tokens
+	 * @see List
+	 */
+	public static List<String> explodeToList(String delimiter, String string) {
 
 		if (delimiter == null || string == null)
 			throw new IllegalArgumentException("Null object");
@@ -321,9 +341,46 @@ public final class StringUtils {
 		v.add(curToken.toString());
 		curToken.setLength(0);
 
-		String[] sa = new String[v.size()];
-		for (int i = 0; i < v.size(); i++)
-			sa[i] = v.get(i).toString();
-		return sa;
+		return v;
 	}
+	
+	public String implode(String[] tokens, String delimiter) {
+		
+		if (StringUtils.empty(delimiter))
+			delimiter = "";
+			
+		if (tokens == null || tokens.length == 0)
+			return "";
+		
+		StringBuffer b = new StringBuffer(tokens[0]);
+		
+		for (int i = 1; i < tokens.length; i++) {
+			b.append(delimiter);
+			b.append(tokens[i]);
+		}
+		
+		return b.toString();
+
+	}
+	
+	public String implodeFromList(List<String> tokens, String delimiter) {
+		
+		if (StringUtils.empty(delimiter))
+			delimiter = "";
+			
+		if (tokens == null || tokens.isEmpty())
+			return "";
+		
+		StringBuffer b = new StringBuffer(tokens.get(0));
+		
+		for (int i = 1; i < tokens.size(); i++) {
+			b.append(delimiter);
+			b.append(tokens.get(i));
+		}
+		
+		return b.toString();
+		
+	}
+	
+	
 }

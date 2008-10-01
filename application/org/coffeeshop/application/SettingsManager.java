@@ -164,9 +164,10 @@ public class SettingsManager {
         // if the settings directory does not exists, we can not load
         // settings ... therefore return empty object
 
-        if (hasDirectory)
-        	result.loadSettings(settingsDirectory + fileName);
-        
+        if (hasDirectory) 
+        	try {
+        		result.loadSettings(new File(settingsDirectory + fileName));
+        	} catch (IOException e) {}
         return result;
     }
     
