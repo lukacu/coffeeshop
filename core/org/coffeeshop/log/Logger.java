@@ -172,13 +172,15 @@ public class Logger {
 
 	/**
 	 * Reports a message through a specific channel. In case the channel is
-	 * disabled it does nothing. Message is assemled from format and objects
-	 * using String.format() method
+	 * disabled it does nothing. Message is assembled from format and objects
+	 * using {@link String#format(String, Object[])} method.
 	 * 
 	 * @param channel
 	 *            channel to use
-	 * @param forma
+	 * @param format
 	 *            message to report
+	 * @param objects 
+	 * 			objects to use
 	 * 
 	 * @see String#format(String, Object[])
 	 */
@@ -200,6 +202,36 @@ public class Logger {
 			print(formatter.formatThrowable(ERROR, throwable), ERROR);
 	}
 
+	/**
+	 * Reports a message through the default channel (if it is enabled).
+	 * 
+	 * @param message
+	 *            message string
+	 */
+	public synchronized void report(String message) {
+		if (isChannelEnabled(DEFAULT))
+			print(formatter.formatReport(DEFAULT, message), DEFAULT);
+	}
+	
+	/**
+	 * Reports a message through a default channel. In case the channel is
+	 * disabled it does nothing. Message is assembled from format and objects
+	 * using {@link String#format(String, Object[])} method
+	 * 
+	 * @param format
+	 *            message to report
+	 * @param objects 
+	 * 			objects to use
+	 * 
+	 * @see String#format(String, Object[])
+	 */
+	public synchronized void report(String format,
+			Object... objects) {
+		if (isChannelEnabled(DEFAULT))
+			print((formatter.formatReport(DEFAULT, String.format(format,
+					objects))), DEFAULT);
+	}
+	
 	/**
 	 * Reports a throwable object through the error channel (if it is enabled).
 	 * 

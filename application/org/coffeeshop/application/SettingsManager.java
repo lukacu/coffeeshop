@@ -236,7 +236,12 @@ public class SettingsManager {
     		throw new FileNotFoundException("Settings directory does not exists");
         Settings result = (Settings)files.get(fileName);
         if (result != null) {
-            return result.storeSettings(settingsDirectory + fileName);
+        	try {
+        		result.storeSettings(new File(settingsDirectory + fileName));
+        		return true;
+        	} catch (IOException e) {
+        		return false;
+        	}
         }
         else return false;
     }
