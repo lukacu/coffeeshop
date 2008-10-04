@@ -29,8 +29,6 @@ import java.util.Set;
 import java.util.Vector;
 import java.io.*;
 
-import org.coffeeshop.Coffeeshop;
-
 /**
  * Represents a group of name=value settings. Class is builded upon
  * java.util.Properties class and provides additional convenience

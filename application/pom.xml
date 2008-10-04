@@ -4,16 +4,16 @@
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>coffeeshop</groupId>
-  <artifactId>coffeeshop.packages</artifactId>
+  <artifactId>coffeeshop.application</artifactId>
   <packaging>jar</packaging>
   <version>1.0</version>
-  <name>Coffeeshop Packages</name>
+  <name>Coffeeshop Application</name>
   <url>http://coffeeshop.googlecode.com</url>
   <parent>
   	<groupId>coffeeshop</groupId>
   	<artifactId>coffeeshop</artifactId>
   	<version>1.0</version>
-  	<relativePath>packages</relativePath>
+  	<relativePath>application</relativePath>
   </parent>
   <developers>
   	<developer>
