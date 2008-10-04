@@ -29,7 +29,7 @@ public class OSXApplicationProxy {
 	private static OSXApplicationProxy singelton = null;
 	
 	private Object application;
-    private Class applicationListenerClass;
+    private Class<?> applicationListenerClass;
 
     Map<OSXApplicationListener, Object> listenerMap = Collections.synchronizedMap(new HashMap<OSXApplicationListener, Object>());
     private boolean enabledAboutMenu = true;
@@ -49,15 +49,15 @@ public class OSXApplicationProxy {
             final File file = new File("/System/Library/Java");
             if(file.exists()) {
                 ClassLoader scl = ClassLoader.getSystemClassLoader();
-                Class clc = scl.getClass();
+                Class<?> clc = scl.getClass();
                 if(URLClassLoader.class.isAssignableFrom(clc)) {
                     Method addUrl  = URLClassLoader.class.getDeclaredMethod("addURL", new Class[] {URL.class});
                     addUrl.setAccessible(true);
-                    addUrl.invoke(scl, new Object[] {file.toURL()});
+                    addUrl.invoke(scl, new Object[] {file.toURI().toURL()});
                 }
             }
 
-            Class appClass = Class.forName("com.apple.eawt.Application");
+            Class<?> appClass = Class.forName("com.apple.eawt.Application");
             application = appClass.getMethod("getApplication", new Class[0]).invoke(null, new Object[0]);
             applicationListenerClass = Class.forName("com.apple.eawt.ApplicationListener");
         } catch (ClassNotFoundException e) {
@@ -243,7 +243,7 @@ public class OSXApplicationProxy {
 
     private Object getNSApplication() throws ClassNotFoundException {
         try {
-            Class applicationClass = Class.forName("com.apple.cocoa.application.NSApplication");
+            Class<?> applicationClass = Class.forName("com.apple.cocoa.application.NSApplication");
             return applicationClass.getMethod("sharedApplication", new Class[0]).invoke(null, new Object[0]);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
@@ -264,12 +264,12 @@ public class OSXApplicationProxy {
             }
 
             try {
-                Class nsDataClass = Class.forName("com.apple.cocoa.foundation.NSData");
-                Constructor constructor = nsDataClass.getConstructor(new Class[]{new byte[0].getClass()});
+                Class<?> nsDataClass = Class.forName("com.apple.cocoa.foundation.NSData");
+                Constructor<?> constructor = nsDataClass.getConstructor(new Class[]{new byte[0].getClass()});
 
                 Object nsData = constructor.newInstance(new Object[]{stream.toByteArray()});
 
-                Class nsImageClass = Class.forName("com.apple.cocoa.application.NSImage");
+                Class<?> nsImageClass = Class.forName("com.apple.cocoa.application.NSImage");
                 Object nsImage = nsImageClass.getConstructor(new Class[]{nsDataClass}).newInstance(new Object[]{nsData});
 
                 Object application = getNSApplication();
@@ -296,12 +296,12 @@ public class OSXApplicationProxy {
 
 
             try {
-                Class nsDataClass = Class.forName("com.apple.cocoa.foundation.NSData");
-                Class nsImageClass = Class.forName("com.apple.cocoa.application.NSImage");
+                Class<?> nsDataClass = Class.forName("com.apple.cocoa.foundation.NSData");
+                Class<?> nsImageClass = Class.forName("com.apple.cocoa.application.NSImage");
                 Object application = getNSApplication();
                 Object nsImage = application.getClass().getMethod("applicationIconImage", new Class[0]).invoke(application, new Object[0]);
 
-                Object nsData = nsImageClass.getMethod("TIFFRepresentation", new Class[0]).invoke(nsImage, new Object[0]);
+                Object nsData = nsImageClass.getMethod("TIFFRepresentation", new Class<?>[0]).invoke(nsImage, new Object[0]);
 
                 Integer length = (Integer) nsDataClass.getMethod("length", new Class[0]).invoke(nsData, new Object[0]);
                 byte[] bytes = (byte[]) nsDataClass.getMethod("bytes", new Class[]{Integer.TYPE, Integer.TYPE}).invoke(nsData, new Object[]{Integer.valueOf(0), length});
@@ -334,7 +334,7 @@ public class OSXApplicationProxy {
         return callMethod(object, methodname, new Class[0], new Object[0]);
     }
 
-    private Object callMethod(Object object, String methodname, Class[] classes, Object[] arguments) {
+    private Object callMethod(Object object, String methodname, Class<?>[] classes, Object[] arguments) {
         try {
             if (classes == null) {
                 classes = new Class[arguments.length];
