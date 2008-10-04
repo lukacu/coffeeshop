@@ -26,6 +26,13 @@
 
 package org.coffeeshop;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.jar.JarInputStream;
+import java.util.jar.Manifest;
+
 /**
  * This class provides some static constats that can be
  * used to identify the CoffeeShop version.
@@ -35,6 +42,39 @@ package org.coffeeshop;
  */
 public class Coffeeshop {
 
+	public static class PackageInfo {
+		
+		private int buildNumber;
+
+		private String packageLocation;
+		
+		public int getBuildNumber() {
+			return buildNumber;
+		}
+
+		public String getLocation() {
+			return packageLocation;
+		}
+		
+		private PackageInfo(int buildNumber, String packageLocation) {
+			this.buildNumber = buildNumber;
+			this.packageLocation = packageLocation;
+			
+		}
+		
+		private PackageInfo() {
+			this.buildNumber = -1;
+			this.packageLocation = null;
+		}
+
+	}
+	
+	private static final String[][] packages = new String[][] {
+		{"core", "org.coffeeshop.Coffeeshop"},
+		{"application", "org.coffeeshop.application.Application"},
+		{"gui", "org.coffeeshop.awt.Images"}
+	};
+	
 	/**
 	 * Name: CoffeeShop
 	 */
@@ -42,12 +82,67 @@ public class Coffeeshop {
 	
 	/**
 	 * Version number as a string. Useful for displaying
+	 * @deprecated Use {@link Coffeeshop#getCoffeeshopInfo()} from now on.
 	 */
 	public static final String VERSION = "1.0";
 	
 	/**
 	 * Version number as an integer. Useful for comparing.
+	 * @deprecated Use {@link Coffeeshop#getCoffeeshopInfo()} from now on.
 	 */
 	public static final int VERSION_NUMBER = 1;
+	
+	public static Map<String, PackageInfo> getCoffeeshopInfo() {
+		
+		HashMap<String, PackageInfo> info = new HashMap<String, PackageInfo>();
+		
+		for (int i = 0; i < packages.length; i++) {
+		
+			String packageName = packages[i][0];
+			String packageClassName = packages[i][1];
+			
+			Class<?> packageClass;
+			try {
+				
+				packageClass = Class.forName(packageClassName);
+				
+				URL location = packageClass.getProtectionDomain().getCodeSource().getLocation();
+				
+				if(location.getPath().endsWith(".jar")) {
+					
+					JarInputStream jar = new JarInputStream(location.openStream());
+					
+					Manifest manifest = jar.getManifest();
+					
+					int buildNumber = -1;
+					
+					try {
+					
+						buildNumber = Integer.parseInt(manifest.getMainAttributes().getValue("Implementation-Build"));
+					
+					} catch (NumberFormatException e) {
+				
+					}	
+					
+					info.put(packageName, new PackageInfo(buildNumber, location.getPath()));
+					
+				} else {
+					info.put(packageName, new PackageInfo());
+				}
+				
+				
+			} catch (ClassNotFoundException e) {
+
+			} catch (IOException e) {
+
+				info.put(packageName, new PackageInfo());
+				
+			}		
+		
+		}
+		
+		return info;
+	}
+	
 	
 }

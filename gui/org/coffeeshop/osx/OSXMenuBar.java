@@ -50,11 +50,7 @@ public class OSXMenuBar extends ApplicationDialogs {
     	
     	super(application);
 
-    	try {
-    		osxApplication = OSXApplicationProxy.getInstance();
-    	} catch (RuntimeException e) {
-    		
-    	}
+    	osxApplication = OSXApplicationProxy.getInstance();
 
     	this.about = about;
     	this.preferences = preferences;

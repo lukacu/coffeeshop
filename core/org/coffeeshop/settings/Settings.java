@@ -44,7 +44,7 @@ import org.coffeeshop.Coffeeshop;
 public class Settings extends AbstractSettings implements WriteableSettings {
 	
 	/** The Constant COMMENT. */
-	private static final String COMMENT = Coffeeshop.NAME + " " + Coffeeshop.VERSION + " managed settings file";
+	private static final String COMMENT = "Coffeeshop settings file";
 	
 	/** The Constant serialVersionUID. */
 	static final long serialVersionUID = 1;

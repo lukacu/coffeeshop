@@ -24,60 +24,17 @@
  * 
  */
 
-package org.coffeeshop.dialog;
+package org.coffeeshop.dialogs;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.coffeeshop.string.parsers.StringParser;
+import org.coffeeshop.settings.ReadableSettings;
+import org.coffeeshop.settings.WriteableSettings;
 
-public class EditableSettingsOptions {
+public interface EditableSettings extends WriteableSettings, ReadableSettings {
 
-	private String title, description;
+	public List<String> getSettingsList();
 	
-	private StringParser parser;
-
-	private boolean enabled = true;
-	
-	private ArrayList<String> helpers = new ArrayList<String>();
-
-	public EditableSettingsOptions(String title, String description, StringParser parser, boolean enabled) {
-		super();
-		this.title = title;
-		this.description = description;
-		this.parser = parser;
-		this.enabled = enabled;
-	}
-
-	public void addHelper(String helper) {
-		
-		if (helpers.contains(helper))
-			return;
-		
-		helpers.add(helper);
-		
-	}
-	
-	public String getDescription() {
-		return description;
-	}
-
-	public boolean isEnabled() {
-		return enabled;
-	}
-
-	public List<String> getHelpers() {
-		return helpers;
-	}
-
-	public StringParser getParser() {
-		return parser;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-	
-	
+	public EditableSettingsOptions getEditOptions(String key);
 	
 }
