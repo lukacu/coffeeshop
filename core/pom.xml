@@ -27,8 +27,8 @@
   <build>
   	<directory>../target/${pom.artifactId}</directory>
   	<sourceDirectory>.</sourceDirectory>
-  	<outputDirectory>../target/${pom.artifactId}</outputDirectory>
-  	<testOutputDirectory>../target/${pom.artifactId}</testOutputDirectory>
+  	<outputDirectory>../target/${pom.artifactId}/classes</outputDirectory>
+  	<testOutputDirectory>../target/${pom.artifactId}/classes</testOutputDirectory>
   	<plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
