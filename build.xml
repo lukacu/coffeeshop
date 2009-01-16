@@ -20,17 +20,11 @@
 		<format property="version" pattern="yyyyMMdd" />
 	</tstamp>
 	<target name="download-ivy" unless="offline">
-
 		<mkdir dir="${ivy.jar.dir}" />
-		<!-- download Ivy from web site so that it can be used even without any special installation -->
 		<get src="http://www.apache.org/dist/ant/ivy/${ivy.install.version}/ivy.jar" dest="${ivy.jar.file}" usetimestamp="true" />
 	</target>
 
 	<target name="ivy.init" depends="download-ivy">
-		<!-- try to load ivy here from ivy home, in case the user has not already dropped
-              it into ant's lib dir (note that the latter copy will always take precedence).
-              We will not fail as long as local lib dir exists (it may be empty) and
-              ivy is in at least one of ant's lib dir or the local lib dir. -->
 		<path id="ivy.lib.path">
 			<fileset dir="${ivy.jar.dir}" includes="*.jar" />
 
@@ -123,21 +117,16 @@
 			</manifest>
 		</jar>
 	</target>
-
-	<target name="install" depends="jar">
-		<ivy:publish artifactspattern="deploy/[artifact].[ext]" resolver="local" organisation="org.coffeeshop" revision="${version}" module="coffeeshop" status="release" />
-
-
+	<target name="publish-version" depends="jar">
+		<ivy:resolve revision="${version}" />
+		<ivy:publish resolver="local" pubrevision="${version}" status="release" update="true" overwrite="true">
+			<artifacts pattern="deploy/[module].[artifact].[ext]" />
+		</ivy:publish>
 	</target>
-	<target name="ivy.newversion" depends="ivy.init" unless="ivy.new.revision">
-	    <!-- default module version prefix value -->
-	    <property name="module.version.prefix" value="${module.version.target}-dev-b" />
-	    
-	    <!-- asks to ivy an available version number -->
-	    <ivy:info file="${ivy.file}" />
-	    <ivy:buildnumber 
-	        organisation="${ivy.organisation}" module="${ivy.module}" 
-	        revision="${module.version.prefix}" defaultBuildNumber="1" revSep=""/>
+	<target name="publish-working" depends="jar">
+		<ivy:resolve />
+		<ivy:publish resolver="local" status="release" update="true" overwrite="true">
+			<artifacts pattern="deploy/[module].[artifact].[ext]" />
+		</ivy:publish>
 	</target>
-
 </project>
