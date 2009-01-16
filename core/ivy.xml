@@ -1,0 +1,8 @@
+<ivy-module version="2.0">
+    <info organisation="org.coffeeshop" module="coffeeshop.core"/>
+    <publications>
+    	<artifact name="coffeeshop.core" type="jar" ext="jar"/>    	
+    </publications>
+    <dependencies>
+    </dependencies>
+</ivy-module>

@@ -73,36 +73,21 @@
           <doUpdate>false</doUpdate>
         </configuration>
       </plugin>
-      <plugin>
-      	<groupId>org.apache.maven.plugins</groupId>
-      	<artifactId>maven-javadoc-plugin</artifactId>
-      	<version>2.3</version>
-      	<executions>
-      		<execution>
-      			<id>javadoc</id>
-      			<phase>package</phase>
-      			<goals>
-      				<goal>javadoc</goal>
-      			</goals>
-      		</execution>
-      	</executions>
-      	<configuration><aggregate>true</aggregate>
-      	<stylesheet>maven</stylesheet>
-      	
-      	</configuration>
-      </plugin>
+     
 
   	</plugins>
   </build>
   <reporting>
   	<plugins>
-  		<plugin>
-  			<groupId>org.apache.maven.plugins</groupId>
-  			<artifactId>maven-javadoc-plugin</artifactId>
-  			<version>2.5</version>
-  			<reportSets>
-  			</reportSets>
-  		</plugin>
+ <plugin>
+      	<groupId>org.apache.maven.plugins</groupId>
+      	<artifactId>maven-javadoc-plugin</artifactId>
+      	<version>2.3</version>
+      	<configuration><aggregate>true</aggregate>
+      	<stylesheet>maven</stylesheet>
+      	
+      	</configuration>
+      </plugin>
   	</plugins>
   </reporting> 
   
