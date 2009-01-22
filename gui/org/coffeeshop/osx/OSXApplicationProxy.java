@@ -89,7 +89,7 @@ public class OSXApplicationProxy {
     public void addApplicationListener(OSXApplicationListener applicationListener) {
 
         if (!Modifier.isPublic(applicationListener.getClass().getModifiers())) {
-            throw new IllegalArgumentException("ApplicationListener must be a public class");
+            throw new IllegalArgumentException("OSXApplicationListener must be a public class");
         }
         if (isMac()) {
             Object listener = Proxy.newProxyInstance(getClass().getClassLoader(),
