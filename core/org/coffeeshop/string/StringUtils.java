@@ -344,7 +344,7 @@ public final class StringUtils {
 		return v;
 	}
 	
-	public String implode(String[] tokens, String delimiter) {
+	public static String implode(String[] tokens, String delimiter) {
 		
 		if (StringUtils.empty(delimiter))
 			delimiter = "";
@@ -363,7 +363,7 @@ public final class StringUtils {
 
 	}
 	
-	public String implodeFromList(List<String> tokens, String delimiter) {
+	public static String implodeFromList(List<String> tokens, String delimiter) {
 		
 		if (StringUtils.empty(delimiter))
 			delimiter = "";

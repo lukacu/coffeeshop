@@ -46,7 +46,7 @@ import org.coffeeshop.external.OperatingSystem.*;
  * 
  * <b>Note:</b> Currently supported operating systems are:
  * <ul>
- * <li>Linux</li>
+ * <li>Posix family</li>
  * <li>Windows (rundll32)</li>
  * <li>OS X (via Apple java extension classes)</li>
  * </ul>
@@ -61,7 +61,7 @@ import org.coffeeshop.external.OperatingSystem.*;
 public class Browser {
 
 	/**
-	 * stores browsers found on computer (loaded dynamicly)
+	 * stores browsers found on computer (loaded dynamically)
 	 */
 	private static String[] execBrowsers = null;
 
@@ -289,7 +289,7 @@ public class Browser {
 			 * find some browsers.
 			 * 
 			 * Order of search (note that the first of those browsers is used so
-			 * the order is importiant): - Mozilla Firefox (firefox,
+			 * the order is importiant): - Free desktop xdg-open, Mozilla Firefox (firefox,
 			 * mozilla-firefox, firebird) - Mozilla (mozilla) - Opera (opera) -
 			 * Galeon (galeon) - Konqueror (konqueror) - Netscape (netscape) -
 			 * Lynx (lynx, links; must also have xterm)
@@ -297,9 +297,16 @@ public class Browser {
 
 			Vector<String> browsers = new Vector<String>();
 			try {
+				Process p = Runtime.getRuntime().exec("which xdg-open");
+				if (p.waitFor() == 0) {
+					browsers.add("xdg-open {0}");
+				}
+			} catch (IOException e) {
+			} catch (InterruptedException e) {
+			}
+			try {
 				Process p = Runtime.getRuntime().exec("which firefox");
 				if (p.waitFor() == 0) {
-					//browsers.add("firefox -remote openURL({0})");
 					browsers.add("firefox {0}");
 				}
 			} catch (IOException e) {
@@ -308,7 +315,6 @@ public class Browser {
 			try {
 				Process p = Runtime.getRuntime().exec("which mozilla-firefox");
 				if (p.waitFor() == 0) {
-					//browsers.add("mozilla-firefox -remote openURL({0})");
 					browsers.add("mozilla-firefox {0}");
 				}
 			} catch (IOException e) {

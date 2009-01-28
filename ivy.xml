@@ -1,0 +1,9 @@
+<ivy-module version="2.0">
+    <info organisation="tnode" module="coffeeshop"/>
+    <publications>
+    	<artifact name="core" type="jar" ext="jar"/>
+    	<artifact name="application" type="jar" ext="jar"/>
+    	<artifact name="gui" type="jar" ext="jar"/>
+    	<artifact name="animation" type="jar" ext="jar"/>
+    </publications>
+</ivy-module>
