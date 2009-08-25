@@ -90,7 +90,17 @@
 			</classpath>
 		</javac>
 	</target>
-	<target name="build" depends="init,build-core,build-application,build-gui,build-animation" />
+	<target name="build-figure" depends="build-core,build-gui">
+		<echo message="Building figure package" />
+		<javac debug="true" debuglevel="${debuglevel}" destdir="bin/figure" source="${source}" target="${target}">
+			<src path="figure" />
+			<classpath>
+				<path location="bin/core" />
+				<path location="bin/gui" />
+			</classpath>
+		</javac>
+	</target>
+	<target name="build" depends="init,build-core,build-application,build-gui,build-animation,build-figure" />
 	<target name="jar" depends="build">
 		<jar destfile="deploy/coffeeshop.core.jar" basedir="bin/core">
 			<manifest>
@@ -111,6 +121,12 @@
 			</manifest>
 		</jar>
 		<jar destfile="deploy/coffeeshop.animation.jar" basedir="bin/animation">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="CoffeeShop-Version" value="${version}" />
+			</manifest>
+		</jar>
+		<jar destfile="deploy/coffeeshop.figure.jar" basedir="bin/figure">
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="CoffeeShop-Version" value="${version}" />
