@@ -37,110 +37,68 @@ import java.util.Set;
  * @see Settings
  * @see ReadableSettings
  */
-public abstract class AbstractSettings implements ReadableSettings {
+public abstract class AbstractSettings extends AbstractReadonlySettings implements WriteableSettings {
 	
 	static final long serialVersionUID = 2342341;
-	
-    private ReadableSettings parent;
-    
+
     /**
      * Construct new empty <code>Settings</code> object.
      *
      * @param a application object
      */
     public AbstractSettings(ReadableSettings parent) {
-        super();
-
-    	this.parent = parent;
+        super(parent);
 
     }
   
-    protected abstract String getProperty(String key);
+    protected abstract String setProperty(String key, String value);
 
-	public boolean getBoolean(String key) throws SettingsNotFoundException, NumberFormatException {
-        String s = getProperty(key); 
-        if (s == null) {
-            if (parent != null)
-            	return parent.getBoolean(key);
-        	
-            throw new SettingsNotFoundException(key);
-        }
-
-        return Boolean.parseBoolean(s);
+	/* (non-Javadoc)
+	 * @see org.coffeeshop.settings.WriteableSettings#setDouble(java.lang.String, double)
+	 */
+	public void setDouble(String key, double value) {
+		setProperty(key, String.valueOf(value));
+		
 	}
 
-	public double getDouble(String key) throws SettingsNotFoundException, NumberFormatException {
-        String s = getProperty(key);
-        if (s == null) {
-            if (parent != null)
-            	return parent.getDouble(key);
-        	
-            throw new SettingsNotFoundException(key);
-        } 
-        
-        return Double.parseDouble(s);
+	/* (non-Javadoc)
+	 * @see org.coffeeshop.settings.WriteableSettings#setFloat(java.lang.String, float)
+	 */
+	public void setFloat(String key, float value) {
+		setProperty(key, String.valueOf(value));
+		
 	}
 
-	public float getFloat(String key) throws SettingsNotFoundException, NumberFormatException {
-        String s = getProperty(key);
-        if (s == null) {
-            if (parent != null)
-            	return parent.getFloat(key);
-        	
-            throw new SettingsNotFoundException(key);
-        }
-        
-        return Float.parseFloat(s);
+	/* (non-Javadoc)
+	 * @see org.coffeeshop.settings.WriteableSettings#setInt(java.lang.String, int)
+	 */
+	public void setInt(String key, int value) {
+		setProperty(key, String.valueOf(value));
+		
 	}
 
-	public long getLong(String key) throws SettingsNotFoundException, NumberFormatException {
-        String s = getProperty(key);
-        if (s == null) {
-            if (parent != null)
-            	return parent.getLong(key);
-        	
-            throw new SettingsNotFoundException(key);
-        }
-        
-        return Long.parseLong(s);
+	/* (non-Javadoc)
+	 * @see org.coffeeshop.settings.WriteableSettings#setLong(java.lang.String, long)
+	 */
+	public void setLong(String key, long value) {
+		setProperty(key, String.valueOf(value));
+		
 	}
 
-	public int getInt(String key) throws SettingsNotFoundException, NumberFormatException {
-        String s = getProperty(key);
-        if (s == null) {
-            if (parent != null)
-            	return parent.getInt(key);
-        	
-            throw new SettingsNotFoundException(key);
-        }
-        
-        return Integer.parseInt(s);
+	/* (non-Javadoc)
+	 * @see org.coffeeshop.settings.WriteableSettings#setBoolean(java.lang.String, boolean)
+	 */
+	public void setBoolean(String key, boolean value) {
+		setProperty(key, String.valueOf(value));
+		
 	}
 	
-	public String getString(String key) throws SettingsNotFoundException {
-        String s = getProperty(key);
-        if (s == null) {
-            if (parent != null)
-            	return parent.getString(key);
-        	
-            throw new SettingsNotFoundException(key);
-        }
-        
-        return s;
-	}    
- 
-	public boolean containsKey(String key) {
-		return getProperty(key) != null;
+	/* (non-Javadoc)
+	 * @see org.coffeeshop.settings.WriteableSettings#setString(java.lang.String, java.lang.String)
+	 */
+	public void setString(String key, String value) {
+		setProperty(key, value);
+		
 	}
 	
-	public Set<String> getAllKeys() {
-		
-		Set<String> keys = getKeys();
-		
-		if (parent != null)
-			keys.addAll(parent.getAllKeys());
-		
-		return keys;
-		
-	}
 }

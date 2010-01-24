@@ -30,6 +30,7 @@ package org.coffeeshop.awt;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.LayoutManager;
 
 /**
@@ -126,10 +127,15 @@ public class StackLayout implements LayoutManager {
 
 		Dimension base = arg0.getSize();
 
+		Insets insets = arg0.getInsets();
+		
+		base.width -= insets.left + insets.right;
+		base.height -= insets.top + insets.bottom;
+		
 		switch (orientation) {
 		case HORIZONTAL: {
 
-			int offset = hPadding;
+			int offset = hPadding + insets.left;
 
 			base.height -= 2 * vPadding;
 			
@@ -142,7 +148,7 @@ public class StackLayout implements LayoutManager {
 				
 				Dimension d = c.getPreferredSize();
 				
-				c.setBounds(offset, vPadding, d.width, align ? base.height : Math.min(
+				c.setBounds(offset, vPadding + insets.top, d.width, align ? base.height : Math.min(
 						d.height, base.height));
 				
 				offset += d.width + hPadding;
@@ -152,7 +158,7 @@ public class StackLayout implements LayoutManager {
 		}
 		case VERTICAL: {
 
-			int offset = vPadding;
+			int offset = vPadding + insets.top;
 
 			base.width -= 2 * hPadding;
 			
@@ -165,7 +171,7 @@ public class StackLayout implements LayoutManager {
 				
 				Dimension d = c.getPreferredSize();
 				
-				c.setBounds(hPadding, offset, align ? base.width : Math.min(d.width,
+				c.setBounds(hPadding + insets.left, offset, align ? base.width : Math.min(d.width,
 						base.width), d.height);
 
 				offset += d.height + vPadding;
@@ -188,6 +194,8 @@ public class StackLayout implements LayoutManager {
 	public Dimension minimumLayoutSize(Container arg0) {
 		Dimension r = new Dimension();
 
+		Insets insets = arg0.getInsets();
+		
 		switch (orientation) {
 		case HORIZONTAL: {
 
@@ -243,6 +251,10 @@ public class StackLayout implements LayoutManager {
 		}
 
 		}
+		
+		r.width += insets.left + insets.right;
+		r.height += insets.bottom + insets.top;
+		
 		return r;
 	}
 
@@ -256,6 +268,8 @@ public class StackLayout implements LayoutManager {
 	public Dimension preferredLayoutSize(Container arg0) {
 		Dimension r = new Dimension();
 
+		Insets insets = arg0.getInsets();
+		
 		switch (orientation) {
 		case HORIZONTAL: {
 
@@ -311,6 +325,10 @@ public class StackLayout implements LayoutManager {
 		}
 
 		}
+		
+		r.width += insets.left + insets.right;
+		r.height += insets.bottom + insets.top;
+		
 		return r;
 	}
 

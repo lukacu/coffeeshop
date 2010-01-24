@@ -32,6 +32,8 @@ import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
 import java.net.URL;
 
+import org.coffeeshop.io.Files;
+
 
 /**
  * This class provides basic information about the operating system that the
@@ -54,7 +56,7 @@ public class OperatingSystem {
 	 * 
 	 */
 	public static enum OperatingSystemType {
-		UNKNOWN, LINUX, WINDOWS, OSX
+		UNKNOWN, LINUX, WINDOWS, OSX, ANDROID
 	}
 
 	private static OperatingSystemType system;
@@ -67,9 +69,14 @@ public class OperatingSystem {
 		system = OperatingSystemType.UNKNOWN;
 		String os = System.getProperty("os.name");
 
-		if (os.toLowerCase().indexOf("linux") > -1)
-			system = OperatingSystemType.LINUX;
-		if (os.toLowerCase().indexOf("windows") > -1)
+		if (os.toLowerCase().indexOf("linux") > -1) {
+			try {
+				Class.forName("android.Manifest");
+				system = OperatingSystemType.ANDROID;
+			} catch (ClassNotFoundException e) {
+				system = OperatingSystemType.LINUX;
+			}
+		} if (os.toLowerCase().indexOf("windows") > -1)
 			system = OperatingSystemType.WINDOWS;
 		if (os.toLowerCase().indexOf("mac") > -1)
 			system = OperatingSystemType.OSX;
@@ -143,6 +150,7 @@ public class OperatingSystem {
 		
 		switch (OperatingSystem.getOperatingSystemType()) {
 		case LINUX:
+		case ANDROID:
 		case OSX:
 			tmpRoot = "/tmp/";
 			break;
@@ -168,4 +176,43 @@ public class OperatingSystem {
 		return f;
 		
 	}
+	
+	public static File getSystemConfigurationDirectory() {
+		String cfgRoot = null;
+		
+		switch (OperatingSystem.getOperatingSystemType()) {
+		case LINUX:
+			cfgRoot = System.getenv("XDG_DATA_DIRS");
+			if (cfgRoot == null) {
+				File f = new File(System.getProperty("user.home"), ".config");
+				cfgRoot = f.toString();
+			}
+			break;
+		case ANDROID:
+		case OSX:
+			cfgRoot = "/tmp/";
+			break;
+
+		case WINDOWS:
+			cfgRoot = "C:\\Temp\\";
+			
+			break;
+		default:
+			throw new RuntimeException("This operating system is not supported.");
+		}
+		
+		File f = new File(cfgRoot); 
+		if (!f.exists())
+			throw new RuntimeException("Cannot locate temporary directory " + cfgRoot);
+		
+		if (!f.isDirectory())
+			throw new RuntimeException("Not a directory: " + cfgRoot);
+			
+		if (!f.canWrite())
+			throw new RuntimeException("Not writeable: " + cfgRoot);
+		
+		return f;
+		
+	}
+	
 }

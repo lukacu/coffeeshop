@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 // TODO: javadoc
-public class Defaults extends AbstractSettings {
+public class Defaults extends AbstractReadonlySettings implements SettingsMetadata {
 
 	protected class DefaultElement {
 		
@@ -87,6 +87,21 @@ public class Defaults extends AbstractSettings {
 		Set<String> keys = map.keySet();
 		
 		return keys;
+	}
+
+	@Override
+	public String getComment(String key) {
+		return null;
+	}
+
+	@Override
+	public String getTitle(String key) {
+		DefaultElement e = map.get(key);
+		
+		if (e == null)
+			return null;
+		
+		return e.description;
 	}
 	
 }
