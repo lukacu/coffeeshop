@@ -2,8 +2,8 @@ package org.coffeeshop.log;
 
 public interface LogHelper {
 
-	public Logger getLogger();
+	public AbstractLogger getLogger();
 
-	public void setLogger(Logger logger);
+	public void setLogger(AbstractLogger logger);
 	
 }

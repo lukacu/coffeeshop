@@ -32,8 +32,6 @@ import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
 import java.net.URL;
 
-import org.coffeeshop.io.Files;
-
 
 /**
  * This class provides basic information about the operating system that the
@@ -147,7 +145,7 @@ public class OperatingSystem {
 	
 	public static File getSystemTemporaryDirectory() {
 		String tmpRoot = null;
-		
+				
 		switch (OperatingSystem.getOperatingSystemType()) {
 		case LINUX:
 		case ANDROID:
@@ -163,7 +161,7 @@ public class OperatingSystem {
 			throw new RuntimeException("This operating system is not supported.");
 		}
 		
-		File f = new File(tmpRoot); 
+		File f = new File(System.getProperty("java.io.tmpdir", tmpRoot)); 
 		if (!f.exists())
 			throw new RuntimeException("Cannot locate temporary directory " + tmpRoot);
 		
@@ -182,20 +180,16 @@ public class OperatingSystem {
 		
 		switch (OperatingSystem.getOperatingSystemType()) {
 		case LINUX:
-			cfgRoot = System.getenv("XDG_DATA_DIRS");
+			cfgRoot = System.getenv("XDG_CONFIG_HOME");
 			if (cfgRoot == null) {
 				File f = new File(System.getProperty("user.home"), ".config");
 				cfgRoot = f.toString();
 			}
 			break;
+		case WINDOWS:
 		case ANDROID:
 		case OSX:
-			cfgRoot = "/tmp/";
-			break;
-
-		case WINDOWS:
-			cfgRoot = "C:\\Temp\\";
-			
+			cfgRoot = System.getProperty("user.home");
 			break;
 		default:
 			throw new RuntimeException("This operating system is not supported.");

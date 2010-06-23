@@ -73,20 +73,8 @@ public abstract class Application {
 	 * @return the suitable storage directory path according to the current user
 	 *         and the underlying operating system.
 	 */
-	public static String applicationStorageDirectory(Application a) {
-		String home = System.getProperty("user.home");
-
-		switch (OperatingSystem.getOperatingSystemType()) {
-		case LINUX:
-		case OSX: {
-			return home + File.separator + "." + a.getUnixName()
-					+ File.separator;
-		}
-		case WINDOWS: {
-			return home + File.separator + a.getName() + File.separator;
-		}
-		}
-		return a.getName();
+	public static File applicationStorageDirectory(Application a) {
+		return OperatingSystem.getSystemConfigurationDirectory();
 	}
 	
 	private class ApplicationSettingsImpl extends Settings implements SettingsSetter {

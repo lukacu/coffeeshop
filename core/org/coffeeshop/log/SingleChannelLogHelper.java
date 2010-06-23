@@ -2,15 +2,15 @@ package org.coffeeshop.log;
 
 public class SingleChannelLogHelper implements LogHelper {
 
-	private Logger logger = null;
+	private AbstractLogger logger = null;
 	
 	private int channel = 0;
 
-	public Logger getLogger() {
+	public AbstractLogger getLogger() {
 		return logger;
 	}
 
-	public void setLogger(Logger logger) {
+	public void setLogger(AbstractLogger logger) {
 		this.logger = logger;
 	}
 
