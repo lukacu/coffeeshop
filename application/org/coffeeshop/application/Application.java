@@ -74,7 +74,7 @@ public abstract class Application {
 	 *         and the underlying operating system.
 	 */
 	public static File applicationStorageDirectory(Application a) {
-		return OperatingSystem.getSystemConfigurationDirectory();
+		return new File(OperatingSystem.getSystemConfigurationDirectory(), a.getUnixName());
 	}
 	
 	private class ApplicationSettingsImpl extends Settings implements SettingsSetter {
@@ -136,7 +136,7 @@ public abstract class Application {
 		
 		public ApplicationSettingsImpl(Application a) {
 			super((ReadableSettings)null);
-			this.storage = Application.getApplication().getSettingsManager().getSettings(Application.getApplication().getUnixName() + ".ini", null);
+			this.storage = Application.getApplication().getSettingsManager().getSettings(Application.getApplication().getSubname() + ".ini", null);
 		}
 		
 		public boolean addDefaultElement(String key, String value, String description, String shortFlag, String longFlag, StringParser parser) {
@@ -317,7 +317,7 @@ public abstract class Application {
 	
 	private static Application application = null;
 	
-	private String name;
+	private String name, subname;
 	
 	private SettingsManager settingsManager;
 	
@@ -356,7 +356,7 @@ public abstract class Application {
 	 * @param name applicaton name (only literals and numerals are accepted)
 	 * @param arguments command line arguments
 	 */
-	public Application(String name, String[] arguments) throws ArgumentsException {
+	public Application(String name, String subname, String[] arguments) throws ArgumentsException {
 		
 		if (application != null)
 			throw new RuntimeException("Only one application object allowed.");
@@ -368,10 +368,17 @@ public abstract class Application {
 					"Name of the application must contain only alphanumerical characters");
 		
 		this.name = name;
+		this.subname = subname;
 		
 		settingsManager = new SettingsManager(this);
 		
 		processArguments(arguments);
+		
+	}
+	
+	public Application(String name, String[] arguments) throws ArgumentsException {
+		
+		this(name, name, arguments);
 		
 	}
 	
@@ -384,6 +391,10 @@ public abstract class Application {
 		return name;
 	}
 
+	public String getSubname() {
+		return subname;
+	}
+	
 	/**
 	 * Get application UNIX style name (lowercase)
 	 * 

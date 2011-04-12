@@ -37,10 +37,10 @@ import java.awt.LayoutManager;
  * This layout places the components to the container in a stack-like manner.
  * This means that the components are stacked in a specific direction in the same
  * sequence that they were added to the container. Each component progresses in 
- * location but reatins its preferred size (in the progressing direction). If the
+ * location but retains its preferred size (in the progressing direction). If the
  * align is enabled the components are adjusted to have the same other dimension 
  * otherwise they retain their preferred size.
- * The orienataion (the direction of progressing) can be either horizontal of vertical.
+ * The orientation (the direction of progressing) can be either horizontal of vertical.
  * 
  * @author luka
  * @see LayoutManager

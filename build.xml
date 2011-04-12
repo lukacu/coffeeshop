@@ -37,6 +37,7 @@
 		<mkdir dir="bin/application" />
 		<mkdir dir="bin/gui" />
 		<mkdir dir="bin/animation" />
+		<mkdir dir="bin/figure" />
 		<mkdir dir="deploy" />
 		<copy includeemptydirs="false" todir="bin">
 			<fileset dir="core" excludes="**/*.launch, **/*.java" />
