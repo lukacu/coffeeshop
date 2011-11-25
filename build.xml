@@ -38,6 +38,7 @@
 		<mkdir dir="bin/gui" />
 		<mkdir dir="bin/animation" />
 		<mkdir dir="bin/figure" />
+		<mkdir dir="bin/net" />
 		<mkdir dir="deploy" />
 		<copy includeemptydirs="false" todir="bin">
 			<fileset dir="core" excludes="**/*.launch, **/*.java" />
@@ -101,6 +102,15 @@
 			</classpath>
 		</javac>
 	</target>
+	<target name="build-net" depends="build-core">
+		<echo message="Building figure package" />
+		<javac debug="true" debuglevel="${debuglevel}" destdir="bin/net" source="${source}" target="${target}">
+			<src path="net" />
+			<classpath>
+				<path location="bin/core" />
+			</classpath>
+		</javac>
+	</target>
 	<target name="build" depends="init,build-core,build-application,build-gui,build-animation,build-figure" />
 	<target name="jar" depends="build">
 		<jar destfile="deploy/coffeeshop.core.jar" basedir="bin/core">
@@ -128,6 +138,12 @@
 			</manifest>
 		</jar>
 		<jar destfile="deploy/coffeeshop.figure.jar" basedir="bin/figure">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="CoffeeShop-Version" value="${version}" />
+			</manifest>
+		</jar>
+		<jar destfile="deploy/coffeeshop.net.jar" basedir="bin/net">
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="CoffeeShop-Version" value="${version}" />
