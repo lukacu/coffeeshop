@@ -54,7 +54,7 @@ public class OperatingSystem {
 	 * 
 	 */
 	public static enum OperatingSystemType {
-		UNKNOWN, LINUX, WINDOWS, OSX
+		UNKNOWN, LINUX, WINDOWS, OSX, ANDROID
 	}
 
 	private static OperatingSystemType system;
@@ -67,9 +67,14 @@ public class OperatingSystem {
 		system = OperatingSystemType.UNKNOWN;
 		String os = System.getProperty("os.name");
 
-		if (os.toLowerCase().indexOf("linux") > -1)
-			system = OperatingSystemType.LINUX;
-		if (os.toLowerCase().indexOf("windows") > -1)
+		if (os.toLowerCase().indexOf("linux") > -1) {
+			try {
+				Class.forName("android.Manifest");
+				system = OperatingSystemType.ANDROID;
+			} catch (ClassNotFoundException e) {
+				system = OperatingSystemType.LINUX;
+			}
+		} if (os.toLowerCase().indexOf("windows") > -1)
 			system = OperatingSystemType.WINDOWS;
 		if (os.toLowerCase().indexOf("mac") > -1)
 			system = OperatingSystemType.OSX;
@@ -140,9 +145,10 @@ public class OperatingSystem {
 	
 	public static File getSystemTemporaryDirectory() {
 		String tmpRoot = null;
-		
+				
 		switch (OperatingSystem.getOperatingSystemType()) {
 		case LINUX:
+		case ANDROID:
 		case OSX:
 			tmpRoot = "/tmp/";
 			break;
@@ -155,7 +161,7 @@ public class OperatingSystem {
 			throw new RuntimeException("This operating system is not supported.");
 		}
 		
-		File f = new File(tmpRoot); 
+		File f = new File(System.getProperty("java.io.tmpdir", tmpRoot)); 
 		if (!f.exists())
 			throw new RuntimeException("Cannot locate temporary directory " + tmpRoot);
 		
@@ -168,4 +174,39 @@ public class OperatingSystem {
 		return f;
 		
 	}
+	
+	public static File getSystemConfigurationDirectory() {
+		String cfgRoot = null;
+		
+		switch (OperatingSystem.getOperatingSystemType()) {
+		case LINUX:
+			cfgRoot = System.getenv("XDG_CONFIG_HOME");
+			if (cfgRoot == null) {
+				File f = new File(System.getProperty("user.home"), ".config");
+				cfgRoot = f.toString();
+			}
+			break;
+		case WINDOWS:
+		case ANDROID:
+		case OSX:
+			cfgRoot = System.getProperty("user.home");
+			break;
+		default:
+			throw new RuntimeException("This operating system is not supported.");
+		}
+		
+		File f = new File(cfgRoot); 
+		if (!f.exists())
+			throw new RuntimeException("Cannot locate config directory " + cfgRoot);
+		
+		if (!f.isDirectory())
+			throw new RuntimeException("Not a directory: " + cfgRoot);
+			
+		if (!f.canWrite())
+			throw new RuntimeException("Not writeable: " + cfgRoot);
+		
+		return f;
+		
+	}
+	
 }

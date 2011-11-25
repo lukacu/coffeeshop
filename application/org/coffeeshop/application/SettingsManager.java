@@ -46,7 +46,7 @@ import org.coffeeshop.string.StringUtils;
 public class SettingsManager {
     
 	// settings directory
-    private String settingsDirectory = null;
+    private File settingsDirectory = null;
     
     // setting directory exists flag
     private boolean hasDirectory = false;
@@ -129,7 +129,7 @@ public class SettingsManager {
      * <code>false</code> otherwise.
      */
     private boolean createRepository() {
-        File path = new File(settingsDirectory);
+        File path = settingsDirectory;
         if (!path.exists()) {
         	try {
             path.mkdir();
@@ -166,7 +166,7 @@ public class SettingsManager {
 
         if (hasDirectory) 
         	try {
-        		result.loadSettings(new File(settingsDirectory + fileName));
+        		result.loadSettings(new File(settingsDirectory, fileName));
         	} catch (IOException e) {}
         return result;
     }
@@ -237,7 +237,7 @@ public class SettingsManager {
         Settings result = (Settings)files.get(fileName);
         if (result != null) {
         	try {
-        		result.storeSettings(new File(settingsDirectory + fileName));
+        		result.storeSettings(new File(settingsDirectory, fileName));
         		return true;
         	} catch (IOException e) {
         		return false;

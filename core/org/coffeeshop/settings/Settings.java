@@ -39,7 +39,7 @@ import java.io.*;
  * @see java.util.Properties
  * @see Settings
  */
-public class Settings extends AbstractSettings implements WriteableSettings {
+public class Settings extends AbstractSettings {
 	
 	/** The Constant COMMENT. */
 	private static final String COMMENT = "Coffeeshop settings file";
@@ -129,19 +129,8 @@ public class Settings extends AbstractSettings implements WriteableSettings {
     	}
     	
     }
-    
-    /**
-     * Overrides method of <code>java.util.Properties</code> just to
-     * turn on modified flag.
-     * 
-     * @param key the key
-     * @param value the value
-     * 
-     * @return the string
-     * 
-     * @see Properties#setProperty(java.lang.String, java.lang.String)
-     */    
-    private String setProperty(String key, String value) {
+      
+    protected String setProperty(String key, String value) {
         modified = true;
        
         String oldValue = (String)storage.setProperty(key, value);
@@ -252,54 +241,6 @@ public class Settings extends AbstractSettings implements WriteableSettings {
 	 */
 	public boolean isModified() {
 		return modified;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.coffeeshop.settings.WriteableSettings#setDouble(java.lang.String, double)
-	 */
-	public void setDouble(String key, double value) {
-		setProperty(key, String.valueOf(value));
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see org.coffeeshop.settings.WriteableSettings#setFloat(java.lang.String, float)
-	 */
-	public void setFloat(String key, float value) {
-		setProperty(key, String.valueOf(value));
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see org.coffeeshop.settings.WriteableSettings#setInt(java.lang.String, int)
-	 */
-	public void setInt(String key, int value) {
-		setProperty(key, String.valueOf(value));
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see org.coffeeshop.settings.WriteableSettings#setLong(java.lang.String, long)
-	 */
-	public void setLong(String key, long value) {
-		setProperty(key, String.valueOf(value));
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see org.coffeeshop.settings.WriteableSettings#setBoolean(java.lang.String, boolean)
-	 */
-	public void setBoolean(String key, boolean value) {
-		setProperty(key, String.valueOf(value));
-		
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.coffeeshop.settings.WriteableSettings#setString(java.lang.String, java.lang.String)
-	 */
-	public void setString(String key, String value) {
-		setProperty(key, value);
-		
 	}
 
 	/* (non-Javadoc)

@@ -191,4 +191,9 @@ public class EnumeratedStringParser implements StringParser {
 		}
 		return true;
 	}
+	
+	public String[] getValues() {
+		return Arrays.copyOf(validOptionValuesArray, validOptionValuesArray.length);
+	}
+	
 }

@@ -113,13 +113,12 @@ public class TempDirectory {
      * of Linux and OSX and C:\Temp in case of Windows) 
      * 
      * @param prefix the name of the directory
+     * @param root directory
      * @throws IOException if unable to create the directory or the main
      * temporary directory is not writeable.
      */
-	public TempDirectory(String prefix) {
-				
-		File root = OperatingSystem.getSystemTemporaryDirectory();
-		
+	public TempDirectory(String prefix, File root) {
+
 		handle = randomFile(root, prefix, null);
 		
 		if (!handle.mkdir())
@@ -127,6 +126,12 @@ public class TempDirectory {
 		
 		if (DEFAULT_DELETE_ON_EXIT)
 			deleter.add(this);
+		
+	}
+	
+	public TempDirectory(String prefix) {
+		
+		this(prefix, OperatingSystem.getSystemTemporaryDirectory());
 		
 	}
 	
