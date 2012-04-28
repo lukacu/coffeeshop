@@ -136,7 +136,7 @@ public abstract class Application {
 		
 		public ApplicationSettingsImpl(Application a) {
 			super((ReadableSettings)null);
-			this.storage = Application.getApplication().getSettingsManager().getSettings(Application.getApplication().getSubname() + ".ini", null);
+			this.storage = Application.getApplication().getSettingsManager().getSettings(Application.getApplication().getSubname().toLowerCase() + ".ini", null);
 		}
 		
 		public boolean addDefaultElement(String key, String value, String description, String shortFlag, String longFlag, StringParser parser) {
