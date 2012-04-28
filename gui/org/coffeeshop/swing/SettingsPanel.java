@@ -1,12 +1,10 @@
 package org.coffeeshop.swing;
 
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.HashMap;
 
-import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -35,6 +33,12 @@ import org.coffeeshop.string.parsers.StringParser;
 
 public class SettingsPanel extends JPanel {
 
+	public interface SettingsRenderer {
+		
+		public JComponent renderComponent();
+		
+	}
+	
 	private static final long serialVersionUID = 1L;
 	
 	private HashMap<String, JComponent> components = new HashMap<String, JComponent>();
@@ -239,6 +243,12 @@ public class SettingsPanel extends JPanel {
 			
 			return panel;
 		}	
+		
+		if (value instanceof SettingsRenderer) {
+			
+			return ((SettingsRenderer) value).renderComponent();
+		}
+		
 		
 		throw new RuntimeException("Unsupported value type");
 		

@@ -4,8 +4,12 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
+import java.util.Map;
 
-public class LayeredFigure implements Figure {
+import org.coffeeshop.swing.viewers.LayeredFigureViewer;
+import org.coffeeshop.swing.viewers.Viewable;
+
+public class LayeredFigure implements Figure, Viewable {
 
 	protected Figure[] figures;
 	
@@ -133,6 +137,15 @@ public class LayeredFigure implements Figure {
 
 	}
 	
+	public void setVisible(int i, boolean visible) {
+		
+		if (i == -1)
+			return;
+		
+		this.hidden[i] = !visible;
+
+	}
+	
 	public boolean isVisible(Figure layer) {
 		
 		int i = getIndex(layer);
@@ -144,48 +157,19 @@ public class LayeredFigure implements Figure {
 
 	}
 	
-	/**
-	 * @deprecated
-	 * @param layer
-	 * @return
-	 */
-	public boolean isHidden(int layer) {
-		try {
-			return hidden[layer];
-		} catch (ArrayIndexOutOfBoundsException e) {
+	public boolean isVisible(int i) {
+		
+		if (i == -1)
 			return false;
-		}
-	}
-	
-	/**
-	 * @deprecated
-	 * @param layer
-	 * @return
-	 */
-	public void hide(int layer) {
-		try {
-			hidden[layer] = true;
-		} catch (ArrayIndexOutOfBoundsException e) {}
-	}
-	
-	/**
-	 * @deprecated
-	 * @param layer
-	 * @return
-	 */
-	public void show(int layer) {
-		try {
-			hidden[layer] = false;
-		} catch (ArrayIndexOutOfBoundsException e) {}
-	}
+		
+		return !this.hidden[i];
 
-	public Figure getFigure(int index) {
-		try {
-			return figures[index];
-		} catch (ArrayIndexOutOfBoundsException e) {
-			return null;
-		}
 	}
+	
+	public Figure getFigure(int i) {
+		return figures[i];
+	}
+	
 	
 	public String getName() {
 		return name;
@@ -208,5 +192,19 @@ public class LayeredFigure implements Figure {
 		return figures[i].getName();
 
 	}
+	
+	public boolean view(Map<String, String> parameters) {
 
+		String title = parameters.get("title");
+		if (title == null) {
+			title = getName();
+		} 
+		
+		LayeredFigureViewer viewer = new LayeredFigureViewer(title, this);
+		viewer.setVisible(true);	
+		
+		return true;
+	}
+	
+	
 }

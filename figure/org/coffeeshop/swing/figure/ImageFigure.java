@@ -7,14 +7,18 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.ImageObserver;
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 
-public class ImageFigure implements Figure {
+import org.coffeeshop.swing.viewers.FigureViewer;
+import org.coffeeshop.swing.viewers.Viewable;
 
-	private Image image;
+public class ImageFigure implements Figure, Viewable {
 
-	private String name;
+	protected Image image;
+
+	protected String name;
 
 	private class ImageFigureObserver implements ImageObserver {
 
@@ -85,6 +89,18 @@ public class ImageFigure implements Figure {
 
 	public String getName() {
 		return name;
+	}
+
+	public boolean view(Map<String, String> parameters) {
+		String title = parameters.get("title");
+		if (title == null) {
+			title = getName();
+		}
+
+		FigureViewer viewer = new FigureViewer(title, this);
+		viewer.setVisible(true);
+
+		return true;
 	}
 
 }

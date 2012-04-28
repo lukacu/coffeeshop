@@ -4,18 +4,18 @@ import java.awt.Color;
 
 public class Colors {
 
-    public static Color brighter(Color c, double factor) {
+    /*public static Color brighter(Color c, double factor) {
         int r = c.getRed();
         int g = c.getGreen();
         int b = c.getBlue();
 
         factor = Math.max(0, factor);
         
-        /* From 2D group:
+        * From 2D group:
          * 1. black.brighter() should return grey
          * 2. applying brighter to blue will always return blue, brighter
          * 3. non pure color (non zero rgb) will eventually return white
-         */
+         *
         int i = (int)(1.0/(1.0-factor));
         if ( r == 0 && g == 0 && b == 0) {
            return new Color(i, i, i);
@@ -27,6 +27,20 @@ public class Colors {
         return new Color(Math.min((int)(r/factor), 255),
                          Math.min((int)(g/factor), 255),
                          Math.min((int)(b/factor), 255));
+    }*/
+        
+
+    public static Color brighter(Color c, double factor) {
+    	
+    	float hsv[] = new float[3];
+    	
+    	Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), hsv);
+    	
+    	hsv[2] = (float)factor;
+
+        factor = Math.max(0, factor);
+        
+        return new Color(Color.HSBtoRGB(hsv[0], hsv[1], hsv[2]));
     }
     
 }

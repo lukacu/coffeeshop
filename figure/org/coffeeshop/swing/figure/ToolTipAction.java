@@ -4,6 +4,8 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
 
+import org.coffeeshop.swing.ImageStore;
+
 public abstract class ToolTipAction extends AbstractAction {
 
 	private static final long serialVersionUID = 1L;
@@ -14,6 +16,12 @@ public abstract class ToolTipAction extends AbstractAction {
 			this.putValue(Action.SHORT_DESCRIPTION, title);
 	}
 
+	public ToolTipAction(String title, String iconId) {
+		super(title, ImageStore.getIcon(iconId));
+		if (this.getValue(Action.SMALL_ICON) != null)
+			this.putValue(Action.SHORT_DESCRIPTION, title);
+	}
+	
 	public ToolTipAction(String title) {
 		super(title);
 

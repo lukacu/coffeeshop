@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.Map;
+
+import org.coffeeshop.swing.viewers.FigureViewer;
 
 public class RectanglesFigure extends VectorFigure {
 
@@ -83,5 +86,25 @@ public class RectanglesFigure extends VectorFigure {
 		return width;
 	}
 
+	public boolean view(Map<String, String> parameters) {
+		String title = parameters.get("title");
+		if (title == null) {
+			title = getName();
+		} 
+		
+		FigureViewer viewer = new FigureViewer(title, this);
+		viewer.setVisible(true);	
+		
+		return true;
+	}
 
+	public void clear() {
+		rectangles.clear();
+	}
+	
+	public void resize(int width, int height) {
+		this.width = width;
+		this.height = height;
+	}
+	
 }

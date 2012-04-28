@@ -7,8 +7,12 @@ import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
+import java.util.Map;
 
-public class AdvancedLayeredFigure extends LayeredFigure {
+import org.coffeeshop.swing.viewers.AdvancedLayeredFigureViewer;
+import org.coffeeshop.swing.viewers.Viewable;
+
+public class AdvancedLayeredFigure extends LayeredFigure implements Viewable {
 
 	private Point2D[] offsets;
 	
@@ -168,6 +172,14 @@ public class AdvancedLayeredFigure extends LayeredFigure {
 		} catch (ArrayIndexOutOfBoundsException e) {
 			return null;
 		}
+	}
+	
+	public boolean view(Map<String, String> parameters) {
+
+		AdvancedLayeredFigureViewer viewer = new AdvancedLayeredFigureViewer(parameters, this);
+		viewer.setVisible(true);	
+		
+		return true;
 	}
 	
 }

@@ -2,6 +2,7 @@ package org.coffeeshop.dialogs;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.Vector;
 
 import org.coffeeshop.settings.ReadableSettings;
@@ -164,4 +165,21 @@ public class OrganizedSettings extends Settings implements SettingsGroup {
 		return nodes.iterator();
 	}
 
+	public Object get(String key) {
+		
+		String raw = getString(key);
+		
+		SettingsValue sv = values.get(key);
+		
+		if (sv == null || sv.getParser() == null)
+			return raw;
+		
+		try {
+			return sv.getParser().parse(raw);
+		} catch (ParseException e) {
+			return null;
+		}
+		
+	}
+	
 }

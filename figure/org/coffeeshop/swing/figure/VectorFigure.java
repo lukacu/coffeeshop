@@ -4,8 +4,12 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.util.Map;
 
-public abstract class VectorFigure implements Figure {
+import org.coffeeshop.swing.viewers.FigureViewer;
+import org.coffeeshop.swing.viewers.Viewable;
+
+public abstract class VectorFigure implements Figure, Viewable {
 
 	private AffineTransform imageToScreen = new AffineTransform();
 
@@ -39,4 +43,15 @@ public abstract class VectorFigure implements Figure {
 	
 	protected abstract void paintGeometry(Graphics2D g, float scale, FigureObserver observer);
 	
+	public boolean view(Map<String, String> parameters) {
+		String title = parameters.get("title");
+		if (title == null) {
+			title = getName();
+		} 
+		
+		FigureViewer viewer = new FigureViewer(title, this);
+		viewer.setVisible(true);	
+		
+		return true;
+	}
 }
