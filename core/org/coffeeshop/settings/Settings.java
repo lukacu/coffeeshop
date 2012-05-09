@@ -70,7 +70,7 @@ public class Settings extends AbstractSettings {
     }
     
     /**
-     * Construct a new <code>Settings</code> object with a parent settings storage.
+     * Construct a new <code>Settings</code> object with data loaded from a file.
      * 
      * @param fileName the file name
      */
@@ -83,6 +83,24 @@ public class Settings extends AbstractSettings {
     	storage = new Properties();
     	
     	loadSettings(fileName);
+    	
+        modified = false;
+    }
+    
+    /**
+     * Construct a new <code>Settings</code> object with data loaded from a string.
+     * 
+     * @param settings Settings as string
+     */
+    public Settings(String settings) throws IOException {
+        super(null);
+        
+        if (settings == null)
+        	throw new NullPointerException();
+        
+    	storage = new Properties();
+    	
+    	loadSettings(settings);
     	
         modified = false;
     }
@@ -145,29 +163,24 @@ public class Settings extends AbstractSettings {
     }
         
     /**
-     * Loads settings from file.
+     * Loads settings from string.
      * 
-     * @param fileName target file
+     * @param settings as a string
+     * @throws IOException 
      * 
-     * @return <code>true</code> if successful, <code>false</code> otherwise
-     * 
-     * @deprecated Use {@link #loadSettings(File)} instead.
      */
-    public boolean loadSettings(String fileName) {
-    	try {
-    		loadSettings(new File(fileName));
-    		return true;
-    	} catch (IOException e) {
-    		return false;
-    	}
+    public void loadSettings(String settings) throws IOException {
+    	
+    	StringReader in = new StringReader(settings);
+        storage.load(in);
+        in.close();
+        
     }
 
     /**
      * Loads settings from file.
      * 
      * @param fileName target file
-     * 
-     * @return <code>true</code> if successful, <code>false</code> otherwise
      * 
      * @see Properties#load(java.io.InputStream)
      */

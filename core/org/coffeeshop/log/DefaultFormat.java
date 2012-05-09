@@ -59,6 +59,13 @@ class DefaultFormat implements LogFormat {
 		
 		sb.append("Thrown object type: " + throwable.getClass().getCanonicalName());
 		
+		internalFormatThrowable(sb, throwable);
+
+		return sb.toString();
+	}
+	
+	private void internalFormatThrowable(StringBuilder sb, Throwable throwable) {
+		
 		if (throwable.getMessage() != null) {
 			sb.append("\n                    ");
 			sb.append("Message: " + throwable.getMessage());
@@ -75,7 +82,11 @@ class DefaultFormat implements LogFormat {
 			sb.append(e[i]);
 		}
 		
-		return sb.toString();
+		if (throwable.getCause() != null) {
+			Throwable cause = throwable.getCause();
+			sb.append("\nCaused by: " + cause.getClass().getCanonicalName());
+			internalFormatThrowable(sb, cause);
+		}
 	}
 	
 }
