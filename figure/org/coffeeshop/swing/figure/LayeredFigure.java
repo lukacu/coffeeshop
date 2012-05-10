@@ -9,7 +9,7 @@ import java.util.Map;
 import org.coffeeshop.swing.viewers.LayeredFigureViewer;
 import org.coffeeshop.swing.viewers.Viewable;
 
-public class LayeredFigure implements Figure, Viewable {
+public class LayeredFigure extends AbstractFigure implements Viewable {
 
 	protected Figure[] figures;
 	

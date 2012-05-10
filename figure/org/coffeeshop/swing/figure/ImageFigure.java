@@ -14,7 +14,7 @@ import javax.imageio.ImageIO;
 import org.coffeeshop.swing.viewers.FigureViewer;
 import org.coffeeshop.swing.viewers.Viewable;
 
-public class ImageFigure implements Figure, Viewable {
+public class ImageFigure extends AbstractFigure implements Viewable {
 
 	protected Image image;
 

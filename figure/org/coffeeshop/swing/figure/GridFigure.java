@@ -7,7 +7,7 @@ import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
-public class GridFigure implements Figure {
+public class GridFigure extends AbstractFigure {
 
 	private AffineTransform imageToScreen = new AffineTransform();
 	

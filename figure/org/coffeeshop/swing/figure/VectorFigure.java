@@ -9,7 +9,7 @@ import java.util.Map;
 import org.coffeeshop.swing.viewers.FigureViewer;
 import org.coffeeshop.swing.viewers.Viewable;
 
-public abstract class VectorFigure implements Figure, Viewable {
+public abstract class VectorFigure extends AbstractFigure implements Viewable {
 
 	private AffineTransform imageToScreen = new AffineTransform();
 

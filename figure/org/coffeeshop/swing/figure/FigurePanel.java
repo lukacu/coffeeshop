@@ -618,7 +618,7 @@ public class FigurePanel extends JComponent implements Scrollable {
 	 * @author lukacu
 	 * @since WebStrips 0.1
 	 */
-	class FigureContainer extends JPanel implements FigureObserver {
+	class FigureContainer extends JPanel implements FigureObserver, FigureListener {
 
 		/**
 		 * Serialization...
@@ -679,9 +679,16 @@ public class FigurePanel extends JComponent implements Scrollable {
 
 		}
 
-		public void setFigure(Figure figure) {
+		public synchronized void setFigure(Figure figure) {
+			
+			if (this.figure != null) 
+				this.figure.removeFigureListener(this);
+			
 			this.figure = figure;
 
+			if (this.figure != null)
+				this.figure.addFigureListener(this);
+			
 			recalculate();
 
 			repaint();

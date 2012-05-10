@@ -12,10 +12,11 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
+import org.coffeeshop.swing.figure.AbstractFigure;
 import org.coffeeshop.swing.figure.Figure;
 import org.coffeeshop.swing.figure.FigureObserver;
 
-public class RenderedImageFigure implements Figure, Viewable {
+public class RenderedImageFigure extends AbstractFigure implements Viewable {
 
 	private AffineTransform imageToScreen = new AffineTransform();
 	

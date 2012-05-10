@@ -14,4 +14,7 @@ public interface Figure {
 	
 	public String getName();
 	
+	public void addFigureListener(FigureListener listener);
+
+	public void removeFigureListener(FigureListener listener);
 }
