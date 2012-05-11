@@ -40,7 +40,7 @@ public abstract class History implements SplashController {
 	}
 	
 	@Override
-	public Object[] items(Splash splash) {
+	public Object[] items() {
 		return history.toArray(new File[history.size()]);
 	}
 

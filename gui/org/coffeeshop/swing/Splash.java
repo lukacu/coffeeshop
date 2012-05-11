@@ -27,11 +27,11 @@ public class Splash {
 
 	public static interface SplashController {
 		
-		public Object[] items(Splash splash);
+		public Object[] items();
 		
-		public Object browse(Splash splash);
+		public Object browse();
 		
-		public Image getSplashImage();
+		public Image getImage();
 		
 		public Image getIconImage();
 		
@@ -56,7 +56,7 @@ public class Splash {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				
-				choice = controller.browse(Splash.this);
+				choice = controller.browse();
 				
 				synchronized (Splash.this) {
 					Splash.this.notifyAll();
@@ -91,7 +91,7 @@ public class Splash {
 
 			root.add(new ImagePanel(splashImage));
 			
-			final JList list = new JList(controller.items(Splash.this));
+			final JList list = new JList(controller.items());
 			list.addListSelectionListener(new ListSelectionListener() {
 				
 				@Override
@@ -152,7 +152,7 @@ public class Splash {
 		
 		this.controller = controller;
 		
-    	splashImage = controller.getSplashImage();
+    	splashImage = controller.getImage();
 
 		window = new Window(splashImage);
 		
