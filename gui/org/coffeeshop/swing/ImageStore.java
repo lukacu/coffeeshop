@@ -34,6 +34,29 @@ public class ImageStore {
 		
 		return null;
 	}
+
+	public static Icon getIcon(String ... names) {
+		
+		Image img = getImage(names);
+		
+		if (img != null)
+			return new ImageIcon(img);
+		
+		return null;
+	}
+	
+	public static Image getImage(String ... names) {
+		
+		for (String name : names) {
+			
+			Image i = getImage(name);
+			if (i != null)
+				return i;
+			
+		}
+		
+		return null;
+	}
 	
 	public static Image getImage(String name) {
 		Image i = storage.get(name);
