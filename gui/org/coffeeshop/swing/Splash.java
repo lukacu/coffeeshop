@@ -1,23 +1,22 @@
 
 package org.coffeeshop.swing;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.MouseInfo;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import org.coffeeshop.awt.StackLayout;
 import org.coffeeshop.awt.StackLayout.Orientation;
@@ -25,45 +24,13 @@ import org.coffeeshop.swing.ImagePanel;
 
 public class Splash {
 
-	public static interface SplashController {
-		
-		public Object[] items();
-		
-		public Object browse();
-		
-		public Image getImage();
-		
-		public Image getIconImage();
-		
-	}
-		
 	private Window window;
 	
-	private Image splashImage;
-
-	private SplashController controller;
-	
-	private Object choice = null;
+	private Object result = null;
 	
 	private class Window extends JFrame {
 		
 		public static final long serialVersionUID = 1;
-		
-		private Action openProject = new AbstractAction("Browse") {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				
-				choice = controller.browse();
-				
-				synchronized (Splash.this) {
-					Splash.this.notifyAll();
-				}
-				
-			}
-		};
 		
 		private Action exit = new AbstractAction("Exit") {
 
@@ -71,15 +38,13 @@ public class Splash {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				
-				synchronized (Splash.this) {
-					Splash.this.notifyAll();
-				}
-				
+									
+				closeWithResult(null);
+
 			}
 		};
 		
-		public Window(Image splashImage) {
+		public Window(Image splashImage, boolean horizontal) {
 		
 			super();
 		
@@ -87,54 +52,65 @@ public class Splash {
 			
 			setResizable(false);
 			
-			JPanel root = new JPanel(new StackLayout(Orientation.VERTICAL, true));
+			JPanel root = new JPanel(new BorderLayout());
 
-			root.add(new ImagePanel(splashImage));
+			root.add(new ImagePanel(splashImage), BorderLayout.CENTER);
 			
-			final JList list = new JList(controller.items());
-			list.addListSelectionListener(new ListSelectionListener() {
-				
-				@Override
-				public void valueChanged(ListSelectionEvent e) {
-
-					if (e.getValueIsAdjusting())
-						return;
-					
-					choice = list.getSelectedValue();
-
-					synchronized (Splash.this) {
-						Splash.this.notifyAll();
-					}
-
-				}
-			});
+			JPanel sidebar = new JPanel(new BorderLayout());
 			
-			JScrollPane listpane = new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+			JComponent sidebarComponent = createSidebarComponent();
 			
-			listpane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+			/*if (orientation == Orientation.VERTICAL) {
+				//sidebar.setPreferredSize(new Dimension(400, splashImage.getHeight(null)));
+			} else  {
+				sidebar.setPreferredSize(new Dimension(splashImage.getWidth(null), 200));
+			}*/
 			
-			listpane.setPreferredSize(new Dimension(splashImage.getWidth(null), 200));
+			JPanel buttons = new JPanel(new StackLayout(horizontal ? 
+					Orientation.VERTICAL : Orientation.HORIZONTAL, 5, 5, horizontal));
 
-			JPanel buttons = new JPanel(new StackLayout(Orientation.HORIZONTAL, 10, 10));
-
+			Color background = getBackground();
+			
 			if (System.getProperty("splash.background") != null) {
-				Color c = Color.decode(System.getProperty("splash.background"));
-				listpane.setBackground(c);
-				buttons.setBackground(c);
+				background = Color.decode(System.getProperty("splash.background"));
+			}
+
+			sidebar.setBackground(background);
+			
+			if (sidebarComponent != null) {
+				sidebarComponent.setBackground(background);
+				sidebar.add(sidebarComponent, BorderLayout.CENTER);
 			}
 			
-			root.add(listpane);
-			
-			buttons.add(new JButton(openProject));
-			buttons.add(new JButton(exit));
-			
-			buttons.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-			
-			root.add(buttons);
-			
+			buttons.setBackground(background);
+
+			List<Action> actions = createActions();
+
+			if (actions != null && actions.size() > 0) {
+				actions.add(exit);
+				
+				for (Action action : actions) {
+					JButton button = new JButton(action);
+					
+					//button.setBackground(background);
+					//button.setBorder(null);
+					buttons.add(button);
+				}
+
+				buttons.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+				sidebar.add(buttons, BorderLayout.SOUTH);
+				root.add(sidebar, horizontal ? BorderLayout.EAST : BorderLayout.SOUTH);
+				
+			}
+	
 			setContentPane(root);
 			
-			setMinimumSize(new Dimension(splashImage.getWidth(null), -1));
+			if (!horizontal) {
+				setMinimumSize(new Dimension(-1, splashImage.getHeight(null)));
+			} else  {
+				setMinimumSize(new Dimension(splashImage.getWidth(null), -1));
+				
+			}
 			
 			pack();
 			
@@ -148,39 +124,65 @@ public class Splash {
 
 	}
 	
-	private Splash(String title, SplashController controller) {
-		
-		this.controller = controller;
-		
-    	splashImage = controller.getImage();
+	public Splash(String title, Image image) {
 
-		window = new Window(splashImage);
+		window = new Window(image, image.getWidth(null) < image.getHeight(null));
 		
 		window.setTitle(title);
 		
-		Image icon = controller.getIconImage();
+		Image icon = ImageStore.getImage("icon.png", "icon-16.png", "icon-32.png", "icon-46.png");
 		
 		if (icon != null)
 			window.setIconImage(icon);
 		
 	}
 	
-	public static Object show(String title, SplashController controller) {
-		
-		Splash splash = new Splash(title, controller);
+	public final Object show() {
 
-		splash.window.setVisible(true);
+		window.setVisible(true);
 		
-		synchronized (splash) {
+		synchronized (window) {
 			try {
-				splash.wait();
+				window.wait();
 			} catch (InterruptedException e) {
-				splash.window.setVisible(false);
+				window.setVisible(false);
 				return null;
 			}
 		}
-		splash.window.setVisible(false);
-		return splash.choice;
-	}
 		
+		window.setVisible(false);
+		
+		return result;
+	}
+	
+	protected final void closeWithResult(Object result) {
+		
+		this.result = result;
+		
+		synchronized (window) {
+			window.notifyAll();
+		}
+		
+	}
+	
+	protected final void close() {
+		
+		synchronized (window) {
+			window.notifyAll();
+		}
+		
+	}
+	
+	protected JComponent createSidebarComponent() {
+		
+		return null;
+		
+	}
+	
+	protected List<Action> createActions() {
+		
+		return null;
+		
+	}
+	
 }
