@@ -18,12 +18,6 @@ public class FigureViewer extends PersistentWindow {
 
 	private static final long serialVersionUID = 1L;
 
-	static {
-		
-		ImageStore.registerAnchorClass(FigureViewer.class);
-		
-	}
-	
 	private ToolTipAction zoomNormal = new ToolTipAction("Zoom 100%", "zoom-normal-16.png") {
 
 		private static final long serialVersionUID = 1L;
@@ -109,6 +103,8 @@ public class FigureViewer extends PersistentWindow {
 	
 	private void initGUI() {
 
+		ImageStore.registerAnchorClass(FigureViewer.class);
+		
 		setLayout(new BorderLayout());
 
 		setIconImage(ImageStore.getImage("image-16.png"));

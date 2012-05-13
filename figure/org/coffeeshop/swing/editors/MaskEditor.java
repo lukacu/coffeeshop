@@ -46,12 +46,6 @@ import org.coffeeshop.swing.figure.ImageFigure;
 import org.coffeeshop.swing.figure.ToolTipAction;
 
 public class MaskEditor extends JFrame {
-
-	static {
-		
-		ImageStore.registerAnchorClass(MaskEditor.class);
-		
-	}
 	
 	private static final long serialVersionUID = 1L;
 
@@ -427,6 +421,8 @@ public class MaskEditor extends JFrame {
 
 	public MaskEditor() {
 		super("Mask editor");
+		
+		ImageStore.registerAnchorClass(MaskEditor.class);
 		
 		setLayout(new BorderLayout());
 		
