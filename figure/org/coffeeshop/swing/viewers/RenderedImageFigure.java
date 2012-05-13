@@ -13,7 +13,6 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 
 import org.coffeeshop.swing.figure.AbstractFigure;
-import org.coffeeshop.swing.figure.Figure;
 import org.coffeeshop.swing.figure.FigureObserver;
 
 public class RenderedImageFigure extends AbstractFigure implements Viewable {

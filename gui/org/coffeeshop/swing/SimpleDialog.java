@@ -15,7 +15,6 @@ import javax.swing.JPanel;
 import org.coffeeshop.awt.StackLayout;
 import org.coffeeshop.awt.StackLayout.Orientation;
 import org.coffeeshop.dialogs.OrganizedSettings;
-import org.coffeeshop.string.parsers.EnumeratedStringParser;
 import org.coffeeshop.swing.SettingsPanel;
 
 public class SimpleDialog extends JDialog {
