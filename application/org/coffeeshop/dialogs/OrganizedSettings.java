@@ -2,7 +2,6 @@ package org.coffeeshop.dialogs;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.Vector;
 
 import org.coffeeshop.settings.ReadableSettings;

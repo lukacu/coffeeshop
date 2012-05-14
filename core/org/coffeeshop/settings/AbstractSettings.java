@@ -26,9 +26,6 @@
 
 package org.coffeeshop.settings;
 
-import java.util.Set;
-
-
 /**
  * 
  * @author Luka Cehovin
