@@ -7,7 +7,6 @@ import javax.swing.JToolBar;
 
 import org.coffeeshop.application.Application;
 import org.coffeeshop.dialogs.ApplicationDialogs;
-import org.coffeeshop.swing.figure.ToolTipAction;
 
 public class SwingToolbarDialogs extends ApplicationDialogs {
 

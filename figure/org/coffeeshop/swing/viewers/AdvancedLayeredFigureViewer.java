@@ -25,10 +25,10 @@ import org.coffeeshop.awt.StackLayout;
 import org.coffeeshop.awt.StackLayout.Orientation;
 import org.coffeeshop.swing.ImageStore;
 import org.coffeeshop.swing.PersistentWindow;
+import org.coffeeshop.swing.ToolTipAction;
 import org.coffeeshop.swing.figure.AdvancedLayeredFigure;
 import org.coffeeshop.swing.figure.Figure;
 import org.coffeeshop.swing.figure.FigurePanel;
-import org.coffeeshop.swing.figure.ToolTipAction;
 
 public class AdvancedLayeredFigureViewer extends PersistentWindow {
 

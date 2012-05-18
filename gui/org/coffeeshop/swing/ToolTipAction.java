@@ -1,10 +1,9 @@
-package org.coffeeshop.swing.figure;
+package org.coffeeshop.swing;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
 
-import org.coffeeshop.swing.ImageStore;
 
 public abstract class ToolTipAction extends AbstractAction {
 

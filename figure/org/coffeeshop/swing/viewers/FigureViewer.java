@@ -9,10 +9,10 @@ import javax.swing.JToolBar;
 
 import org.coffeeshop.swing.ImageStore;
 import org.coffeeshop.swing.PersistentWindow;
+import org.coffeeshop.swing.ToolTipAction;
 import org.coffeeshop.swing.figure.Figure;
 import org.coffeeshop.swing.figure.FigurePanel;
 import org.coffeeshop.swing.figure.RenderedImageProvider;
-import org.coffeeshop.swing.figure.ToolTipAction;
 
 public class FigureViewer extends PersistentWindow {
 

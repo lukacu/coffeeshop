@@ -38,12 +38,12 @@ import javax.swing.TransferHandler;
 import org.coffeeshop.io.Files;
 import org.coffeeshop.swing.ActionSetManager;
 import org.coffeeshop.swing.ImageStore;
+import org.coffeeshop.swing.ToolTipAction;
 import org.coffeeshop.swing.figure.ButtonAction;
 import org.coffeeshop.swing.figure.FigureObserver;
 import org.coffeeshop.swing.figure.FigurePanel;
 import org.coffeeshop.swing.figure.FigurePanel.Button;
 import org.coffeeshop.swing.figure.ImageFigure;
-import org.coffeeshop.swing.figure.ToolTipAction;
 
 public class MaskEditor extends JFrame {
 	

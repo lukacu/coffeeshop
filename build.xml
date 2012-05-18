@@ -40,11 +40,8 @@
 		<mkdir dir="bin/figure" />
 		<mkdir dir="bin/net" />
 		<mkdir dir="deploy" />
-		<copy includeemptydirs="false" todir="bin">
-			<fileset dir="core" excludes="**/*.launch, **/*.java" />
-			<fileset dir="application" excludes="**/*.launch, **/*.java" />
-			<fileset dir="gui" excludes="**/*.launch, **/*.java" />
-			<fileset dir="animation" excludes="**/*.launch, **/*.java" />
+		<copy includeemptydirs="false" todir="bin/figure">
+            <fileset dir="figure" excludes="**/*.launch, **/*.java" />
 		</copy>
 	</target>
 	<target name="clean">
@@ -53,7 +50,7 @@
 	</target>
 	<target depends="clean" name="cleanall" />
 	<target name="build-core">
-		<echo message="Building Core package" />
+		<echo message="Building core package" />
 		<javac debug="true" debuglevel="${debuglevel}" destdir="bin/core" source="${source}" target="${target}">
 			<src path="core" />
 			<classpath>
@@ -62,7 +59,7 @@
 		</javac>
 	</target>
 	<target name="build-application" depends="build-core">
-		<echo message="Building Application package" />
+		<echo message="Building application package" />
 		<javac debug="true" debuglevel="${debuglevel}" destdir="bin/application" source="${source}" target="${target}">
 			<src path="application" />
 			<classpath>
@@ -83,7 +80,7 @@
 		</javac>
 	</target>
 	<target name="build-animation" depends="build-core">
-		<echo message="Building Animation package" />
+		<echo message="Building animation package" />
 		<javac debug="true" debuglevel="${debuglevel}" destdir="bin/animation" source="${source}" target="${target}">
 			<src path="animation" />
 			<classpath>
@@ -103,7 +100,7 @@
 		</javac>
 	</target>
 	<target name="build-net" depends="build-core">
-		<echo message="Building figure package" />
+		<echo message="Building net package" />
 		<javac debug="true" debuglevel="${debuglevel}" destdir="bin/net" source="${source}" target="${target}">
 			<src path="net" />
 			<classpath>
@@ -111,7 +108,7 @@
 			</classpath>
 		</javac>
 	</target>
-	<target name="build" depends="init,build-core,build-application,build-gui,build-animation,build-figure" />
+	<target name="build" depends="init,build-core,build-application,build-gui,build-animation,build-figure,build-net" />
 	<target name="jar" depends="build">
 		<jar destfile="deploy/coffeeshop.core.jar" basedir="bin/core">
 			<manifest>
