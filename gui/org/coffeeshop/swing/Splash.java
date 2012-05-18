@@ -8,15 +8,18 @@ import java.awt.Image;
 import java.awt.MouseInfo;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
-import java.util.List;
+import java.awt.event.KeyEvent;
+import java.util.Collection;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 
 import org.coffeeshop.awt.StackLayout;
 import org.coffeeshop.awt.StackLayout.Orientation;
@@ -84,23 +87,17 @@ public class Splash {
 			
 			buttons.setBackground(background);
 
-			List<Action> actions = createActions();
+			Collection<Action> actions = createActions();
 
 			if (actions != null && actions.size() > 0) {
-				actions.add(exit);
-				
-				for (Action action : actions) {
-					JButton button = new JButton(action);
-					
-					//button.setBackground(background);
-					//button.setBorder(null);
-					buttons.add(button);
-				}
 
+				for (Action action : actions) {
+					buttons.add(new JButton(action));
+				}
+				
 				buttons.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 				sidebar.add(buttons, BorderLayout.SOUTH);
 				root.add(sidebar, horizontal ? BorderLayout.EAST : BorderLayout.SOUTH);
-				
 			}
 	
 			setContentPane(root);
@@ -120,6 +117,14 @@ public class Splash {
 			
 			setLocation(r.x + (r.width - w.width) / 2, r.y + (r.height - w.height) / 2);
 			
+			getRootPane().getActionMap().put("exit", exit);
+
+			InputMap im = getRootPane().getInputMap(
+					JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+			im.put(KeyStroke.getKeyStroke(
+					KeyEvent.VK_ESCAPE, 0), "exit");
+
 		}
 
 	}
@@ -179,7 +184,7 @@ public class Splash {
 		
 	}
 	
-	protected List<Action> createActions() {
+	protected Collection<Action> createActions() {
 		
 		return null;
 		
