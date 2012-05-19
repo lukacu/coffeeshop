@@ -46,7 +46,6 @@ public abstract class AbstractReadonlySettings implements ReadableSettings {
     /**
      * Construct new empty <code>Settings</code> object.
      *
-     * @param a application object
      */
     public AbstractReadonlySettings(ReadableSettings parent) {
         super();
@@ -129,6 +128,85 @@ public abstract class AbstractReadonlySettings implements ReadableSettings {
         return s;
 	}    
  
+	public int getInt(String key, int def) {
+		
+		try {
+			
+			return getInt(key);
+			
+		} 
+		catch (NumberFormatException e) {}
+		catch (SettingsNotFoundException e) {}
+
+		return def;
+		
+	}
+	
+	public long getLong(String key, long def) {
+		
+		try {
+			
+			return getLong(key);
+			
+		} 
+		catch (NumberFormatException e) {}
+		catch (SettingsNotFoundException e) {}
+
+		return def;
+		
+	}
+	
+	public double getDouble(String key, double def) {
+		
+		try {
+			
+			return getDouble(key);
+			
+		} 
+		catch (NumberFormatException e) {}
+		catch (SettingsNotFoundException e) {}
+
+		return def;
+		
+	}
+	
+	public float getFloat(String key, float def) {
+		try {
+			
+			return getFloat(key);
+			
+		} 
+		catch (NumberFormatException e) {}
+		catch (SettingsNotFoundException e) {}
+
+		return def;
+	}
+	
+	public boolean getBoolean(String key, boolean def) {
+		try {
+			
+			return getBoolean(key);
+			
+		} 
+		catch (NumberFormatException e) {}
+		catch (SettingsNotFoundException e) {}
+
+		return def;
+		
+	}
+	
+	
+	public String getString(String key, String def) {
+		try {
+			
+			return getString(key);
+			
+		} 
+		catch (SettingsNotFoundException e) {}
+
+		return def;
+	}
+	
 	public boolean containsKey(String key) {
 		return getProperty(key) != null;
 	}
@@ -142,5 +220,15 @@ public abstract class AbstractReadonlySettings implements ReadableSettings {
 		
 		return keys;
 		
+	}
+	
+	public void copy(WriteableSettings target) {
+		
+		for (String key : getKeys()) {
+
+			target.setString(key, getProperty(key));
+			
+		}
+
 	}
 }

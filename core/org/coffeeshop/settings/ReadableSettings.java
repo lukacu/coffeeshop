@@ -55,6 +55,18 @@ public interface ReadableSettings {
 	
 	public String getString(String key) throws SettingsNotFoundException;
 	  
+	public int getInt(String key, int def);
+	
+	public long getLong(String key, long def);
+	
+	public double getDouble(String key, double def);
+	
+	public float getFloat(String key, float def);
+	
+	public boolean getBoolean(String key, boolean def);
+	
+	public String getString(String key, String def);
+	  
 	public boolean containsKey(String key);
 	
 	public Set<String> getKeys();

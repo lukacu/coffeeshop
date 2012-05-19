@@ -6,7 +6,6 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 
 import org.coffeeshop.net.http.server.resource.Folder;
-import org.coffeeshop.settings.DynamicDefaults;
 import org.coffeeshop.settings.ReadableSettings;
 
 public class HttpServer implements HttpServerInformation {
@@ -92,10 +91,9 @@ public class HttpServer implements HttpServerInformation {
 	public HttpServer(int port, InetAddress bindAddress, ReadableSettings configuration) throws IllegalArgumentException {
 		super();
 		this.port = port;
+
 		
-		DynamicDefaults s = new DynamicDefaults(configuration);
-		
-		this.maxqueue = s.getInt("httpd.connection.maxqueue", 30);
+		this.maxqueue = configuration.getInt("httpd.connection.maxqueue", 30);
 		
 		if (bindAddress != null) {
 			this.address = bindAddress;
@@ -112,13 +110,13 @@ public class HttpServer implements HttpServerInformation {
 		
 		this.configuration = configuration;
 		
-		this.name = s.getString("httpd.name", "Embedded webserver");
-		this.keepAliveConnectionTimeout = s.getInt("httpd.connection.keepalivetimeout", 2000);
-		this.maxKeepAliveRequestPerConnection = s.getInt("httpd.connection.keepalivecount", 10);
-		this.maxUploadSize = s.getInt("httpd.uploadsize", 1024 * 1024);
-		this.sessionTimeout = s.getInt("httpd.session.timeout", 100000);
-		this.sessionKeyName = s.getString("httpd.session.name", this.address.toString());
-		this.sessionAutoStart = s.getBoolean("httpd.session.auto", false);
+		this.name = configuration.getString("httpd.name", "Embedded webserver");
+		this.keepAliveConnectionTimeout = configuration.getInt("httpd.connection.keepalivetimeout", 2000);
+		this.maxKeepAliveRequestPerConnection = configuration.getInt("httpd.connection.keepalivecount", 10);
+		this.maxUploadSize = configuration.getInt("httpd.uploadsize", 1024 * 1024);
+		this.sessionTimeout = configuration.getInt("httpd.session.timeout", 100000);
+		this.sessionKeyName = configuration.getString("httpd.session.name", this.address.toString());
+		this.sessionAutoStart = configuration.getBoolean("httpd.session.auto", false);
 		
 		sessionManager = new HttpSessionManager(this);
 	}
