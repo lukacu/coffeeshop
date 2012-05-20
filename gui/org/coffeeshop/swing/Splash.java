@@ -17,7 +17,7 @@ import javax.swing.BorderFactory;
 import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
@@ -31,7 +31,7 @@ public class Splash {
 	
 	private Object result = null;
 	
-	private class Window extends JFrame {
+	private class Window extends JDialog {
 		
 		public static final long serialVersionUID = 1;
 		
@@ -97,9 +97,10 @@ public class Splash {
 				
 				buttons.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 				sidebar.add(buttons, BorderLayout.SOUTH);
-				root.add(sidebar, horizontal ? BorderLayout.EAST : BorderLayout.SOUTH);
 			}
 	
+			root.add(sidebar, horizontal ? BorderLayout.EAST : BorderLayout.SOUTH);
+			
 			setContentPane(root);
 			
 			if (!horizontal) {
@@ -142,8 +143,11 @@ public class Splash {
 		
 	}
 	
-	public final Object show() {
+	public final synchronized Object block() {
 
+		if (window.isVisible())
+			return null;
+		
 		window.setVisible(true);
 		
 		synchronized (window) {
@@ -154,15 +158,33 @@ public class Splash {
 				return null;
 			}
 		}
+				
+		return result;
+	}
+	
+	public final synchronized void show() {
+
+		if (window.isVisible())
+			return;
+		
+		window.setVisible(true);
+		
+	}
+	
+	public final synchronized void hide() {
+
+		if (!window.isVisible())
+			return;
 		
 		window.setVisible(false);
 		
-		return result;
 	}
 	
 	protected final void closeWithResult(Object result) {
 		
 		this.result = result;
+		
+		window.setVisible(false);
 		
 		synchronized (window) {
 			window.notifyAll();
@@ -171,6 +193,8 @@ public class Splash {
 	}
 	
 	protected final void close() {
+		
+		window.setVisible(false);
 		
 		synchronized (window) {
 			window.notifyAll();
