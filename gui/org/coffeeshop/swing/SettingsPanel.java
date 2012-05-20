@@ -11,10 +11,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import org.coffeeshop.awt.StackLayout;
 import org.coffeeshop.awt.StackLayout.Orientation;
@@ -119,6 +122,40 @@ public class SettingsPanel extends JPanel {
 		
 	}
 	
+	private class ChangeListenerTextField implements DocumentListener {
+
+		private String key;
+		private JTextField field;
+		
+		public ChangeListenerTextField(String key, JTextField field) {
+			this.key = key;
+			this.field = field;
+		}
+
+		@Override
+		public void changedUpdate(DocumentEvent e) {
+			
+			try {
+				settings.setString(key, field.getText());
+			} catch (RuntimeException ex) {}
+			
+		}
+
+		@Override
+		public void insertUpdate(DocumentEvent e) {
+			try {
+				settings.setString(key, field.getText());
+			} catch (RuntimeException ex) {}
+		}
+
+		@Override
+		public void removeUpdate(DocumentEvent e) {
+			try {
+				settings.setString(key, field.getText());
+			} catch (RuntimeException ex) {}
+		}
+		
+	}
 	
 	public SettingsPanel(OrganizedSettings settings) {
 		super();
@@ -247,10 +284,23 @@ public class SettingsPanel extends JPanel {
 		if (value instanceof SettingsRenderer) {
 			
 			return ((SettingsRenderer) value).renderComponent();
+			
 		}
 		
 		
-		throw new RuntimeException("Unsupported value type");
+		JPanel panel = new JPanel(new BorderLayout());
+		
+		panel.add(new JLabel(value.getTitle()), BorderLayout.NORTH);
+		
+		JTextField line = new JTextField(settings.getString(value.getName()));
+		
+		line.getDocument().addDocumentListener(new ChangeListenerTextField(value.getName(), line));
+		
+		components.put(getName(), line);
+		
+		panel.add(line, BorderLayout.SOUTH);
+		
+		return panel;
 		
 	}
 	
