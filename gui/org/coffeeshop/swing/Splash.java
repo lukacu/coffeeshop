@@ -130,8 +130,15 @@ public class Splash {
 
 	}
 	
-	public Splash(String title, Image image) {
-
+	private Image image;
+	
+	private String title;
+	
+	private Window createWindow() {
+		
+		if (window != null)
+			return window;
+		
 		window = new Window(image, image.getWidth(null) < image.getHeight(null));
 		
 		window.setTitle(title);
@@ -141,10 +148,22 @@ public class Splash {
 		if (icon != null)
 			window.setIconImage(icon);
 		
+		return window;
+		
+	}
+	
+	public Splash(String title, Image image) {
+
+		this.title = title;
+		
+		this.image = image;
+		
 	}
 	
 	public final synchronized Object block() {
 
+		createWindow();
+		
 		if (window.isVisible())
 			return null;
 		
@@ -164,6 +183,8 @@ public class Splash {
 	
 	public final synchronized void show() {
 
+		createWindow();
+		
 		if (window.isVisible())
 			return;
 		
@@ -173,6 +194,8 @@ public class Splash {
 	
 	public final synchronized void hide() {
 
+		createWindow();
+		
 		if (!window.isVisible())
 			return;
 		
