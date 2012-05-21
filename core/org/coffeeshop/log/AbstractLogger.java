@@ -26,8 +26,6 @@
 
 package org.coffeeshop.log;
 
-import java.io.PrintStream;
-
 /**
  * Static class that can be used by an application to display various log
  * messages that can be filtered so it is not really necessary to remove the
