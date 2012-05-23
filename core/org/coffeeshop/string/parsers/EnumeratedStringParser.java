@@ -30,6 +30,8 @@
 package org.coffeeshop.string.parsers;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.StringTokenizer;
 
 /**
@@ -133,6 +135,29 @@ public class EnumeratedStringParser implements StringParser {
 		}
 	}
 
+	/**
+	 * Constructs a new instance of EnumeratedStringParser.
+	 * 
+	 */
+	public EnumeratedStringParser(Collection<?> values, boolean caseSensitive) throws IllegalArgumentException {
+
+		if (values == null || values.size() == 0) {
+			throw new IllegalArgumentException("EnumeratedStringParser validOptions parameter is empty");
+		}
+
+		this.isCaseSensitive = caseSensitive;
+
+		HashSet<String> validOptions = new HashSet<String>();
+
+		for (Object v : values) {
+			if (v == null) continue;
+			validOptions.add(v.toString());
+		}
+		
+		validOptionValuesArray = validOptions.toArray(new String[validOptions.size()]); 
+		
+	}
+	
 	/**
 	 * Parses the specified argument, making sure it matches one of the valid
 	 * options supplied to its constructor.  

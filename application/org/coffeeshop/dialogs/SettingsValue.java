@@ -4,15 +4,16 @@ import org.coffeeshop.string.parsers.StringParser;
 
 public class SettingsValue implements SettingsNode {
 
-	private String name, title;
+	private String name, title, def;
 	
 	private StringParser parser;
 
-	public SettingsValue(String name, String title, StringParser parser) {
+	public SettingsValue(String name, String title, StringParser parser, String def) {
 		super();
 		this.name = name;
 		this.parser = parser;
 		this.title = title;
+		this.def = def;
 	}
 
 	public String getName() {
@@ -25,6 +26,10 @@ public class SettingsValue implements SettingsNode {
 
 	public StringParser getParser() {
 		return parser;
+	}
+	
+	public String getDefault() {
+		return def;
 	}
 
 }

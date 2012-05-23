@@ -17,7 +17,7 @@ import javax.swing.event.ListSelectionListener;
 
 public abstract class RecentDocumentsSplash extends Splash {
 
-	private JList list;
+	private JList list = new JList();
 	
 	public RecentDocumentsSplash(String title, Image image, RecentDocuments history) {
 		super(title, image);
@@ -27,8 +27,6 @@ public abstract class RecentDocumentsSplash extends Splash {
 
 	@Override
 	protected JComponent createSidebarComponent() {
-
-		list = new JList();
 
 		list.addListSelectionListener(new ListSelectionListener() {
 

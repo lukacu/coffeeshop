@@ -3,7 +3,6 @@ package org.coffeeshop.swing;
 import java.awt.BorderLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
-import java.util.Collection;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -15,15 +14,12 @@ import javax.swing.JPanel;
 import org.coffeeshop.awt.StackLayout;
 import org.coffeeshop.awt.StackLayout.Orientation;
 import org.coffeeshop.dialogs.OrganizedSettings;
-import org.coffeeshop.swing.SettingsPanel;
 
 public class SimpleDialog extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 
-	private OrganizedSettings settings;
-	
-	private SettingsPanel panel;
+	private boolean confirm = false;
 	
 	private Action ok = new AbstractAction("OK") {
 		
@@ -32,6 +28,7 @@ public class SimpleDialog extends JDialog {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			
+			confirm = true;
 			SimpleDialog.this.setVisible(false);
 			
 		}
@@ -49,15 +46,12 @@ public class SimpleDialog extends JDialog {
 		}
 	};
 	
-	public SimpleDialog(Frame owner, String title) {
+	public SimpleDialog(Frame owner, OrganizedSettings settings) {
 		
-		super(owner, title);
-		
-		setModalityType(ModalityType.APPLICATION_MODAL);
-		
+		super(owner, settings.getTitle(), true);
+
 		getContentPane().setLayout(new BorderLayout());
 		
-	
 		JPanel buttons = new JPanel(new StackLayout(Orientation.HORIZONTAL, 10, 10));
 
 		buttons.add(new JButton(ok));
@@ -65,38 +59,18 @@ public class SimpleDialog extends JDialog {
 		
 		buttons.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		
-		getContentPane().add(BorderLayout.SOUTH, buttons);
+		getContentPane().add(buttons, BorderLayout.SOUTH);
 
+		SettingsPanel panel = new SettingsPanel(settings);;
+		
+		getContentPane().add(panel, BorderLayout.CENTER);
+		
+		pack();
 	}
 	
-	@Override
-	public void setVisible(boolean b) {
-
-		if (b) {
-			
-			if (panel != null) 
-				getContentPane().remove(panel);
-			
-			panel = new SettingsPanel(settings);
-			
-			getContentPane().add(panel);
-		}
-		
-		super.setVisible(b);
+	public boolean showDialog(){
+		confirm = false;
+		setVisible(true);
+		return confirm;
 	}
-	
-	public void addMultichoice(String key, String title, Collection<?> choices) {
-		
-		//settings.attachValue(key, title, new EnumeratedStringParser(validOptionValues, caseSensitive, checkOptionChars))
-		
-		
-		
-	}
-	/*
-	public Object get(String key) {
-		
-		return settings.get(key);
-		
-	}
-*/
 }

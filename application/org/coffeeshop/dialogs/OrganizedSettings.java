@@ -30,18 +30,23 @@ public class OrganizedSettings extends Settings implements SettingsGroup {
 			this.title = title;
 		}
 
-		
 		@Override
-		public SettingsValue attachValue(String name, String title, StringParser type) {
-			
+		public SettingsValue attachValue(String name, String title,
+				StringParser type, String value) {
 			if (values.containsKey(name))
 				throw new RuntimeException("Name already taken");
 			
-			SettingsValue v = new SettingsValue(name, title, type);
+			SettingsValue v = new SettingsValue(name, title, type, value);
 			values.put(name, v);
 			nodes.add(v);
 			
 			return v;
+		}
+		
+		@Override
+		public SettingsValue attachValue(String name, String title, StringParser type) {
+			
+			return attachValue(name, title, type, null);
 			
 		}
 
@@ -115,22 +120,46 @@ public class OrganizedSettings extends Settings implements SettingsGroup {
 			} catch (ParseException e) {
 				throw new RuntimeException(e);
 			}
-			
+		
 		}
 
 		return super.setProperty(key, value);
 	}
 
 	@Override
-	public SettingsValue attachValue(String name, String title, StringParser type) {
+	protected String getProperty(String key) {
+		
+		String val = super.getProperty(key);
+
+		if (val == null) {
+
+			SettingsValue value = values.get(key);
+			
+			if (value == null || value.getDefault() == null)
+				return null;
+			
+			return value.getDefault();
+			
+		} else return val;
+		
+	}
+	
+	@Override
+	public SettingsValue attachValue(String name, String title,
+			StringParser type, String value) {
 		if (values.containsKey(name))
 			throw new RuntimeException("Name already taken");
 		
-		SettingsValue v = new SettingsValue(name, title, type);
+		SettingsValue v = new SettingsValue(name, title, type, value);
 		values.put(name, v);
 		nodes.add(v);
 		
 		return v;
+	}
+	
+	@Override
+	public SettingsValue attachValue(String name, String title, StringParser type) {
+		return attachValue(name, title, type, null);
 	}
 
 	@Override
@@ -146,6 +175,9 @@ public class OrganizedSettings extends Settings implements SettingsGroup {
 		
 		return attachValue(name, title, type);
 	}
+	
+	
+	
 	
 	@Override
 	public SettingsGroup createSubgroup(String title) {

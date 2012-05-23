@@ -226,7 +226,10 @@ public abstract class AbstractReadonlySettings implements ReadableSettings {
 		
 		for (String key : getKeys()) {
 
-			target.setString(key, getProperty(key));
+			String value = getProperty(key);
+
+			if (value != null)
+				target.setString(key, value);
 			
 		}
 
