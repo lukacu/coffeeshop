@@ -547,12 +547,18 @@ public class FigurePanel extends JComponent implements Scrollable {
 
 	}
 
+	@Override
+	public void revalidate() {
+		container.recalculate(container.figure);
+		super.revalidate();
+	}
+	
 	/**
 	 * Resets the scrollbars to (0, 0)
 	 * 
 	 */
 	private void resetScrollbars() {
-		container.recalculate();
+		container.recalculate(container.figure);
 
 		if (container.getMaxOffsetY() <= container.getMinOffsetY()) {
 			vertical.setEnabled(false);
@@ -576,7 +582,7 @@ public class FigurePanel extends JComponent implements Scrollable {
 	 * 
 	 */
 	private void readjustScrollbars() {
-		container.recalculate();
+		container.recalculate(container.figure);
 
 		if (container.getMaxOffsetY() <= container.getMinOffsetY()) {
 			vertical.setEnabled(false);
@@ -689,7 +695,7 @@ public class FigurePanel extends JComponent implements Scrollable {
 			if (this.figure != null)
 				this.figure.addFigureListener(this);
 			
-			recalculate();
+			recalculate(figure);
 
 			repaint();
 		}
@@ -723,7 +729,7 @@ public class FigurePanel extends JComponent implements Scrollable {
 		public void setOffsets(int oX, int oY) {
 			figureOffsetX = Math.min(maxOffsetX, Math.max(oX, minOffsetX));
 			figureOffsetY = Math.min(maxOffsetY, Math.max(oY, minOffsetY));
-			recalculate();
+			recalculate(figure);
 			repaint();
 		}
 
@@ -735,7 +741,7 @@ public class FigurePanel extends JComponent implements Scrollable {
 		 */
 		public void setOffsetX(int offset) {
 			figureOffsetX = offset;
-			recalculate();
+			recalculate(figure);
 			repaint();
 		}
 
@@ -746,7 +752,7 @@ public class FigurePanel extends JComponent implements Scrollable {
 		 */
 		public void setOffsetY(int offset) {
 			figureOffsetY = offset;
-			recalculate();
+			recalculate(figure);
 			repaint();
 		}
 
@@ -806,7 +812,7 @@ public class FigurePanel extends JComponent implements Scrollable {
 		public void setZoom(double zoom) {
 			this.zoom = Math.max(minZoom, Math.min(maxZoom, zoom));
 
-			recalculate();
+			recalculate(figure);
 
 			repaint();
 
@@ -817,12 +823,12 @@ public class FigurePanel extends JComponent implements Scrollable {
 			if (this.figure != figure)
 				return;
 
-			recalculate();
+			recalculate(figure);
 
 			repaint();
 		}
 
-		public void recalculate() {
+		public void recalculate(Figure figure) {
 
 			if (this.figure != figure) {
 				minOffsetX = 0;

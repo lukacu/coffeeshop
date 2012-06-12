@@ -79,6 +79,9 @@ public abstract class PersistentWindow extends JFrame {
 		if (StringUtils.empty(id))
 			throw new IllegalArgumentException("ID must not be null");
 
+		setSize(800, 600);
+		center();
+		
 		defaultState();
 
 		try {

@@ -122,9 +122,6 @@ public abstract class DataCache<K, V> extends AbstractCache<K, V> {
 		private void readFromDisk() throws IOException {
 			if (fileHandle == null || !fileHandle.canRead())
 				throw new IOException("Data does not exist or is not readable.");
-			
-			if (fileHandle.length() != length)
-				throw new IOException("File length is wrong.");
 
 			data = readData(fileHandle, length);
 					
