@@ -35,10 +35,10 @@ public class Colors {
     	float hsv[] = new float[3];
     	
     	Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), hsv);
-    	
-    	hsv[2] = (float)factor;
 
         factor = Math.max(0, factor);
+    	
+    	hsv[2] = (float)factor;
         
         return new Color(Color.HSBtoRGB(hsv[0], hsv[1], hsv[2]));
     }

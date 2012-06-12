@@ -6,7 +6,6 @@
 	<classpathentry kind="src" path="gui"/>
 	<classpathentry kind="src" path="figure"/>
 	<classpathentry kind="src" path="net"/>
-	<classpathentry kind="src" path="cache"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
