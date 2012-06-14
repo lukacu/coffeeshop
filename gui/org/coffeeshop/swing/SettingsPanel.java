@@ -4,20 +4,26 @@ import java.awt.BorderLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.HashMap;
+import java.util.Set;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import org.coffeeshop.awt.StackLayout;
 import org.coffeeshop.awt.StackLayout.Orientation;
@@ -31,7 +37,9 @@ import org.coffeeshop.settings.SettingsListener;
 import org.coffeeshop.string.StringUtils;
 import org.coffeeshop.string.parsers.BoundedIntegerStringParser;
 import org.coffeeshop.string.parsers.EnumeratedStringParser;
+import org.coffeeshop.string.parsers.EnumeratedSubsetStringParser;
 import org.coffeeshop.string.parsers.IntegerStringParser;
+import org.coffeeshop.string.parsers.ParseException;
 import org.coffeeshop.string.parsers.StringParser;
 
 public class SettingsPanel extends JPanel {
@@ -51,10 +59,12 @@ public class SettingsPanel extends JPanel {
 	private class ChangeListenerSpinner implements ChangeListener {
 
 		private String key;
+		private int defaultValue; 
 		private JSpinner spinner;
 		
-		public ChangeListenerSpinner(String key, JSpinner spinner) {
+		public ChangeListenerSpinner(String key, JSpinner spinner, int defaultValue) {
 			this.key = key;
+			this.defaultValue = defaultValue;
 			this.spinner = spinner;
 		}
 		
@@ -66,7 +76,7 @@ public class SettingsPanel extends JPanel {
 			try {
 				settings.setString(key, spinner.getValue().toString());
 			} catch (RuntimeException ex) {
-				spinner.setValue(settings.getString(key));
+				spinner.setValue(settings.getInt(key, defaultValue));
 			}
 		}
 		
@@ -75,11 +85,13 @@ public class SettingsPanel extends JPanel {
 	private class ChangeListenerSlider implements ChangeListener {
 
 		private String key;
+		private int defaultValue; 
 		private JSlider slider;
 		
-		public ChangeListenerSlider(String key, JSlider slider) {
+		public ChangeListenerSlider(String key, JSlider slider, int defaultValue) {
 			this.key = key;
 			this.slider = slider;
+			this.defaultValue = defaultValue;
 		}
 		
 		@Override
@@ -92,7 +104,7 @@ public class SettingsPanel extends JPanel {
 			try {
 				settings.setInt(key, slider.getValue());
 			} catch (RuntimeException ex) {
-				slider.setValue(settings.getInt(key));
+				slider.setValue(settings.getInt(key, defaultValue));
 			}
 		}
 		
@@ -114,13 +126,54 @@ public class SettingsPanel extends JPanel {
 				return;
 
 			try {
-				settings.setString(key, combo.getSelectedItem().toString());
+				Object obj = combo.getSelectedItem();
+				if (obj != null)
+					settings.setString(key, combo.getSelectedItem().toString());
 			} catch (RuntimeException ex) {
-				combo.setSelectedItem(settings.getString(key));
+				combo.setSelectedItem(settings.getString(key, null));
 			}
 		}
 		
 	}
+	
+	private class ChangeListenerList implements ListSelectionListener {
+
+		private String key;
+		private JList list;
+		
+		public ChangeListenerList(String key, JList list) {
+			this.key = key;
+			this.list = list;
+		}
+
+		@Override
+		public void valueChanged(ListSelectionEvent e) {
+			
+			if (e.getSource() != list)
+				return;
+			
+			int[] selection = list.getSelectedIndices();
+			
+			String value = "";
+			
+			if (selection.length > 0) {
+				value = list.getModel().getElementAt(selection[0]).toString();
+		
+				
+				for (int i = 1; i < selection.length; i++) {
+					value += "," + list.getModel().getElementAt(selection[i]).toString();
+				}
+			}
+			
+			try {
+				settings.setString(key, value);
+			} catch (RuntimeException ex) {
+				//list.setSelectedItem(settings.getString(key));
+			}
+		}
+		
+	}
+	
 	
 	private class ChangeListenerTextField implements DocumentListener {
 
@@ -224,11 +277,11 @@ public class SettingsPanel extends JPanel {
 			
 			JSpinner spinner = new JSpinner(new SpinnerNumberModel());
 			
-			spinner.setValue(settings.getInt(value.getName()));
+			spinner.setValue(settings.getInt(value.getName(), 0));
 			
-			spinner.setValue(settings.getString(value.getName()));
+			//spinner.setValue(settings.getString(value.getName()));
 			
-			spinner.addChangeListener(new ChangeListenerSpinner(value.getName(), spinner));
+			spinner.addChangeListener(new ChangeListenerSpinner(value.getName(), spinner, 0));
 			
 			components.put(getName(), spinner);
 			
@@ -244,14 +297,20 @@ public class SettingsPanel extends JPanel {
 			JPanel panel = new JPanel(new BorderLayout());
 			
 			panel.add(new JLabel(value.getTitle()), BorderLayout.NORTH);
+
+			int defval = 0;
 			
-			int val = Math.min(bi.getMax(), Math.max(bi.getMin(), settings.getInt(value.getName())));
+			if (bi.getMin() > 0)
+				defval = bi.getMin();
+
+			if (bi.getMax() < 0)
+				defval = bi.getMax();
 			
+			int val = Math.min(bi.getMax(), Math.max(bi.getMin(), settings.getInt(value.getName(), defval)));
+
 			JSlider slider = new JSlider(bi.getMin(), bi.getMax(), val);
 			
-			slider.addChangeListener(new ChangeListenerSlider(value.getName(), slider));
-			
-			slider.setValue(settings.getInt(value.getName()));
+			slider.addChangeListener(new ChangeListenerSlider(value.getName(), slider, defval));
 			
 			components.put(getName(), slider);
 			
@@ -259,6 +318,50 @@ public class SettingsPanel extends JPanel {
 			
 			return panel;
 		}		
+				
+		if (p instanceof EnumeratedSubsetStringParser) {
+			
+			EnumeratedSubsetStringParser bi = (EnumeratedSubsetStringParser) p;
+			
+			JPanel panel = new JPanel(new BorderLayout());
+			
+			panel.add(new JLabel(value.getTitle()), BorderLayout.NORTH);
+			
+			JList list = new JList(bi.getValues());
+			
+			list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			
+			list.addListSelectionListener(new ChangeListenerList(value.getName(), list));
+			
+			try {
+				
+				@SuppressWarnings("unchecked")
+				Set<String> subset = (Set<String>) bi.parse(settings.getString(value.getName(), ""));
+				
+				if (!subset.isEmpty()) {
+					int[] indices = new int[subset.size()];
+					int j = 0;
+					String[] values = bi.getValues();
+					
+					for (int i = 0; i < values.length; i++) {
+						if (subset.contains(values[i])) {
+							indices[j++] = i;
+						}
+					}
+					
+					list.setSelectedIndices(indices);
+					
+				}
+			} catch (ParseException e) {
+
+			}
+			
+			components.put(getName(), list);
+			
+			panel.add(new JScrollPane(list), BorderLayout.SOUTH);
+			
+			return panel;
+		}
 		
 		if (p instanceof EnumeratedStringParser) {
 			
@@ -272,7 +375,7 @@ public class SettingsPanel extends JPanel {
 			
 			combo.addItemListener(new ChangeListenerCombo(value.getName(), combo));
 			
-			combo.setSelectedItem(settings.getString(value.getName()));
+			combo.setSelectedItem(settings.getString(value.getName(), null));
 			
 			components.put(getName(), combo);
 			
@@ -292,7 +395,7 @@ public class SettingsPanel extends JPanel {
 		
 		panel.add(new JLabel(value.getTitle()), BorderLayout.NORTH);
 		
-		JTextField line = new JTextField(settings.getString(value.getName()));
+		JTextField line = new JTextField(settings.getString(value.getName(), ""));
 		
 		line.getDocument().addDocumentListener(new ChangeListenerTextField(value.getName(), line));
 		

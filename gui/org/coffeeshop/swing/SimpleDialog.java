@@ -1,7 +1,10 @@
 package org.coffeeshop.swing;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
@@ -68,9 +71,31 @@ public class SimpleDialog extends JDialog {
 		pack();
 	}
 	
-	public boolean showDialog(){
+	public boolean showDialog() {
 		confirm = false;
 		setVisible(true);
 		return confirm;
+	}
+	
+	public void centerToOwner() {
+		
+		Dimension w = getSize();
+		
+		Rectangle reference = null;
+		
+		if (getOwner() != null) {
+			reference = getOwner().getBounds();
+		} else {
+
+		GraphicsEnvironment ge = GraphicsEnvironment
+				.getLocalGraphicsEnvironment();
+
+		reference = ge.getDefaultScreenDevice().getDefaultConfiguration()
+				.getBounds();
+
+		}
+
+		setLocation((reference.width - w.width - reference.x) / 2 + reference.x, (reference.height - w.height - reference.y) / 2 + reference.y);
+
 	}
 }
