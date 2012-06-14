@@ -30,7 +30,6 @@
 package org.coffeeshop.string.parsers;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.StringTokenizer;
 
@@ -139,9 +138,9 @@ public class EnumeratedStringParser implements StringParser {
 	 * Constructs a new instance of EnumeratedStringParser.
 	 * 
 	 */
-	public EnumeratedStringParser(Collection<?> values, boolean caseSensitive) throws IllegalArgumentException {
+	public EnumeratedStringParser(Iterable<?> values, boolean caseSensitive) throws IllegalArgumentException {
 
-		if (values == null || values.size() == 0) {
+		if (values == null) {
 			throw new IllegalArgumentException("EnumeratedStringParser validOptions parameter is empty");
 		}
 
