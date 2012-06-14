@@ -27,6 +27,12 @@
 package org.coffeeshop.application;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -39,6 +45,7 @@ import org.coffeeshop.arguments.Parameter;
 import org.coffeeshop.arguments.Switch;
 import org.coffeeshop.arguments.UnflaggedOption;
 import org.coffeeshop.external.OperatingSystem;
+import org.coffeeshop.io.Files;
 import org.coffeeshop.io.TempDirectory;
 import org.coffeeshop.log.Logger;
 import org.coffeeshop.settings.ReadableSettings;
@@ -374,6 +381,8 @@ public abstract class Application {
 		
 		processArguments(arguments);
 		
+		initializeLogging();
+		
 	}
 	
 	public Application(String name, String[] arguments) throws ArgumentsException {
@@ -446,7 +455,7 @@ public abstract class Application {
 	
 	protected abstract void defineDefaults(SettingsSetter setter);
 	
-	private final void processArguments(String[] arguments) throws ArgumentsException {
+	private void processArguments(String[] arguments) throws ArgumentsException {
 
 		ApplicationSettingsImpl a = new ApplicationSettingsImpl(this);
 		
@@ -455,6 +464,51 @@ public abstract class Application {
 		this.arguments = a.parseArguments(arguments);
 		
 		settings = a;
+	}
+	
+	private void initializeLogging() {
+		
+		int history = 0;
+		
+		try {
+			history = Integer.parseInt(System.getProperty("coffeeshop.application.logging"));
+		} catch (NumberFormatException e) {}
+		
+		if (history < 1)
+			return;
+		
+		File logdir = new File(applicationStorageDirectory(getApplication()), "logs");
+		Files.makeDirectory(logdir);
+		
+		File[] logs = logdir.listFiles();
+		
+		if (logs.length > history - 1) {
+			
+			Arrays.sort(logs, new Comparator<File>() {
+
+				@Override
+				public int compare(File f0, File f1) {
+
+					if (f0.lastModified() < f1.lastModified())
+						return -1;
+					
+					if (f0.lastModified() > f1.lastModified())
+						return 1;
+					
+					return 0;
+					
+				}
+				
+			});
+			
+		}
+		
+		try {
+			PrintStream log = new PrintStream(new File(logdir, String.format("log-%s.txt",
+					new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date()))));
+			getApplicationLogger().addOutputStream(log);
+		} catch (FileNotFoundException e) {	}
+		
 	}
 	
 	public TempDirectory getTempDirectory() {

@@ -63,10 +63,6 @@ public class SettingsManager {
 	    		dirList.add(dir);
 	    }
 	    
-	    public synchronized void remove(SettingsManager dir) {
-	    	dirList.remove(dir);
-	    }
-	    
 	    public void run() {
 	        synchronized (this)
 	        {
