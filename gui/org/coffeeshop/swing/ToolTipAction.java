@@ -4,7 +4,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
 
-
 public abstract class ToolTipAction extends AbstractAction {
 
 	private static final long serialVersionUID = 1L;
@@ -23,7 +22,18 @@ public abstract class ToolTipAction extends AbstractAction {
 	
 	public ToolTipAction(String title) {
 		super(title);
-
 	}
 	
+	public void setIcon(Icon icon) {
+		this.putValue(Action.SMALL_ICON, icon);
+		if (this.getValue(Action.SMALL_ICON) == null)
+			this.putValue(Action.SHORT_DESCRIPTION, this.getValue(Action.NAME));
+	}
+	
+	public void setTitle(String title) {
+		if (this.getValue(Action.SMALL_ICON) != null)
+			this.putValue(Action.SHORT_DESCRIPTION, title);
+		else
+			this.putValue(Action.NAME, title);
+	}
 }
