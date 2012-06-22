@@ -45,8 +45,7 @@ public class PrefixProxySettings extends AbstractSettings {
 			
 		}
 		
-		
-		return null;
+		return filtered;
 	}
 
 	@Override
