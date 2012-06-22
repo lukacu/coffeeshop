@@ -501,6 +501,10 @@ public abstract class Application {
 				
 			});
 			
+			for (int i = 0; i < logs.length - history + 1; i++) {
+				logs[i].delete();
+			}
+			
 		}
 		
 		try {

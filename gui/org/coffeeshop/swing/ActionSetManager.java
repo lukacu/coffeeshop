@@ -11,7 +11,7 @@ import org.coffeeshop.string.StringUtils;
 
 public class ActionSetManager {
 
-	public Hashtable<String, ActionSet> sets = new Hashtable<String, ActionSet>();
+	private Hashtable<String, ActionSet> sets = new Hashtable<String, ActionSet>();
 	
 	public ActionSet newSet(String name, Action ... actions) {
 		
@@ -23,7 +23,7 @@ public class ActionSetManager {
 		sets.put(name, set);
 		
 		return set;
-	}
+	}	
 	
 	public void enableAll() {
 		enable(collectAll());
