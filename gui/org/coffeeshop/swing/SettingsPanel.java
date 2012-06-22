@@ -1,11 +1,13 @@
 package org.coffeeshop.swing;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.HashMap;
 import java.util.Set;
 
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -35,6 +37,7 @@ import org.coffeeshop.settings.Settings;
 import org.coffeeshop.settings.SettingsChangedEvent;
 import org.coffeeshop.settings.SettingsListener;
 import org.coffeeshop.string.StringUtils;
+import org.coffeeshop.string.parsers.BooleanStringParser;
 import org.coffeeshop.string.parsers.BoundedIntegerStringParser;
 import org.coffeeshop.string.parsers.EnumeratedStringParser;
 import org.coffeeshop.string.parsers.EnumeratedSubsetStringParser;
@@ -87,11 +90,13 @@ public class SettingsPanel extends JPanel {
 		private String key;
 		private int defaultValue; 
 		private JSlider slider;
+		private JLabel label;
 		
-		public ChangeListenerSlider(String key, JSlider slider, int defaultValue) {
+		public ChangeListenerSlider(String key, JSlider slider, JLabel label, int defaultValue) {
 			this.key = key;
 			this.slider = slider;
 			this.defaultValue = defaultValue;
+			this.label = label;
 		}
 		
 		@Override
@@ -101,10 +106,40 @@ public class SettingsPanel extends JPanel {
 
 			if (slider.getValueIsAdjusting())
 				return;
+			
 			try {
 				settings.setInt(key, slider.getValue());
 			} catch (RuntimeException ex) {
 				slider.setValue(settings.getInt(key, defaultValue));
+			}
+			
+			label.setText(Integer.toString(slider.getValue()));
+			
+		}
+		
+	}
+	
+	private class ChangeListenerCheckbox implements ChangeListener {
+
+		private String key;
+		private boolean defaultValue; 
+		private JCheckBox box;
+		
+		public ChangeListenerCheckbox(String key, JCheckBox box, boolean defaultValue) {
+			this.key = key;
+			this.box = box;
+			this.defaultValue = defaultValue;
+		}
+		
+		@Override
+		public void stateChanged(ChangeEvent e) {
+			if (e.getSource() != box)
+				return;
+
+			try {
+				settings.setBoolean(key, box.isSelected());
+			} catch (RuntimeException ex) {
+				box.setSelected(settings.getBoolean(key, defaultValue));
 			}
 		}
 		
@@ -269,6 +304,12 @@ public class SettingsPanel extends JPanel {
 
 		StringParser p = value.getParser();
 		
+		if (value instanceof SettingsRenderer) {
+			
+			return ((SettingsRenderer) value).renderComponent();
+			
+		}
+		
 		if (p instanceof IntegerStringParser) {
 			
 			JPanel panel = new JPanel(new BorderLayout());
@@ -288,6 +329,17 @@ public class SettingsPanel extends JPanel {
 			panel.add(spinner, BorderLayout.EAST);
 			
 			return panel;
+		}
+		
+		if (p instanceof BooleanStringParser) {
+			
+			JCheckBox box = new JCheckBox(value.getTitle());
+
+			box.addChangeListener(new ChangeListenerCheckbox(value.getName(), box, false));
+
+			components.put(getName(), box);
+
+			return box;
 		}
 		
 		if (p instanceof BoundedIntegerStringParser) {
@@ -310,11 +362,17 @@ public class SettingsPanel extends JPanel {
 
 			JSlider slider = new JSlider(bi.getMin(), bi.getMax(), val);
 			
-			slider.addChangeListener(new ChangeListenerSlider(value.getName(), slider, defval));
+			JLabel current = new JLabel(Integer.toString(val));
+			
+			slider.addChangeListener(new ChangeListenerSlider(value.getName(), slider, current, defval));
 			
 			components.put(getName(), slider);
 			
-			panel.add(slider, BorderLayout.SOUTH);
+			panel.add(slider, BorderLayout.CENTER);
+			
+			current.setMinimumSize(new Dimension(50, 1));
+			
+			panel.add(current, BorderLayout.EAST);
 			
 			return panel;
 		}		
@@ -384,12 +442,7 @@ public class SettingsPanel extends JPanel {
 			return panel;
 		}	
 		
-		if (value instanceof SettingsRenderer) {
-			
-			return ((SettingsRenderer) value).renderComponent();
-			
-		}
-		
+
 		
 		JPanel panel = new JPanel(new BorderLayout());
 		
