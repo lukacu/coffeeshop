@@ -30,8 +30,8 @@
 package org.coffeeshop.string.parsers;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.StringTokenizer;
+import java.util.TreeSet;
 
 /**
  * A {@link org.coffeeshop.string.parsers.StringParser} that enforces a limited set of String options for its
@@ -146,7 +146,7 @@ public class EnumeratedStringParser implements StringParser {
 
 		this.isCaseSensitive = caseSensitive;
 
-		HashSet<String> validOptions = new HashSet<String>();
+		TreeSet<String> validOptions = new TreeSet<String>();
 
 		for (Object v : values) {
 			if (v == null) continue;
