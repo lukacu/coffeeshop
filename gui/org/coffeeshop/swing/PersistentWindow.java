@@ -106,6 +106,8 @@ public abstract class PersistentWindow extends JFrame {
 		} catch (RuntimeException e) {
 		}
 
+		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		
 		this.addWindowListener(new WindowAdapter() {
 
 			@Override
@@ -150,10 +152,12 @@ public abstract class PersistentWindow extends JFrame {
 					}
 				} catch (RuntimeException ex) {
 				}
+				
 			}
 
 			@Override
 			public void windowClosed(WindowEvent e) {
+
 				synchronized (openedWindows) {
 
 					openedWindows.remove(PersistentWindow.this);
@@ -168,6 +172,8 @@ public abstract class PersistentWindow extends JFrame {
 
 					}
 
+					
+					
 					if (openedWindows.isEmpty() && exitOnAllClosed)
 						System.exit(0);
 				}
