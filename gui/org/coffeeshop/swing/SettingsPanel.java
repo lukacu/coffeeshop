@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
@@ -26,6 +27,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.text.JTextComponent;
 
 import org.coffeeshop.awt.StackLayout;
 import org.coffeeshop.awt.StackLayout.Orientation;
@@ -44,6 +46,7 @@ import org.coffeeshop.string.parsers.EnumeratedSubsetStringParser;
 import org.coffeeshop.string.parsers.IntegerStringParser;
 import org.coffeeshop.string.parsers.ParseException;
 import org.coffeeshop.string.parsers.StringParser;
+import org.coffeeshop.string.parsers.StringStringParser;
 
 public class SettingsPanel extends JPanel {
 
@@ -213,18 +216,20 @@ public class SettingsPanel extends JPanel {
 	private class ChangeListenerTextField implements DocumentListener {
 
 		private String key;
-		private JTextField field;
+		private JTextComponent field;
+		private boolean multiline;
 		
-		public ChangeListenerTextField(String key, JTextField field) {
+		public ChangeListenerTextField(String key, JTextComponent field, boolean multiline) {
 			this.key = key;
 			this.field = field;
+			this.multiline = multiline;
 		}
 
 		@Override
 		public void changedUpdate(DocumentEvent e) {
 			
 			try {
-				settings.setString(key, field.getText());
+				update(field.getText());
 			} catch (RuntimeException ex) {}
 			
 		}
@@ -232,15 +237,32 @@ public class SettingsPanel extends JPanel {
 		@Override
 		public void insertUpdate(DocumentEvent e) {
 			try {
-				settings.setString(key, field.getText());
+				update(field.getText());
 			} catch (RuntimeException ex) {}
 		}
 
 		@Override
 		public void removeUpdate(DocumentEvent e) {
 			try {
-				settings.setString(key, field.getText());
+				update(field.getText());
 			} catch (RuntimeException ex) {}
+		}
+		
+		private void update(String text) {
+			
+			String value;
+			if (multiline) {
+				
+				value = text.replace("\\", "\\\\").replace("\n", "\\n");
+				
+			} else {
+				
+				value = text.replace("\n", "");
+				
+			}
+			
+			settings.setString(key, value);
+			
 		}
 		
 	}
@@ -442,7 +464,24 @@ public class SettingsPanel extends JPanel {
 			return panel;
 		}	
 		
+		if (p instanceof StringStringParser && ((StringStringParser) p).isMultiline()) {
+			
+			StringStringParser bi = (StringStringParser) p;
+			
+			JPanel panel = new JPanel(new BorderLayout());
+			
+			panel.add(new JLabel(value.getTitle()), BorderLayout.NORTH);
+			
+			JTextArea area = new JTextArea((String)bi.parse(settings.getString(value.getName(), "")));
+			
+			area.getDocument().addDocumentListener(new ChangeListenerTextField(value.getName(), area, true));
+			
+			components.put(getName(), area);
+			
+			panel.add(new JScrollPane(area), BorderLayout.CENTER);
 
+			return panel;
+		}
 		
 		JPanel panel = new JPanel(new BorderLayout());
 		
@@ -450,7 +489,7 @@ public class SettingsPanel extends JPanel {
 		
 		JTextField line = new JTextField(settings.getString(value.getName(), ""));
 		
-		line.getDocument().addDocumentListener(new ChangeListenerTextField(value.getName(), line));
+		line.getDocument().addDocumentListener(new ChangeListenerTextField(value.getName(), line, false));
 		
 		components.put(getName(), line);
 		

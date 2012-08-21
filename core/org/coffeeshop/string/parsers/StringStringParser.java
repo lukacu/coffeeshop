@@ -29,6 +29,9 @@
 
 package org.coffeeshop.string.parsers;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 /**
  * A {@link org.coffeeshop.string.parsers.StringParser} for parsing Strings.  
@@ -42,8 +45,12 @@ package org.coffeeshop.string.parsers;
  */
 public class StringStringParser implements StringParser {
 
-	private static final StringStringParser INSTANCE = new StringStringParser();	
+	private static final StringStringParser INSTANCE = new StringStringParser(false);	
 
+	private static Pattern newline = Pattern.compile("([^\\\\])\\\\n");
+	
+	private boolean multiline = false;
+	
 	/** Returns a {@link StringStringParser}.
 	 * 
 	 * <p>Convenient access to the only instance returned by
@@ -57,6 +64,10 @@ public class StringStringParser implements StringParser {
 		return INSTANCE;
 	}
 
+    public StringStringParser(boolean multiline) {
+    	this.multiline = multiline;
+    }
+    
     /**
      * Returns the specified argument as a String.
      *
@@ -66,6 +77,25 @@ public class StringStringParser implements StringParser {
      * @see org.coffeeshop.string.parsers.StringParser#parse(String)
      */
     public Object parse(String arg) {
-        return (arg);
+    	if (!multiline) {
+    		return arg;
+    	} else {
+    		
+    		Matcher m = newline.matcher(arg.replaceFirst("^\\\\n", "\n"));
+    		StringBuffer s = new StringBuffer();
+
+    		while (m.find())
+    		   m.appendReplacement(s, m.group(1) + "\n");
+    		m.appendTail(s);
+    		
+    		return s.toString().replace("\\\\", "\\");
+    		
+    	}
+        
     }
+    
+    public boolean isMultiline() {
+    	return multiline;
+    }
+    
 }
