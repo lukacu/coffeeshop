@@ -290,7 +290,7 @@ public class Browser {
 			 * 
 			 * Order of search (note that the first of those browsers is used so
 			 * the order is importiant): - Free desktop xdg-open, Mozilla Firefox (firefox,
-			 * mozilla-firefox, firebird) - Mozilla (mozilla) - Opera (opera) -
+			 * mozilla-firefox) - Mozilla (mozilla) - Opera (opera) -
 			 * Galeon (galeon) - Konqueror (konqueror) - Netscape (netscape) -
 			 * Lynx (lynx, links; must also have xterm)
 			 */
@@ -321,10 +321,9 @@ public class Browser {
 			} catch (InterruptedException e) {
 			}
 			try {
-				Process p = Runtime.getRuntime().exec("which firebird");
+				Process p = Runtime.getRuntime().exec("which chromium-browser");
 				if (p.waitFor() == 0) {
-					//browsers.add("firebird -remote openURL({0})");
-					browsers.add("firebird {0}");
+					browsers.add("chromium-browser {0}");
 				}
 			} catch (IOException e) {
 			} catch (InterruptedException e) {
