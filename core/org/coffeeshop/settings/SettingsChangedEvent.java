@@ -80,7 +80,7 @@ public class SettingsChangedEvent {
 	 * Gets settings object
 	 * 
 	 * @return settings object
-	 * @see Settings
+	 * @see PropertiesSettings
 	 */
 	public Settings getSettings() {
 		return settings;

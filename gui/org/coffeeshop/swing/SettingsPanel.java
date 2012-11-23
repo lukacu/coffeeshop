@@ -1,6 +1,7 @@
 package org.coffeeshop.swing;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -16,6 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
@@ -33,8 +35,10 @@ import org.coffeeshop.awt.StackLayout;
 import org.coffeeshop.awt.StackLayout.Orientation;
 import org.coffeeshop.dialogs.OrganizedSettings;
 import org.coffeeshop.dialogs.SettingsGroup;
+import org.coffeeshop.dialogs.SettingsMap;
 import org.coffeeshop.dialogs.SettingsNode;
 import org.coffeeshop.dialogs.SettingsValue;
+import org.coffeeshop.settings.PrefixProxySettings;
 import org.coffeeshop.settings.Settings;
 import org.coffeeshop.settings.SettingsChangedEvent;
 import org.coffeeshop.settings.SettingsListener;
@@ -43,6 +47,7 @@ import org.coffeeshop.string.parsers.BooleanStringParser;
 import org.coffeeshop.string.parsers.BoundedIntegerStringParser;
 import org.coffeeshop.string.parsers.EnumeratedStringParser;
 import org.coffeeshop.string.parsers.EnumeratedSubsetStringParser;
+import org.coffeeshop.string.parsers.FileStringParser;
 import org.coffeeshop.string.parsers.IntegerStringParser;
 import org.coffeeshop.string.parsers.ParseException;
 import org.coffeeshop.string.parsers.StringParser;
@@ -59,8 +64,10 @@ public class SettingsPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	
 	private HashMap<String, JComponent> components = new HashMap<String, JComponent>();
+
+	private Settings settings;
 	
-	private OrganizedSettings settings;
+	private OrganizedSettings structure;
 	
 	private class ChangeListenerSpinner implements ChangeListener {
 
@@ -267,27 +274,15 @@ public class SettingsPanel extends JPanel {
 		
 	}
 	
-	public SettingsPanel(OrganizedSettings settings) {
+	public SettingsPanel(Settings settings, OrganizedSettings structure) {
 		super();
 		
 		this.settings = settings;
 		
-		build(settings);
+		this.structure = structure;
 		
-		settings.addSettingsListener(new SettingsListener() {
-
-			@Override
-			public void settingsChanged(SettingsChangedEvent e) {
-				
-				
-				
-			}
-
-			@Override
-			public void storeSettings(Settings s) {
-			}
-			
-		});
+		build(structure);
+		
 	}
 	
 	private void build(OrganizedSettings settings) {
@@ -311,6 +306,14 @@ public class SettingsPanel extends JPanel {
 			
 			if (n instanceof SettingsGroup) {
 				JComponent c = buildGroup((SettingsGroup) n);
+				panel.add(c);
+				continue;
+			}
+			
+			if (n instanceof SettingsMap) {
+				SettingsMap map = (SettingsMap) n;
+				JTable table = new JTable(new SettingsTableModel(new PrefixProxySettings(settings, map.getNamespace())));
+				JComponent c = new JScrollPane(table);
 				panel.add(c);
 				continue;
 			}
@@ -357,6 +360,8 @@ public class SettingsPanel extends JPanel {
 			
 			JCheckBox box = new JCheckBox(value.getTitle());
 
+			box.setSelected(settings.getBoolean(value.getName(), false));
+			
 			box.addChangeListener(new ChangeListenerCheckbox(value.getName(), box, false));
 
 			components.put(getName(), box);
@@ -483,6 +488,13 @@ public class SettingsPanel extends JPanel {
 			return panel;
 		}
 		
+	/*	if (p instanceof FileStringParser) {
+			
+			
+			
+			
+		}*/
+		
 		JPanel panel = new JPanel(new BorderLayout());
 		
 		panel.add(new JLabel(value.getTitle()), BorderLayout.NORTH);
@@ -499,6 +511,8 @@ public class SettingsPanel extends JPanel {
 		
 	}
 	
-
+	private void registerSettingsComponent(String name, Component component) {
+		
+	}
 	
 }

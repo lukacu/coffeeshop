@@ -37,9 +37,9 @@ package org.coffeeshop.settings;
 public class SettingsAdapter implements SettingsListener {
 
 	/**
-	 * @see SettingsListener#storeSettings(Settings)
+	 * @see SettingsListener#storeSettings(PropertiesSettings)
 	 */
-	public void storeSettings(Settings s) {}
+	public void storeSettings(PropertiesSettings s) {}
 
 	/**
 	 * @see org.coffeeshop.settings.SettingsListener#settingsChanged(org.coffeeshop.settings.SettingsChangedEvent)

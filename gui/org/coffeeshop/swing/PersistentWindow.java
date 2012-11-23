@@ -13,6 +13,7 @@ import javax.swing.JFrame;
 
 import org.coffeeshop.application.Application;
 import org.coffeeshop.settings.Settings;
+import org.coffeeshop.settings.PropertiesSettings;
 import org.coffeeshop.settings.WriteableSettings;
 import org.coffeeshop.string.StringUtils;
 

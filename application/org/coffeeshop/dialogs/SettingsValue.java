@@ -1,5 +1,8 @@
 package org.coffeeshop.dialogs;
 
+import org.coffeeshop.settings.Settings;
+import org.coffeeshop.settings.SettingsNotFoundException;
+import org.coffeeshop.string.parsers.ParseException;
 import org.coffeeshop.string.parsers.StringParser;
 
 public class SettingsValue implements SettingsNode {
@@ -26,6 +29,24 @@ public class SettingsValue implements SettingsNode {
 
 	public StringParser getParser() {
 		return parser;
+	}
+	
+	public Object parse(String raw) throws ParseException {
+		if (parser == null)
+			return raw;
+		
+		return parser.parse(raw);
+	}
+	
+	public Object parse(Settings settings) throws ParseException {
+		
+		try {
+		
+			return parse(settings.getString(name));
+		
+		} catch (SettingsNotFoundException e) {
+			return null;
+		}
 	}
 	
 	public String getDefault() {

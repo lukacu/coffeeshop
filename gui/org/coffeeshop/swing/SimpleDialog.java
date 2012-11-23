@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 import org.coffeeshop.awt.StackLayout;
 import org.coffeeshop.awt.StackLayout.Orientation;
 import org.coffeeshop.dialogs.OrganizedSettings;
+import org.coffeeshop.settings.Settings;
 
 public class SimpleDialog extends JDialog {
 
@@ -49,9 +50,9 @@ public class SimpleDialog extends JDialog {
 		}
 	};
 	
-	public SimpleDialog(Frame owner, OrganizedSettings settings) {
+	public SimpleDialog(Frame owner, Settings settings, OrganizedSettings structure) {
 		
-		super(owner, settings.getTitle(), true);
+		super(owner, structure.getTitle(), true);
 
 		getContentPane().setLayout(new BorderLayout());
 		
@@ -64,7 +65,7 @@ public class SimpleDialog extends JDialog {
 		
 		getContentPane().add(buttons, BorderLayout.SOUTH);
 
-		SettingsPanel panel = new SettingsPanel(settings);;
+		SettingsPanel panel = new SettingsPanel(settings, structure);;
 		
 		getContentPane().add(panel, BorderLayout.CENTER);
 		

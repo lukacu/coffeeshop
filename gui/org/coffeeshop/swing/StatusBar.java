@@ -200,6 +200,9 @@ public class StatusBar extends JComponent {
 	}
 
 	public void addAction(Action action) {
+		
 		tools.add(action);
+		
 	}
+	
 }

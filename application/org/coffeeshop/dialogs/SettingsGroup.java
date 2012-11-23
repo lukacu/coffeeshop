@@ -10,5 +10,5 @@ public interface SettingsGroup extends Iterable<SettingsNode>, SettingsNode {
 	
 	public SettingsValue attachValue(String name, String title, StringParser type);
 
-	public SettingsValue attachValue(String name, StringParser type);
+	public SettingsMap attachMap(String namespace, String title);
 }

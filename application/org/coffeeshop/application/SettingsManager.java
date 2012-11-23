@@ -30,7 +30,7 @@ import java.io.*;
 import java.util.*;
 
 import org.coffeeshop.settings.ReadableSettings;
-import org.coffeeshop.settings.Settings;
+import org.coffeeshop.settings.PropertiesSettings;
 import org.coffeeshop.string.StringUtils;
 
 /**
@@ -41,7 +41,7 @@ import org.coffeeshop.string.StringUtils;
  * 
  * @author lukacu
  * @since CoffeeShop 1.0
- * @see org.coffeeshop.settings.Settings
+ * @see org.coffeeshop.settings.PropertiesSettings
  */
 public class SettingsManager {
     
@@ -52,7 +52,7 @@ public class SettingsManager {
     private boolean hasDirectory = false;
     
     // hash map that stores opened files
-    private HashMap<String, Settings> files; 
+    private HashMap<String, PropertiesSettings> files; 
     
 	private static class SettingsAutosave extends Thread {
 		
@@ -111,7 +111,7 @@ public class SettingsManager {
 		settingsDirectory = Application.applicationStorageDirectory(a);
 		// attempt to check for the directory and possibly create it 
 		hasDirectory = createRepository(); 
-		files = new HashMap<String, Settings>();
+		files = new HashMap<String, PropertiesSettings>();
 		
 		if (autosave)
 			SettingsManager.autosave.add(this);
@@ -150,12 +150,12 @@ public class SettingsManager {
      * @return <code>true</code> if successful, 
      * <code>false</code> if the file already has an object attached.
      */  
-    public Settings getSettings(String fileName, ReadableSettings parent) {
+    public PropertiesSettings getSettings(String fileName, ReadableSettings parent) {
     	// search for existing settings object
-        Settings result = (Settings)files.get(fileName);
+        PropertiesSettings result = (PropertiesSettings)files.get(fileName);
         if (result != null) return result;
         
-        result = new Settings(parent);
+        result = new PropertiesSettings(parent);
         files.put(fileName, result);
         // if the settings directory does not exists, we can not load
         // settings ... therefore return empty object
@@ -173,7 +173,7 @@ public class SettingsManager {
      * <code>false</code> if the file already has an object attached.
      * @see SettingsManager#getSettings(String)
      */  
-    public Settings getSettings(String fileName) {
+    public PropertiesSettings getSettings(String fileName) {
     	
     	return getSettings(fileName, null);
     }
@@ -189,8 +189,8 @@ public class SettingsManager {
      * @return <code>true</code> if successful, 
      * <code>false</code> if the file already has an object attached.
      */    
-    public boolean addSettings(String fileName, Settings settings) {
-        Settings result = (Settings)files.get(fileName);
+    public boolean addSettings(String fileName, PropertiesSettings settings) {
+        PropertiesSettings result = (PropertiesSettings)files.get(fileName);
         if (result != null) return false;
         
         files.put(fileName, settings);
@@ -230,7 +230,7 @@ public class SettingsManager {
     public boolean storeSettings(String fileName) throws FileNotFoundException {
     	if (!hasDirectory)
     		throw new FileNotFoundException("Settings directory does not exists");
-        Settings result = (Settings)files.get(fileName);
+        PropertiesSettings result = (PropertiesSettings)files.get(fileName);
         if (result != null) {
         	try {
         		result.storeSettings(new File(settingsDirectory, fileName));

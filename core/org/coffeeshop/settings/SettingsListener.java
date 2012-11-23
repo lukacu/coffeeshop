@@ -32,19 +32,11 @@ package org.coffeeshop.settings;
  * 
  * @author lukacu
  * @since CoffeeShop 1.0
- * @see org.coffeeshop.settings.Settings
+ * @see org.coffeeshop.settings.PropertiesSettings
  *
  */
 public interface SettingsListener {
 
-	/**
-	 * Called before settings are saved to file if any last minute
-	 * updating is needed.
-	 * 
-	 * @param s settings object
-	 */
-	public void storeSettings(Settings s);
-	
 	/**
 	 * Called when specific settings value is changed
 	 * @param e event object

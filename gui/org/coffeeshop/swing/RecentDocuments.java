@@ -2,11 +2,10 @@ package org.coffeeshop.swing;
 
 import java.io.File;
 import java.util.LinkedList;
-import java.util.TreeSet;
 
 import javax.swing.AbstractListModel;
 
-import org.coffeeshop.settings.AbstractSettings;
+import org.coffeeshop.settings.Settings;
 import org.coffeeshop.settings.SettingsNotFoundException;
 
 public class RecentDocuments extends AbstractListModel {
@@ -15,19 +14,19 @@ public class RecentDocuments extends AbstractListModel {
 
 	private LinkedList<File> documents = new LinkedList<File>();
 
-	private AbstractSettings settings;
+	private Settings settings;
 	
 	private boolean validate = true;
 	
 	private String base;
 	
-	public RecentDocuments(AbstractSettings settings, String base) {
+	public RecentDocuments(Settings settings, String base) {
 
 		this.settings = settings;
 		
 		this.base = base;
 		
-		TreeSet<File> history = new TreeSet<File>();
+		LinkedList<File> history = new LinkedList<File>();
 
 		int i = 0;
 
@@ -36,7 +35,7 @@ public class RecentDocuments extends AbstractListModel {
 			try {
 				File f = new File(settings.getString(base + i));
 
-				if (!validate || f.exists())
+				if ((!validate || f.exists()) && !history.contains(f))
 					history.add(f);
 
 			} catch (SettingsNotFoundException e) {

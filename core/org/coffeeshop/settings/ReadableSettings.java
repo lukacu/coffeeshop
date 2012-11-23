@@ -33,7 +33,7 @@ import java.util.Set;
  * 
  * @author Luka Cehovin
  * @since CoffeeShop Core 1.0
- * @see AbstractSettings
+ * @see Settings
  */
 public interface ReadableSettings {
 

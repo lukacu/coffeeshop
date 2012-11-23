@@ -48,8 +48,9 @@ import org.coffeeshop.external.OperatingSystem;
 import org.coffeeshop.io.Files;
 import org.coffeeshop.io.TempDirectory;
 import org.coffeeshop.log.Logger;
-import org.coffeeshop.settings.ReadableSettings;
 import org.coffeeshop.settings.Settings;
+import org.coffeeshop.settings.ReadableSettings;
+import org.coffeeshop.settings.PropertiesSettings;
 import org.coffeeshop.settings.SettingsNotFoundException;
 import org.coffeeshop.string.parsers.StringParser;
 
@@ -139,7 +140,7 @@ public abstract class Application {
 		
 		private ArgumentsResult reconfigured;
 		
-		private Settings storage = null;
+		private PropertiesSettings storage = null;
 		
 		public ApplicationSettingsImpl(Application a) {
 			super((ReadableSettings)null);
@@ -282,35 +283,6 @@ public abstract class Application {
 		public boolean isModified() {
 			return storage.isModified();
 		}
-
-		public void setDouble(String key, double value) {
-			storage.setDouble(key, value);
-			
-		}
-
-		public void setFloat(String key, float value) {
-			storage.setFloat(key, value);
-		}
-
-		public void setInt(String key, int value) {
-			storage.setInt(key, value);
-			
-		}
-
-		public void setLong(String key, long value) {
-			storage.setLong(key, value);
-			
-		}
-
-		public void setBoolean(String key, boolean value) {
-			storage.setBoolean(key, value);
-			
-		}
-		
-		public void setString(String key, String value) {
-			storage.setString(key, value);
-			
-		}
 		
 	    public void touch() {
 	        storage.touch();
@@ -319,6 +291,22 @@ public abstract class Application {
 		public void remove(String key) {
 			storage.remove(key);
 			
+		}
+
+		@Override
+		public Set<String> getKeys() {
+			return storage.getAllKeys();
+		}
+
+		@Override
+		protected String setProperty(String key, String value) {
+			String old = getString(key, null);
+			
+			storage.setString(key, value);
+			
+			notifySettingsChanged(key, old, value);
+			
+			return value;
 		}
 	}
 	

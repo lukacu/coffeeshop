@@ -34,14 +34,14 @@ import java.util.Set;
  * @author Luka Cehovin
  * @since CoffeeShop Core 1.0
  * @see java.util.Properties
- * @see Settings
+ * @see PropertiesSettings
  * @see ReadableSettings
  */
 public abstract class AbstractReadonlySettings implements ReadableSettings {
 	
 	static final long serialVersionUID = 2342341;
 	
-    private ReadableSettings parent;
+    protected ReadableSettings parent;
     
     /**
      * Construct new empty <code>Settings</code> object.
@@ -234,4 +234,5 @@ public abstract class AbstractReadonlySettings implements ReadableSettings {
 		}
 
 	}
+
 }
