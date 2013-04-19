@@ -56,6 +56,18 @@ public class PropertiesSettings extends Settings implements StoreableSettings {
     private Vector<SettingsStorageListener> listeners = new Vector<SettingsStorageListener>();
     
     /**
+     * Construct a new empty <code>Settings</code> object.
+     * 
+     */
+    public PropertiesSettings() {
+        super(null);
+        
+    	storage = new Properties();
+    	
+        modified = false;
+    }
+    
+    /**
      * Construct a new empty <code>Settings</code> object with a parent settings storage.
      * 
      * @param parent the parent
