@@ -57,7 +57,7 @@ public class SettingsPanel extends JPanel {
 
 	public interface SettingsRenderer {
 		
-		public JComponent renderComponent();
+		public JComponent renderComponent(String name, Settings settings);
 		
 	}
 	
@@ -329,9 +329,9 @@ public class SettingsPanel extends JPanel {
 
 		StringParser p = value.getParser();
 		
-		if (value instanceof SettingsRenderer) {
+		if (p instanceof SettingsRenderer) {
 			
-			return ((SettingsRenderer) value).renderComponent();
+			return ((SettingsRenderer) p).renderComponent(getName(), settings);
 			
 		}
 		
