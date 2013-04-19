@@ -8,7 +8,7 @@ import javax.swing.AbstractListModel;
 import org.coffeeshop.settings.Settings;
 import org.coffeeshop.settings.SettingsNotFoundException;
 
-public class RecentDocuments extends AbstractListModel {
+public class RecentDocuments extends AbstractListModel<File> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -100,7 +100,7 @@ public class RecentDocuments extends AbstractListModel {
 	}
 	
 	@Override
-	public Object getElementAt(int arg0) {
+	public File getElementAt(int arg0) {
 		return documents.get(arg0);
 	}
 

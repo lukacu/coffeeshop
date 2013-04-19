@@ -17,7 +17,7 @@ import javax.swing.event.ListSelectionListener;
 
 public abstract class RecentDocumentsSplash extends Splash {
 
-	private JList list = new JList();
+	private JList<File> list = new JList<File>();
 	
 	public RecentDocumentsSplash(String title, Image image, RecentDocuments history) {
 		super(title, image);
@@ -41,10 +41,10 @@ public abstract class RecentDocumentsSplash extends Splash {
 			}
 		});
 
-		list.setCellRenderer(new ListCellRenderer() {
+		list.setCellRenderer(new ListCellRenderer<Object>() {
 
 			@Override
-			public Component getListCellRendererComponent(JList list,
+			public Component getListCellRendererComponent(JList<?> list,
 					Object value, int index, boolean isSelected,
 					boolean cellHasFocus) {
 				File file = (File) value;
