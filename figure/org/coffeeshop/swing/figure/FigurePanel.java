@@ -29,16 +29,15 @@ import javax.swing.Scrollable;
 import javax.swing.SpringLayout;
 
 /**
- * StripBoard is a Swing component that is used to display strip images. It
- * provides userfriendly navigation mechanism.
  * 
- * @author lukacu
- * @since WebStrips 0.1
  */
 public class FigurePanel extends JComponent implements Scrollable {
 
 	public static final long serialVersionUID = 1;
 
+	public static enum Alignment {TOP_LEFT, BOTTOM_LEFT, CENTER_LEFT, TOP_CENTER, 
+		CENTER, BOTTOM_CENTER, TOP_RIGHT, CENTER_RIGHT, BOTTOM_RIGHT}
+	
 	public static enum Button {NONE, LEFT, MIDDLE, RIGHT}
 	
 	private static final Dimension MINIMUM_SIZE = new Dimension(400, 100);
@@ -53,16 +52,16 @@ public class FigurePanel extends JComponent implements Scrollable {
 			if (source == null)
 				return;
 			
-			if (vector.x != 0 && source.horizontal.isEnabled())
-				source.horizontal.setValue(source.horizontal.getValue()
+			if (vector.x != 0 && source.horizontalScrollbar.isEnabled())
+				source.horizontalScrollbar.setValue(source.horizontalScrollbar.getValue()
 						+ vector.x);
 
-			if (source.vertical.isEnabled()) {
-				source.vertical.setValue(source.vertical.getValue()
+			if (source.verticalScrollbar.isEnabled()) {
+				source.verticalScrollbar.setValue(source.verticalScrollbar.getValue()
 						+ vector.y);
 			} else {
-				if (vector.x == 0 && vector.y != 0 && source.horizontal.isEnabled())
-					source.horizontal.setValue(source.horizontal.getValue()
+				if (vector.x == 0 && vector.y != 0 && source.horizontalScrollbar.isEnabled())
+					source.horizontalScrollbar.setValue(source.horizontalScrollbar.getValue()
 							+ vector.y);
 				
 			}
@@ -80,13 +79,13 @@ public class FigurePanel extends JComponent implements Scrollable {
 			if (source == null)
 				return cursor;
 			
-			if (source.horizontal.isEnabled()) {
+			if (source.horizontalScrollbar.isEnabled()) {
 				int move = (int)Math.round((double)(from.x - to.x) * source.getZoom());
-				source.horizontal.setValue(source.horizontal.getValue() + move);
+				source.horizontalScrollbar.setValue(source.horizontalScrollbar.getValue() + move);
 			}
-			if (source.vertical.isEnabled()) {
+			if (source.verticalScrollbar.isEnabled()) {
 				int move = (int)Math.round((double)(from.y - to.y) * source.getZoom());
-				source.vertical.setValue(source.vertical.getValue() + move);
+				source.verticalScrollbar.setValue(source.verticalScrollbar.getValue() + move);
 			}
 
 			return cursor;
@@ -122,9 +121,11 @@ public class FigurePanel extends JComponent implements Scrollable {
 
 	private FigureContainer container;
 
-	private JScrollBar vertical = new JScrollBar(JScrollBar.VERTICAL),
-			horizontal = new JScrollBar(JScrollBar.HORIZONTAL);
+	private JScrollBar verticalScrollbar = new JScrollBar(JScrollBar.VERTICAL),
+			horizontalScrollbar = new JScrollBar(JScrollBar.HORIZONTAL);
 
+	private Alignment alignment = Alignment.CENTER;
+	
 	private SpringLayout layout = new SpringLayout();
 
 	private double wheelSensitivity = 4;
@@ -338,18 +339,18 @@ public class FigurePanel extends JComponent implements Scrollable {
 				
 				// if the event was trigerred by _horizontal component and
 				// that component is enabled, we move horizontal scrollbar
-				if (e.getComponent() == horizontal && horizontal.isEnabled()) {
-					if (horizontal.isEnabled())
-						horizontal.setValue(horizontal.getValue()
+				if (e.getComponent() == horizontalScrollbar && horizontalScrollbar.isEnabled()) {
+					if (horizontalScrollbar.isEnabled())
+						horizontalScrollbar.setValue(horizontalScrollbar.getValue()
 								+ (int) Math.round((double) e
 										.getUnitsToScroll()
 										* wheelSensitivity));
 				} else {
 					// if vertical scrollbar is disabled and the horisontal
 					// isn't, we move horizontal scrollbar
-					if (e.getComponent() == vertical &&  vertical.isEnabled()) {
-						if (vertical.isEnabled())
-							vertical.setValue(vertical.getValue()
+					if (e.getComponent() == verticalScrollbar &&  verticalScrollbar.isEnabled()) {
+						if (verticalScrollbar.isEnabled())
+							verticalScrollbar.setValue(verticalScrollbar.getValue()
 									+ (int) Math.round((double) e
 											.getUnitsToScroll()
 											* wheelSensitivity));
@@ -363,51 +364,47 @@ public class FigurePanel extends JComponent implements Scrollable {
 	};
 
 	/**
-	 * Constructs a new strip board component
 	 * 
-	 * @param gc
-	 *            window graphical configuration (used to create appropriate
-	 *            images for buttons)
 	 */
 	public FigurePanel() {
 
 		setLayout(layout);
 
-		vertical.setVisibleAmount(SCROLLBAR_EXTENT);
-		horizontal.setVisibleAmount(SCROLLBAR_EXTENT);
+		verticalScrollbar.setVisibleAmount(SCROLLBAR_EXTENT);
+		horizontalScrollbar.setVisibleAmount(SCROLLBAR_EXTENT);
 
 		container = new FigureContainer();
 
-		add(vertical);
-		add(horizontal);
+		add(verticalScrollbar);
+		add(horizontalScrollbar);
 		add(container);
 
-		layout.putConstraint(SpringLayout.EAST, vertical, 0, SpringLayout.EAST,
+		layout.putConstraint(SpringLayout.EAST, verticalScrollbar, 0, SpringLayout.EAST,
 				this);
 
-		layout.putConstraint(SpringLayout.SOUTH, vertical, -horizontal
+		layout.putConstraint(SpringLayout.SOUTH, verticalScrollbar, -horizontalScrollbar
 				.getPreferredSize().height, SpringLayout.SOUTH, this);
 
-		layout.putConstraint(SpringLayout.NORTH, vertical, 0,
+		layout.putConstraint(SpringLayout.NORTH, verticalScrollbar, 0,
 				SpringLayout.NORTH, this);
 
-		layout.putConstraint(SpringLayout.EAST, horizontal, -vertical
+		layout.putConstraint(SpringLayout.EAST, horizontalScrollbar, -verticalScrollbar
 				.getPreferredSize().width, SpringLayout.EAST, this);
 
-		layout.putConstraint(SpringLayout.WEST, horizontal, 0,
+		layout.putConstraint(SpringLayout.WEST, horizontalScrollbar, 0,
 				SpringLayout.WEST, this);
 
-		layout.putConstraint(SpringLayout.SOUTH, horizontal, 0,
+		layout.putConstraint(SpringLayout.SOUTH, horizontalScrollbar, 0,
 				SpringLayout.SOUTH, this);
 
 		layout.putConstraint(SpringLayout.EAST, container, 0,
-				SpringLayout.WEST, vertical);
+				SpringLayout.WEST, verticalScrollbar);
 
 		layout.putConstraint(SpringLayout.WEST, container, 0,
 				SpringLayout.WEST, this);
 
 		layout.putConstraint(SpringLayout.SOUTH, container, 0,
-				SpringLayout.NORTH, horizontal);
+				SpringLayout.NORTH, horizontalScrollbar);
 
 		layout.putConstraint(SpringLayout.NORTH, container, 0,
 				SpringLayout.NORTH, this);
@@ -419,16 +416,16 @@ public class FigurePanel extends JComponent implements Scrollable {
 			}
 		});
 
-		horizontal.addAdjustmentListener(new AdjustmentListener() {
+		horizontalScrollbar.addAdjustmentListener(new AdjustmentListener() {
 			public void adjustmentValueChanged(AdjustmentEvent e) {
-				if (horizontal.isEnabled())
+				if (horizontalScrollbar.isEnabled())
 					container.setOffsetX(-e.getValue());
 			}
 		});
 
-		vertical.addAdjustmentListener(new AdjustmentListener() {
+		verticalScrollbar.addAdjustmentListener(new AdjustmentListener() {
 			public void adjustmentValueChanged(AdjustmentEvent e) {
-				if (vertical.isEnabled())
+				if (verticalScrollbar.isEnabled())
 					container.setOffsetY(-e.getValue());
 			}
 		});
@@ -445,8 +442,8 @@ public class FigurePanel extends JComponent implements Scrollable {
 
 		container.addMouseListener(mouse);
 		container.addMouseMotionListener(mouse);
-		vertical.addMouseWheelListener(mouse);
-		horizontal.addMouseWheelListener(mouse);
+		verticalScrollbar.addMouseWheelListener(mouse);
+		horizontalScrollbar.addMouseWheelListener(mouse);
 		container.addMouseWheelListener(mouse);
 		
 		addKeyListener(keys);
@@ -553,6 +550,16 @@ public class FigurePanel extends JComponent implements Scrollable {
 		super.revalidate();
 	}
 	
+	public Alignment getAligmnent() {
+		return alignment;
+	}
+
+	public void setAlignment(Alignment alignment) {
+		this.alignment = alignment;
+		this.revalidate();
+	}
+	
+	
 	/**
 	 * Resets the scrollbars to (0, 0)
 	 * 
@@ -561,19 +568,19 @@ public class FigurePanel extends JComponent implements Scrollable {
 		container.recalculate(container.figure);
 
 		if (container.getMaxOffsetY() <= container.getMinOffsetY()) {
-			vertical.setEnabled(false);
-			vertical.setValues(0, SCROLLBAR_EXTENT, 0, 0);
+			verticalScrollbar.setEnabled(false);
+			verticalScrollbar.setValues(0, SCROLLBAR_EXTENT, 0, 0);
 		} else {
-			vertical.setEnabled(true);
-			vertical.setValues(0, SCROLLBAR_EXTENT, container.getMinOffsetY(), container.getMaxOffsetY());
+			verticalScrollbar.setEnabled(true);
+			verticalScrollbar.setValues(0, SCROLLBAR_EXTENT, container.getMinOffsetY(), container.getMaxOffsetY());
 		}
 
 		if (container.getMaxOffsetX() <= container.getMinOffsetX()) {
-			horizontal.setEnabled(false);
-			horizontal.setValues(0, SCROLLBAR_EXTENT, 0, 0);
+			horizontalScrollbar.setEnabled(false);
+			horizontalScrollbar.setValues(0, SCROLLBAR_EXTENT, 0, 0);
 		} else {
-			horizontal.setEnabled(true);
-			horizontal.setValues(0, SCROLLBAR_EXTENT, container.getMinOffsetX(), container.getMaxOffsetX());
+			horizontalScrollbar.setEnabled(true);
+			horizontalScrollbar.setValues(0, SCROLLBAR_EXTENT, container.getMinOffsetX(), container.getMaxOffsetX());
 		}
 	}
 
@@ -585,33 +592,33 @@ public class FigurePanel extends JComponent implements Scrollable {
 		container.recalculate(container.figure);
 
 		if (container.getMaxOffsetY() <= container.getMinOffsetY()) {
-			vertical.setEnabled(false);
-			vertical.setValues(0, SCROLLBAR_EXTENT, 0, 0);
+			verticalScrollbar.setEnabled(false);
+			verticalScrollbar.setValues(0, SCROLLBAR_EXTENT, 0, 0);
 		} else {
-			float oldWidth = vertical.getMaximum() - vertical.getMinimum();
+			float oldWidth = verticalScrollbar.getMaximum() - verticalScrollbar.getMinimum();
 			float newWidth = container.getMaxOffsetY() - container.getMinOffsetY();
 			
-			int newValue = Math.round((float) vertical.getValue()
+			int newValue = Math.round((float) verticalScrollbar.getValue()
 					* (newWidth / oldWidth));
 
-			vertical.setEnabled(true);
-			vertical.setValues(newValue, SCROLLBAR_EXTENT, container.getMinOffsetY(), container.getMaxOffsetY());
+			verticalScrollbar.setEnabled(true);
+			verticalScrollbar.setValues(newValue, SCROLLBAR_EXTENT, container.getMinOffsetY(), container.getMaxOffsetY());
 		
 		}
 
 		if (container.getMaxOffsetX() <= container.getMinOffsetX()) {
-			horizontal.setEnabled(false);
-			horizontal.setValues(0, SCROLLBAR_EXTENT, 0, 0);
+			horizontalScrollbar.setEnabled(false);
+			horizontalScrollbar.setValues(0, SCROLLBAR_EXTENT, 0, 0);
 		} else {		
 			
-			float oldWidth = horizontal.getMaximum() - horizontal.getMinimum();
+			float oldWidth = horizontalScrollbar.getMaximum() - horizontalScrollbar.getMinimum();
 			float newWidth = container.getMaxOffsetX() - container.getMinOffsetX();
 			
-			int newValue = Math.round((float) horizontal.getValue()
+			int newValue = Math.round((float) horizontalScrollbar.getValue()
 					* (newWidth / oldWidth));
 
-			horizontal.setEnabled(true);
-			horizontal.setValues(newValue, SCROLLBAR_EXTENT, container.getMinOffsetX(), container.getMaxOffsetX());
+			horizontalScrollbar.setEnabled(true);
+			horizontalScrollbar.setValues(newValue, SCROLLBAR_EXTENT, container.getMinOffsetX(), container.getMaxOffsetX());
 			
 		}
 
@@ -852,10 +859,44 @@ public class FigurePanel extends JComponent implements Scrollable {
 				maxOffsetY = (figureHeight + 2 * zBorder) - getHeight();
 				
 				// calculate the offset of the image
-				figureOffsetX = (minOffsetX < maxOffsetX) ? figureOffsetX
-						: ((getWidth() - figureWidth) / 2);
-				figureOffsetY = (minOffsetY < maxOffsetY) ? figureOffsetY
-						: ((getHeight() - figureHeight) / 2);
+				if (minOffsetX >= maxOffsetX)
+					switch (alignment) {
+					case TOP_CENTER:
+					case BOTTOM_CENTER:
+					case CENTER:
+						figureOffsetX = ((getWidth() - figureWidth) / 2);
+						break;
+					case TOP_RIGHT:
+					case CENTER_RIGHT:
+					case BOTTOM_RIGHT:
+						figureOffsetX = (getWidth() - figureWidth);
+						break;
+					case TOP_LEFT:
+					case CENTER_LEFT:
+					case BOTTOM_LEFT:
+						figureOffsetX = 0;
+						break;
+					}
+						
+				
+				if (minOffsetY >= maxOffsetY)
+					switch (alignment) {
+					case CENTER_RIGHT:
+					case CENTER_LEFT:
+					case CENTER:
+						figureOffsetY = ((getHeight() - figureHeight) / 2);
+						break;
+					case BOTTOM_RIGHT:
+					case BOTTOM_CENTER:
+					case BOTTOM_LEFT:
+						figureOffsetY = (getHeight() - figureHeight);
+						break;
+					case TOP_LEFT:
+					case TOP_RIGHT:
+					case TOP_CENTER:
+						figureOffsetY = 0;
+						break;
+					}
 
 			}
 
