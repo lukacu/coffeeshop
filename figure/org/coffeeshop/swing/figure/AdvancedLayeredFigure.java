@@ -6,31 +6,28 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.Arrays;
-import java.util.Map;
+import java.util.Vector;
 
-import org.coffeeshop.swing.viewers.AdvancedLayeredFigureViewer;
 import org.coffeeshop.swing.viewers.Viewable;
 
 public class AdvancedLayeredFigure extends LayeredFigure implements Viewable {
 
-	private Point2D[] offsets;
+	protected Vector<Float> alpha = new Vector<Float>();
 	
-	private float[] alpha;
+	protected Vector<Point2D> offsets = new Vector<Point2D>(); 
 	
 	public AdvancedLayeredFigure(String name, Figure ... layers) {
 		
 		super(name, layers);
+
+	}
+
+	@Override
+	public void add(Figure figure) {
+		super.add(figure);
 		
-		offsets = new Point2D.Double[layers.length];
-		for (int i = 0; i < offsets.length; i++) {
-			offsets[i] = new Point2D.Double(0, 0);
-		}
-		
-		
-		alpha = new float[layers.length];
-		Arrays.fill(alpha, 1);
-		
+		alpha.add(1.0f);
+		offsets.add(new Point2D.Double(0, 0));
 	}
 	
 	public AdvancedLayeredFigure(Figure ... layers) {
@@ -43,9 +40,9 @@ public class AdvancedLayeredFigure extends LayeredFigure implements Viewable {
 	
 		int height = 0;
 		
-		for (int i = 0; i < figures.length; i++) {
+		for (int i = 0; i < figures.size(); i++) {
 			
-			height = Math.max(height, (int) Math.round(figures[i].getHeight(observer) + offsets[i].getY()));
+			height = Math.max(height, (int) Math.round(figures.get(i).getHeight(observer) + offsets.get(i).getY()));
 			
 		}
 
@@ -55,8 +52,8 @@ public class AdvancedLayeredFigure extends LayeredFigure implements Viewable {
 	public int getWidth(FigureObserver observer) {
 		int width = 0;
 		
-		for (int i = 0; i < figures.length; i++) {
-			width = Math.max(width, (int) Math.round(figures[i].getWidth(observer) + offsets[i].getY()));
+		for (int i = 0; i < figures.size(); i++) {
+			width = Math.max(width, (int) Math.round(figures.get(i).getWidth(observer) + offsets.get(i).getY()));
 			
 		}
 
@@ -68,21 +65,21 @@ public class AdvancedLayeredFigure extends LayeredFigure implements Viewable {
 		
 		Rectangle2D transformed = new Rectangle2D.Double();
 
-		for (int i = 0; i < figures.length; i++) {
-			if (!hidden[i]) {
+		for (int i = 0; i < figures.size(); i++) {
+			if (!hidden.get(i)) {
 				
-				if (alpha[i] < 1){
-					AlphaComposite composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha[i]);		
+				if (alpha.get(i) < 1){
+					AlphaComposite composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha.get(i));		
 					
 					g.setComposite(composite);
 				} else g.setComposite(AlphaComposite.Src);
 				
 				//g.setTransform(AffineTransform.getTranslateInstance(offsets[i].x, offsets[i].y));
 				
-				transformed.setRect(figureSize.getX() - offsets[i].getX(), 
-						figureSize.getY() - offsets[i].getY(), figureSize.getWidth(), figureSize.getHeight());
+				transformed.setRect(figureSize.getX() - offsets.get(i).getX(), 
+						figureSize.getY() - offsets.get(i).getY(), figureSize.getWidth(), figureSize.getHeight());
 
-				figures[i].paint(g, transformed, windowSize, observer);
+				figures.get(i).paint(g, transformed, windowSize, observer);
 				
 				
 			}
@@ -97,7 +94,7 @@ public class AdvancedLayeredFigure extends LayeredFigure implements Viewable {
 		if (i == -1)
 			return;
 		
-		offsets[i].setLocation(x, y);
+		offsets.get(i).setLocation(x, y);
 	}
 	
 	public void setOffset(Figure layer, Point offset) {
@@ -113,7 +110,7 @@ public class AdvancedLayeredFigure extends LayeredFigure implements Viewable {
 		if (i == -1)
 			return null;
 		
-		return (Point2D) offsets[i].clone();
+		return (Point2D) offsets.get(i).clone();
 	}
 	
 	public void setTransparency(Figure layer, float alpha) {
@@ -123,7 +120,7 @@ public class AdvancedLayeredFigure extends LayeredFigure implements Viewable {
 		if (i == -1)
 			return;
 		
-		this.alpha[i] = Math.min(1, Math.max(0, alpha));
+		this.alpha.set(i, Math.min(1, Math.max(0, alpha)));
 
 	}
 	
@@ -134,52 +131,8 @@ public class AdvancedLayeredFigure extends LayeredFigure implements Viewable {
 		if (i == -1)
 			return 0;
 		
-		return this.alpha[i];
+		return this.alpha.get(i);
 
 	}
-	
-	public int size() {
-		return figures.length;
-	}
-	
-	public boolean isHidden(int layer) {
-		try {
-			return hidden[layer];
-		} catch (ArrayIndexOutOfBoundsException e) {
-			return false;
-		}
-	}
-	
-	public void hide(int layer) {
-		try {
-			hidden[layer] = true;
-		} catch (ArrayIndexOutOfBoundsException e) {}
-	}
-	
-	public void show(int layer) {
-		try {
-			hidden[layer] = false;
-		} catch (ArrayIndexOutOfBoundsException e) {}
-	}
 
-	public String getName() {
-		return name;
-	}
-	
-	public String getName(int layer) {
-		try {
-			return figures[layer].getName();
-		} catch (ArrayIndexOutOfBoundsException e) {
-			return null;
-		}
-	}
-	
-	public boolean view(Map<String, String> parameters) {
-
-		AdvancedLayeredFigureViewer viewer = new AdvancedLayeredFigureViewer(parameters, this);
-		viewer.setVisible(true);	
-		
-		return true;
-	}
-	
 }

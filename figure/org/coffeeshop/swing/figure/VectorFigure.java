@@ -19,15 +19,18 @@ public abstract class VectorFigure extends AbstractFigure implements Viewable {
 		g.setClip(windowSize.x, windowSize.y, windowSize.width,
 				windowSize.height);
 
-		float scale = (float) windowSize.width
+		float scaleX = (float) windowSize.width
 				/ (float) figureSize.getWidth();
 
-		float offsetX = (float) figureSize.getX() * scale
+		float scaleY = (float) windowSize.height
+				/ (float) figureSize.getHeight();
+		
+		float offsetX = (float) figureSize.getX() * scaleX
 				- (float) windowSize.x;
-		float offsetY = (float) figureSize.getY() * scale
+		float offsetY = (float) figureSize.getY() * scaleY
 				- (float) windowSize.y;
 
-		imageToScreen.setTransform(scale, 0, 0, scale, -offsetX,
+		imageToScreen.setTransform(scaleX, 0, 0, scaleY, -offsetX,
 				-offsetY);
 		
 		AffineTransform oldT = g.getTransform();
@@ -35,7 +38,7 @@ public abstract class VectorFigure extends AbstractFigure implements Viewable {
 		newT.concatenate(imageToScreen);
 		g.setTransform(newT);
 		
-		paintGeometry(g, scale, observer);
+		paintGeometry(g, (scaleX + scaleY) / 2, observer);
 		
 		g.setTransform(oldT);
 		

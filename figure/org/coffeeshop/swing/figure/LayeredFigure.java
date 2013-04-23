@@ -3,32 +3,37 @@ package org.coffeeshop.swing.figure;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
-import java.util.Arrays;
 import java.util.Map;
+import java.util.Vector;
 
 import org.coffeeshop.swing.viewers.LayeredFigureViewer;
 import org.coffeeshop.swing.viewers.Viewable;
 
 public class LayeredFigure extends AbstractFigure implements Viewable {
-
-	protected Figure[] figures;
 	
-	protected boolean[] hidden;
+	protected Vector<Figure> figures = new Vector<Figure>();
+	
+	protected Vector<Boolean> hidden = new Vector<Boolean>();
 	
 	protected String name;
 	
 	public LayeredFigure(String name, Figure ... layers) {
-		
-		figures = flatten(layers);
-		
-		hidden = new boolean[figures.length];
+
+		for (Figure figure : layers) {
+			if (figure != null)
+				add(figure);
+		}
 		
 		this.name = name;
 		
-		Arrays.fill(hidden, false);
-		
 		if (name == null)
-			this.name = "Layered Figure (" + figures.length + " layers)";
+			this.name = "Layered Figure (" + figures.size() + " layers)";
+		
+	}
+	
+	public void add(Figure figure) {
+		figures.add(figure);
+		hidden.add(false);
 		
 	}
 	
@@ -40,45 +45,29 @@ public class LayeredFigure extends AbstractFigure implements Viewable {
 	
 	protected int getIndex(Figure figure) {
 		
-		for (int i = 0; i < figures.length; i++)
-			if (figures[i] == figure)
+		for (int i = 0; i < figures.size(); i++)
+			if (figures.get(i) == figure)
 				return i;
 		
 			return -1;
 			
 	}
 	
-	protected Figure[] flatten(Figure[] figures) {
-		
-		int count = 0;
-		
-		for (int i = 0; i < figures.length; i++) {
-			Figure figure = figures[i];
-
-			if (figure == null)
-				continue;
-			
-			if (figure instanceof LayeredFigure) {
-				count += ((LayeredFigure) figure).size();
-			} else count += 1;
-
-		}
-		
-		Figure[] result = new Figure[count];
-		
-		int pos = 0;
-		
-		for (int i = 0; i < figures.length; i++) {
-			Figure figure = figures[i];
-			if (figure == null)
-				continue;
-			
-			if (figure instanceof LayeredFigure) {
-				System.arraycopy(((LayeredFigure) figure).figures, 0, result, pos, 
-						((LayeredFigure) figure).figures.length);
+	protected Vector<Figure> flatten(Figure[] figures) {
 				
-				pos += ((LayeredFigure) figure).size();
-			} else result[pos++] = figure;
+		Vector<Figure> result = new Vector<Figure>();
+		
+		for (int i = 0; i < figures.length; i++) {
+			Figure figure = figures[i];
+			if (figure == null)
+				continue;
+			
+			if (figure instanceof LayeredFigure) {
+				
+				for (Figure f : ((LayeredFigure) figure).figures) 
+					result.add(f);
+				
+			} else result.add(figure);
 
 		}
 
@@ -90,9 +79,9 @@ public class LayeredFigure extends AbstractFigure implements Viewable {
 	
 		int height = 0;
 		
-		for (int i = 0; i < figures.length; i++) {
+		for (Figure figure : figures) {
 			
-			height = Math.max(height, figures[i].getHeight(observer));
+			height = Math.max(height, figure.getHeight(observer));
 			
 		}
 
@@ -102,8 +91,8 @@ public class LayeredFigure extends AbstractFigure implements Viewable {
 	public int getWidth(FigureObserver observer) {
 		int width = 0;
 		
-		for (int i = 0; i < figures.length; i++) {
-			width = Math.max(width, figures[i].getWidth(observer));
+		for (Figure figure : figures) {
+			width = Math.max(width, figure.getWidth(observer));
 			
 		}
 
@@ -112,28 +101,23 @@ public class LayeredFigure extends AbstractFigure implements Viewable {
 
 	public void paint(Graphics2D g, Rectangle2D figureSize, Rectangle windowSize,
 			FigureObserver observer) {
-		
 
-		for (int i = 0; i < figures.length; i++) {
-			if (!hidden[i])
-				figures[i].paint(g, figureSize, windowSize, observer);
-			
+		for (int i = 0; i < figures.size(); i++) {
+			if (!hidden.get(i))
+				figures.get(i).paint(g, figureSize, windowSize, observer);	
 		}
 
 	}
 
 	public int size() {
-		return figures.length;
+		return figures.size();
 	}
 	
 	public void setVisible(Figure layer, boolean visible) {
 		
 		int i = getIndex(layer);
 
-		if (i == -1)
-			return;
-		
-		this.hidden[i] = !visible;
+		setVisible(i, visible);
 
 	}
 	
@@ -142,7 +126,7 @@ public class LayeredFigure extends AbstractFigure implements Viewable {
 		if (i == -1)
 			return;
 		
-		this.hidden[i] = !visible;
+		this.hidden.set(i, !visible);
 
 	}
 	
@@ -150,10 +134,7 @@ public class LayeredFigure extends AbstractFigure implements Viewable {
 		
 		int i = getIndex(layer);
 
-		if (i == -1)
-			return false;
-		
-		return !this.hidden[i];
+		return isVisible(i);
 
 	}
 	
@@ -162,12 +143,12 @@ public class LayeredFigure extends AbstractFigure implements Viewable {
 		if (i == -1)
 			return false;
 		
-		return !this.hidden[i];
+		return !this.hidden.get(i);
 
 	}
 	
 	public Figure getFigure(int i) {
-		return figures[i];
+		return figures.get(i);
 	}
 	
 	
@@ -177,7 +158,7 @@ public class LayeredFigure extends AbstractFigure implements Viewable {
 	
 	public String getName(int layer) {
 		try {
-			return figures[layer].getName();
+			return figures.get(layer).getName();
 		} catch (ArrayIndexOutOfBoundsException e) {
 			return null;
 		}
@@ -189,7 +170,7 @@ public class LayeredFigure extends AbstractFigure implements Viewable {
 		if (i == -1)
 			return "";
 			
-		return figures[i].getName();
+		return figures.get(i).getName();
 
 	}
 	

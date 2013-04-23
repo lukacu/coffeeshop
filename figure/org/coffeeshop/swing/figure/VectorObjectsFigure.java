@@ -12,7 +12,7 @@ public class VectorObjectsFigure extends VectorFigure {
 
 	private static final Color DEFAULT_COLOR = Color.WHITE;
 	
-	private static abstract class VectorObject {
+	public static abstract class VectorObject {
 		
 		protected Color color;
 		
