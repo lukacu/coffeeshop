@@ -35,6 +35,8 @@ import java.util.StringTokenizer;
 
 public class EnumeratedSubsetStringParser extends EnumeratedStringParser implements StringParser {
 
+	private String separator = ",";
+	
 	/**
 	 * Constructs a new instance of EnumeratedSubsetStringParser.
 	 * 
@@ -47,8 +49,31 @@ public class EnumeratedSubsetStringParser extends EnumeratedStringParser impleme
 	 * @throws IllegalArgumentException if the option value string has wrong format
 	 *         or is empty
 	 */
-	public EnumeratedSubsetStringParser(String validOptionValues, boolean caseSensitive) throws IllegalArgumentException {
+	public EnumeratedSubsetStringParser(String validOptionValues, boolean caseSensitive, String separator) throws IllegalArgumentException {
 		super(validOptionValues, caseSensitive, true);
+		this.separator = separator != null ? separator : ",";
+	}
+
+	/**
+	 * Constructs a new instance of EnumeratedSubsetStringParser.
+	 * 
+	 */
+	public EnumeratedSubsetStringParser(Class<?> validOptionValues, boolean caseSensitive, String separator) throws IllegalArgumentException {
+		super(validOptionValues, caseSensitive);
+		this.separator = separator != null ? separator : ",";
+	}
+
+	/**
+	 * Constructs a new instance of EnumeratedSubsetStringParser.
+	 * 
+	 */
+	public EnumeratedSubsetStringParser(Iterable<?> values, boolean caseSensitive, String separator) throws IllegalArgumentException {
+		super(values, caseSensitive);
+		this.separator = separator != null ? separator : ",";
+	}
+	
+	public EnumeratedSubsetStringParser(String validOptionValues, boolean caseSensitive) throws IllegalArgumentException {
+		this(validOptionValues, caseSensitive, null);
 	}
 
 	/**
@@ -56,7 +81,7 @@ public class EnumeratedSubsetStringParser extends EnumeratedStringParser impleme
 	 * 
 	 */
 	public EnumeratedSubsetStringParser(Class<?> validOptionValues, boolean caseSensitive) throws IllegalArgumentException {
-		super(validOptionValues, caseSensitive);
+		this(validOptionValues, caseSensitive, null);
 	}
 
 	/**
@@ -64,7 +89,7 @@ public class EnumeratedSubsetStringParser extends EnumeratedStringParser impleme
 	 * 
 	 */
 	public EnumeratedSubsetStringParser(Iterable<?> values, boolean caseSensitive) throws IllegalArgumentException {
-		super(values, caseSensitive);
+		this(values, caseSensitive, null);
 	}
 	
 	/**
@@ -82,7 +107,7 @@ public class EnumeratedSubsetStringParser extends EnumeratedStringParser impleme
 			return null;
 		}
 		
-		StringTokenizer tokens = new StringTokenizer(arg, ",");
+		StringTokenizer tokens = new StringTokenizer(arg, separator);
 		
 		HashSet<String> subset = new HashSet<String>();
 		
@@ -97,4 +122,10 @@ public class EnumeratedSubsetStringParser extends EnumeratedStringParser impleme
 		return subset;
 	}
 
+	public String getSeparator() {
+		
+		return separator;
+		
+	}
+	
 }

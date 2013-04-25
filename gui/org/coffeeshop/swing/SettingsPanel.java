@@ -185,10 +185,12 @@ public class SettingsPanel extends JPanel {
 
 		private String key;
 		private JList list;
+		private String separator;
 		
-		public ChangeListenerList(String key, JList list) {
+		public ChangeListenerList(String key, JList list, String separator) {
 			this.key = key;
 			this.list = list;
+			this.separator = separator;
 		}
 
 		@Override
@@ -206,7 +208,7 @@ public class SettingsPanel extends JPanel {
 		
 				
 				for (int i = 1; i < selection.length; i++) {
-					value += "," + list.getModel().getElementAt(selection[i]).toString();
+					value += separator + list.getModel().getElementAt(selection[i]).toString();
 				}
 			}
 			
@@ -416,7 +418,7 @@ public class SettingsPanel extends JPanel {
 			
 			list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			
-			list.addListSelectionListener(new ChangeListenerList(value.getName(), list));
+			list.addListSelectionListener(new ChangeListenerList(value.getName(), list, bi.getSeparator()));
 			
 			try {
 				
