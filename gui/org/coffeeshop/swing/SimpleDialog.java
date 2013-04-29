@@ -68,8 +68,11 @@ public class SimpleDialog extends JDialog {
 		SettingsPanel panel = new SettingsPanel(settings, structure);;
 		
 		getContentPane().add(panel, BorderLayout.CENTER);
-		
+
 		pack();
+		
+		centerToOwner();
+		
 	}
 	
 	public boolean showDialog() {
