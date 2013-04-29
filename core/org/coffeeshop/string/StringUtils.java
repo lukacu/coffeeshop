@@ -382,5 +382,16 @@ public final class StringUtils {
 		
 	}
 	
+	public static String[] toStrings(Object[] objects) {
+		
+		String[] result = new String[objects.length];
+		
+		for (int i = 0; i < objects.length; i++) {
+			result[i] = (objects[i] == null) ? null : objects[i].toString();			
+		}
+		
+		return result;
+	}
+	
 	
 }
