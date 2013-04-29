@@ -420,17 +420,20 @@ public class SettingsPanel extends JPanel {
 			
 			list.addListSelectionListener(new ChangeListenerList(value.getName(), list, bi.getSeparator()));
 			
+			list.setCellRenderer(new ObjectFacade.FacadeListCellRenderer());
+			
 			try {
 				
 				@SuppressWarnings("unchecked")
-				Set<String> subset = (Set<String>) bi.parse(settings.getString(value.getName(), ""));
-				
+				Set<Object> subset = (Set<Object>) bi.parse(settings.getString(value.getName(), ""));
+					
 				if (!subset.isEmpty()) {
 					int[] indices = new int[subset.size()];
 					int j = 0;
-					String[] values = bi.getValues();
-					
+					Object[] values = bi.getValues();
+
 					for (int i = 0; i < values.length; i++) {
+				
 						if (subset.contains(values[i])) {
 							indices[j++] = i;
 						}
@@ -463,6 +466,8 @@ public class SettingsPanel extends JPanel {
 			combo.addItemListener(new ChangeListenerCombo(value.getName(), combo));
 			
 			combo.setSelectedItem(settings.getString(value.getName(), null));
+			
+			combo.setRenderer(new ObjectFacade.FacadeListCellRenderer());
 			
 			components.put(getName(), combo);
 			

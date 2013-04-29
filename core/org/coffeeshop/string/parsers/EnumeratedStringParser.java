@@ -32,6 +32,9 @@ package org.coffeeshop.string.parsers;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
+import java.util.Vector;
+
+import org.coffeeshop.string.StringUtils;
 
 /**
  * A {@link org.coffeeshop.string.parsers.StringParser} that enforces a limited set of String options for its
@@ -53,8 +56,12 @@ public class EnumeratedStringParser implements StringParser {
 	public static final char CONSTRUCTOR_VALUE_SEPARATOR = ';';
 	
 
-	private String[] validOptionValuesArray = null;
+	private Object[] validOptionValuesArray = null;
+
+	private String[] validOptionStringsArray = null;
+	
 	private boolean isCaseSensitive;
+	
 	private boolean checkOptionChars;
 
 	/**
@@ -109,6 +116,8 @@ public class EnumeratedStringParser implements StringParser {
 			}
 		}
 
+		validOptionStringsArray = StringUtils.toStrings(validOptionValuesArray);
+		
 	}
 
 	/**
@@ -132,6 +141,8 @@ public class EnumeratedStringParser implements StringParser {
 		for (int i = 0; i < e.length; i++) {
 			validOptionValuesArray[i] = e[i].name();
 		}
+		
+		validOptionStringsArray = StringUtils.toStrings(validOptionValuesArray);
 	}
 
 	/**
@@ -147,14 +158,17 @@ public class EnumeratedStringParser implements StringParser {
 		this.isCaseSensitive = caseSensitive;
 
 		TreeSet<String> validOptions = new TreeSet<String>();
-
+		Vector<Object> options = new Vector<Object>();
+		
 		for (Object v : values) {
 			if (v == null) continue;
-			validOptions.add(v.toString());
+			if (validOptions.add(v.toString()))
+				options.add(v);
 		}
 		
-		validOptionValuesArray = validOptions.toArray(new String[validOptions.size()]); 
+		validOptionValuesArray = options.toArray(new Object[validOptions.size()]); 
 		
+		validOptionStringsArray = StringUtils.toStrings(validOptionValuesArray);
 	}
 	
 	/**
@@ -181,13 +195,14 @@ public class EnumeratedStringParser implements StringParser {
 		}
 		// we cannot use Arrays.binarySearch() because strings cannot be 
 		// sorted according to the required natural order!
-		if (Arrays.asList(validOptionValuesArray).contains(arg)) {
-			return arg;
+		for (int i = 0; i < validOptionStringsArray.length; i++) {
+			if (validOptionStringsArray[i].equals(arg))
+				return validOptionValuesArray[i];
 		}
-		else {
-			throw new ParseException("Option has wrong value '" + arg + "'"
+		
+		throw new ParseException("Option has wrong value '" + arg + "'"
 				+ "; valid values are: "+Arrays.asList(validOptionValuesArray), new IllegalArgumentException());
-		}
+		
 	}
 
 	/**
@@ -216,8 +231,16 @@ public class EnumeratedStringParser implements StringParser {
 		return true;
 	}
 	
-	public String[] getValues() {
+	public Object[] getValues() {
+		
 		return Arrays.copyOf(validOptionValuesArray, validOptionValuesArray.length);
+		
+	}
+	
+	public String[] getTextValues() {
+		
+		return Arrays.copyOf(validOptionStringsArray, validOptionStringsArray.length);
+				
 	}
 	
 }

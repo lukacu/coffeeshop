@@ -109,13 +109,13 @@ public class EnumeratedSubsetStringParser extends EnumeratedStringParser impleme
 		
 		StringTokenizer tokens = new StringTokenizer(arg, separator);
 		
-		HashSet<String> subset = new HashSet<String>();
+		HashSet<Object> subset = new HashSet<Object>();
 		
 		while (tokens.hasMoreTokens()) {
 			
 			String token = tokens.nextToken().trim();
 			
-			subset.add((String)super.parse(token));
+			subset.add(super.parse(token));
 			
 		}
 		
