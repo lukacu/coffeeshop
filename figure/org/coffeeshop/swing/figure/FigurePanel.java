@@ -379,35 +379,7 @@ public class FigurePanel extends JComponent implements Scrollable {
 		add(horizontalScrollbar);
 		add(container);
 
-		layout.putConstraint(SpringLayout.EAST, verticalScrollbar, 0, SpringLayout.EAST,
-				this);
-
-		layout.putConstraint(SpringLayout.SOUTH, verticalScrollbar, -horizontalScrollbar
-				.getPreferredSize().height, SpringLayout.SOUTH, this);
-
-		layout.putConstraint(SpringLayout.NORTH, verticalScrollbar, 0,
-				SpringLayout.NORTH, this);
-
-		layout.putConstraint(SpringLayout.EAST, horizontalScrollbar, -verticalScrollbar
-				.getPreferredSize().width, SpringLayout.EAST, this);
-
-		layout.putConstraint(SpringLayout.WEST, horizontalScrollbar, 0,
-				SpringLayout.WEST, this);
-
-		layout.putConstraint(SpringLayout.SOUTH, horizontalScrollbar, 0,
-				SpringLayout.SOUTH, this);
-
-		layout.putConstraint(SpringLayout.EAST, container, 0,
-				SpringLayout.WEST, verticalScrollbar);
-
-		layout.putConstraint(SpringLayout.WEST, container, 0,
-				SpringLayout.WEST, this);
-
-		layout.putConstraint(SpringLayout.SOUTH, container, 0,
-				SpringLayout.NORTH, horizontalScrollbar);
-
-		layout.putConstraint(SpringLayout.NORTH, container, 0,
-				SpringLayout.NORTH, this);
+		setScrollbarVisible(true);
 
 		addComponentListener(new ComponentAdapter() {
 			public void componentResized(ComponentEvent e) {
@@ -557,6 +529,72 @@ public class FigurePanel extends JComponent implements Scrollable {
 	public void setAlignment(Alignment alignment) {
 		this.alignment = alignment;
 		this.revalidate();
+	}
+	
+	public boolean isScrollbarVisible() {
+		return verticalScrollbar.isVisible() || horizontalScrollbar.isVisible();
+	}
+	
+	public void setScrollbarVisible(boolean visible) {
+		
+		verticalScrollbar.setVisible(visible);
+		horizontalScrollbar.setVisible(visible);
+		
+		layout = new SpringLayout();
+		
+		if (visible) {
+						
+			layout.putConstraint(SpringLayout.EAST, verticalScrollbar, 0, SpringLayout.EAST,
+					this);
+
+			layout.putConstraint(SpringLayout.SOUTH, verticalScrollbar, -horizontalScrollbar
+					.getPreferredSize().height, SpringLayout.SOUTH, this);
+
+			layout.putConstraint(SpringLayout.NORTH, verticalScrollbar, 0,
+					SpringLayout.NORTH, this);
+
+			layout.putConstraint(SpringLayout.EAST, horizontalScrollbar, -verticalScrollbar
+					.getPreferredSize().width, SpringLayout.EAST, this);
+
+			layout.putConstraint(SpringLayout.WEST, horizontalScrollbar, 0,
+					SpringLayout.WEST, this);
+
+			layout.putConstraint(SpringLayout.SOUTH, horizontalScrollbar, 0,
+					SpringLayout.SOUTH, this);
+
+			layout.putConstraint(SpringLayout.EAST, container, 0,
+					SpringLayout.WEST, verticalScrollbar);
+
+			layout.putConstraint(SpringLayout.WEST, container, 0,
+					SpringLayout.WEST, this);
+
+			layout.putConstraint(SpringLayout.SOUTH, container, 0,
+					SpringLayout.NORTH, horizontalScrollbar);
+
+			layout.putConstraint(SpringLayout.NORTH, container, 0,
+					SpringLayout.NORTH, this);
+
+			
+		} else {
+			
+			layout.putConstraint(SpringLayout.EAST, container, 0,
+					SpringLayout.EAST, this);
+
+			layout.putConstraint(SpringLayout.WEST, container, 0,
+					SpringLayout.WEST, this);
+
+			layout.putConstraint(SpringLayout.SOUTH, container, 0,
+					SpringLayout.SOUTH, this);
+
+			layout.putConstraint(SpringLayout.NORTH, container, 0,
+					SpringLayout.NORTH, this);
+			
+		}
+		
+		setLayout(layout);
+		
+		revalidate();
+		
 	}
 	
 	
