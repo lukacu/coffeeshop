@@ -30,7 +30,7 @@ public class Colors {
     }*/
         
 
-    public static Color brighter(Color c, double factor) {
+    public static Color changeBrightness(Color c, double factor) {
     	
     	float hsv[] = new float[3];
     	
