@@ -391,14 +391,14 @@ public class FigurePanel extends JComponent implements Scrollable {
 		horizontalScrollbar.addAdjustmentListener(new AdjustmentListener() {
 			public void adjustmentValueChanged(AdjustmentEvent e) {
 				if (horizontalScrollbar.isEnabled())
-					container.setOffsetX(-e.getValue());
+					container.setOffsetX(e.getValue());
 			}
 		});
 
 		verticalScrollbar.addAdjustmentListener(new AdjustmentListener() {
 			public void adjustmentValueChanged(AdjustmentEvent e) {
 				if (verticalScrollbar.isEnabled())
-					container.setOffsetY(-e.getValue());
+					container.setOffsetY(e.getValue());
 			}
 		});
 
@@ -519,6 +519,7 @@ public class FigurePanel extends JComponent implements Scrollable {
 	@Override
 	public void revalidate() {
 		container.recalculate(container.figure);
+		readjustScrollbars();
 		super.revalidate();
 	}
 	
@@ -633,14 +634,9 @@ public class FigurePanel extends JComponent implements Scrollable {
 			verticalScrollbar.setEnabled(false);
 			verticalScrollbar.setValues(0, SCROLLBAR_EXTENT, 0, 0);
 		} else {
-			float oldWidth = verticalScrollbar.getMaximum() - verticalScrollbar.getMinimum();
-			float newWidth = container.getMaxOffsetY() - container.getMinOffsetY();
-			
-			int newValue = Math.round((float) verticalScrollbar.getValue()
-					* (newWidth / oldWidth));
 
 			verticalScrollbar.setEnabled(true);
-			verticalScrollbar.setValues(newValue, SCROLLBAR_EXTENT, container.getMinOffsetY(), container.getMaxOffsetY());
+			verticalScrollbar.setValues(container.getOffsetY(), SCROLLBAR_EXTENT, container.getMinOffsetY(), container.getMaxOffsetY());
 		
 		}
 
@@ -648,26 +644,70 @@ public class FigurePanel extends JComponent implements Scrollable {
 			horizontalScrollbar.setEnabled(false);
 			horizontalScrollbar.setValues(0, SCROLLBAR_EXTENT, 0, 0);
 		} else {		
-			
-			float oldWidth = horizontalScrollbar.getMaximum() - horizontalScrollbar.getMinimum();
-			float newWidth = container.getMaxOffsetX() - container.getMinOffsetX();
-			
-			int newValue = Math.round((float) horizontalScrollbar.getValue()
-					* (newWidth / oldWidth));
 
 			horizontalScrollbar.setEnabled(true);
-			horizontalScrollbar.setValues(newValue, SCROLLBAR_EXTENT, container.getMinOffsetX(), container.getMaxOffsetX());
+			horizontalScrollbar.setValues(container.getOffsetX(), SCROLLBAR_EXTENT, container.getMinOffsetX(), container.getMaxOffsetX());
 			
 		}
 
 	}
 
+	public void scrollRelativeScreen(Point move) {
+		
+		container.setOffsets(container.getOffsetX() + move.x, container.getOffsetY() + move.y);
+
+		readjustScrollbars();
+
+	}
+	
+	public void scrollToView(Point p, Alignment align) {
+		
+		Point anc = pointFigureToScreen(p);
+
+	System.out.println(anc);
+		switch(align) {
+		case TOP_LEFT:
+			break;
+		case TOP_CENTER:
+			anc.x -= container.getWidth() / 2; 
+			break;
+		case CENTER:
+			anc.x -= container.getWidth() / 2;
+			anc.y -= container.getHeight() / 2; 
+			break;			
+		case BOTTOM_CENTER:
+			anc.x -= container.getWidth() / 2;
+			anc.y -= container.getHeight();
+			break;		
+		case TOP_RIGHT:
+			anc.x -= container.getWidth(); 
+			break;
+		case CENTER_LEFT:
+			anc.y -= container.getHeight() / 2; 
+			break;			
+		case CENTER_RIGHT:
+			anc.x -= container.getWidth();
+			anc.y -= container.getHeight() / 2;
+			break;		
+		case BOTTOM_LEFT:
+			anc.y -= container.getHeight();			
+			break;
+		case BOTTOM_RIGHT:
+			anc.x -= container.getWidth(); 
+			anc.y -= container.getHeight();			
+			break;
+		}
+
+		scrollRelativeScreen(anc);
+
+		
+	}
+	
 	/**
 	 * ImageContainer is a panel that displays the image according to the offset
 	 * and similar parameters.
 	 * 
 	 * @author lukacu
-	 * @since WebStrips 0.1
 	 */
 	class FigureContainer extends JPanel implements FigureObserver, FigureListener {
 
@@ -758,7 +798,7 @@ public class FigurePanel extends JComponent implements Scrollable {
 		 * @return
 		 */
 		public int getOffsetX() {
-			return figureOffsetX;
+			return -figureOffsetX;
 		}
 
 		/**
@@ -767,13 +807,13 @@ public class FigurePanel extends JComponent implements Scrollable {
 		 * @return
 		 */
 		public int getOffsetY() {
-			return figureOffsetY;
+			return -figureOffsetY;
 		}
 
 		
 		public void setOffsets(int oX, int oY) {
-			figureOffsetX = Math.min(maxOffsetX, Math.max(oX, minOffsetX));
-			figureOffsetY = Math.min(maxOffsetY, Math.max(oY, minOffsetY));
+			figureOffsetX = -Math.min(maxOffsetX, Math.max(oX, minOffsetX));
+			figureOffsetY = -Math.min(maxOffsetY, Math.max(oY, minOffsetY));
 			recalculate(figure);
 			repaint();
 		}
@@ -785,7 +825,7 @@ public class FigurePanel extends JComponent implements Scrollable {
 		 * @param offset
 		 */
 		public void setOffsetX(int offset) {
-			figureOffsetX = offset;
+			figureOffsetX = -Math.min(maxOffsetX, Math.max(offset, minOffsetX));
 			recalculate(figure);
 			repaint();
 		}
@@ -796,7 +836,7 @@ public class FigurePanel extends JComponent implements Scrollable {
 		 * @param offset
 		 */
 		public void setOffsetY(int offset) {
-			figureOffsetY = offset;
+			figureOffsetY = -Math.min(maxOffsetY, Math.max(offset, minOffsetY));
 			recalculate(figure);
 			repaint();
 		}
@@ -1111,6 +1151,18 @@ public class FigurePanel extends JComponent implements Scrollable {
 		
 		return container.isFigurePointInFigure(p);
 	
+	}
+	
+	public int getViewportWidth() {
+		
+		return container.getWidth();
+		
+	}
+	
+	public int getViewportHeight() {
+		
+		return container.getHeight();
+		
 	}
 	
 	
