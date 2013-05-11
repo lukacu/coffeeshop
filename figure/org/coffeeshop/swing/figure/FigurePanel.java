@@ -423,7 +423,7 @@ public class FigurePanel extends JComponent implements Scrollable {
 	}
 
 	public void configure(Map<String, String> parameters) {
-		System.out.println(minZoom + " " + maxZoom);
+
 		String s = parameters.get("magnification.max");
 		if (s != null) {
 			try {
@@ -664,7 +664,6 @@ public class FigurePanel extends JComponent implements Scrollable {
 		
 		Point anc = pointFigureToScreen(p);
 
-	System.out.println(anc);
 		switch(align) {
 		case TOP_LEFT:
 			break;
