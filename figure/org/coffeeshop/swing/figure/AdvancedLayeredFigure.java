@@ -53,7 +53,7 @@ public class AdvancedLayeredFigure extends LayeredFigure implements Viewable {
 		int width = 0;
 		
 		for (int i = 0; i < figures.size(); i++) {
-			width = Math.max(width, (int) Math.round(figures.get(i).getWidth(observer) + offsets.get(i).getY()));
+			width = Math.max(width, (int) Math.round(figures.get(i).getWidth(observer) + offsets.get(i).getX()));
 			
 		}
 
