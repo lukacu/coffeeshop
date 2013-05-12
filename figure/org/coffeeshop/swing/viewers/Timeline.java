@@ -344,6 +344,29 @@ public class Timeline extends JPanel {
 		
 	}
 	
+	private void updateLength() {
+		
+		boolean stretch = getZoom() == minZoom;
+
+		minZoom = timeline.getViewportWidth() / (float) width;
+
+		setZoom(stretch ? minZoom : getZoom());
+		
+		if (!stretch) {
+			
+			Point spos = timeline.pointFigureToScreen(new Point((int) (width * zoom), 0));
+			
+			if (spos.x < timeline.getViewportWidth()) {
+				
+				timeline.scrollToView(new Point((int) (width * zoom), 0), Alignment.TOP_RIGHT);
+				
+			}
+			
+			
+		}
+		
+	}
+	
 	private FigurePanel timeline;
 
 	private CursorFigure cursor = new CursorFigure();
@@ -360,7 +383,7 @@ public class Timeline extends JPanel {
 
 		super(new BorderLayout());
 
-		width = length;
+		width = Math.max(1, length);
 
 		timeline = new FigurePanel();
 
@@ -381,25 +404,7 @@ public class Timeline extends JPanel {
 
 				updateTrackLayout();
 				
-				boolean stretch = getZoom() == minZoom;
-
-				minZoom = timeline.getViewportWidth() / (float) width;
-
-				setZoom(stretch ? minZoom : getZoom());
-				
-				if (!stretch) {
-					
-					Point spos = timeline.pointFigureToScreen(new Point((int) (width * zoom), 0));
-					
-					if (spos.x < timeline.getViewportWidth()) {
-						
-						timeline.scrollToView(new Point((int) (width * zoom), 0), Alignment.TOP_RIGHT);
-						
-					}
-					
-					
-				}
-				
+				updateLength();
 				
 				timeline.revalidate();
 			}
@@ -655,6 +660,22 @@ public class Timeline extends JPanel {
 	@Transient
 	public Dimension getPreferredSize() {
 		return new Dimension(width, (int)timescaleHeight + container.size() * 60);
+	}
+	
+	public void setLength(int length) {
+		
+		this.width = Math.max(1, length);
+		
+		updateLength();
+		
+		timeline.revalidate();
+		
+	}
+	
+	public int getLength() {
+		
+		return width;
+		
 	}
 	
 }
