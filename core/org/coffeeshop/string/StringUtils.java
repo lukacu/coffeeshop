@@ -392,6 +392,5 @@ public final class StringUtils {
 		
 		return result;
 	}
-	
-	
+
 }

@@ -131,12 +131,12 @@ public class PropertiesSettings extends Settings implements StoreableSettings {
         
         	remove(key);
         	
-        } else {
-	        String oldValue = (String)storage.setProperty(key, value);
-	        
-	        notifySettingsChanged(key, oldValue, value);
         }
-	    
+        
+        String oldValue = (String)storage.setProperty(key, value);
+        
+        notifySettingsChanged(key, oldValue, value);
+        
         return (String)storage.setProperty(key, value);
      
     }

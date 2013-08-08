@@ -95,6 +95,143 @@ public class SettingsChangedEvent {
 		return value;
 	}
 
+	public boolean getBoolean() throws SettingsNotFoundException, NumberFormatException {
+        String s = getValue();
+        if (s == null) {
+            throw new SettingsNotFoundException(key);
+        }
+
+        return Boolean.parseBoolean(s);
+	}
+
+	public double getDouble() throws SettingsNotFoundException, NumberFormatException {
+        String s = getValue();
+        if (s == null) {
+
+        	
+            throw new SettingsNotFoundException(key);
+        } 
+        
+        return Double.parseDouble(s);
+	}
+
+	public float getFloat() throws SettingsNotFoundException, NumberFormatException {
+        String s = getValue();
+        if (s == null) {
+
+        	
+            throw new SettingsNotFoundException(key);
+        }
+        
+        return Float.parseFloat(s);
+	}
+
+	public long getLong() throws SettingsNotFoundException, NumberFormatException {
+        String s = getValue();
+        if (s == null) {
+            throw new SettingsNotFoundException(key);
+        }
+        
+        return Long.parseLong(s);
+	}
+
+	public int getInt() throws SettingsNotFoundException, NumberFormatException {
+        String s = getValue();
+        if (s == null) {
+            throw new SettingsNotFoundException(key);
+        }
+        
+        return Integer.parseInt(s);
+	}
 	
+	public String getString() throws SettingsNotFoundException {
+        String s = getValue();
+        if (s == null) {
+
+            throw new SettingsNotFoundException(key);
+        }
+        
+        return s;
+	}    
+ 
+	public int getInt(int def) {
+		
+		try {
+			
+			return getInt();
+			
+		} 
+		catch (NumberFormatException e) {}
+		catch (SettingsNotFoundException e) {}
+
+		return def;
+		
+	}
+	
+	public long getLong(long def) {
+		
+		try {
+			
+			return getLong();
+			
+		} 
+		catch (NumberFormatException e) {}
+		catch (SettingsNotFoundException e) {}
+
+		return def;
+		
+	}
+	
+	public double getDouble(double def) {
+		
+		try {
+			
+			return getDouble();
+			
+		} 
+		catch (NumberFormatException e) {}
+		catch (SettingsNotFoundException e) {}
+
+		return def;
+		
+	}
+	
+	public float getFloat(float def) {
+		try {
+			
+			return getFloat();
+			
+		} 
+		catch (NumberFormatException e) {}
+		catch (SettingsNotFoundException e) {}
+
+		return def;
+	}
+	
+	public boolean getBoolean(boolean def) {
+		try {
+			
+			return getBoolean();
+			
+		} 
+		catch (NumberFormatException e) {}
+		catch (SettingsNotFoundException e) {}
+
+		return def;
+		
+	}
+	
+	public String getString(String def) {
+		try {
+			
+			return getString();
+			
+		} 
+		catch (NumberFormatException e) {}
+		catch (SettingsNotFoundException e) {}
+
+		return def;
+		
+	}
 	
 }
