@@ -21,4 +21,5 @@ public interface TimelineTrack {
 	public void removeObject(PlotObject object);	
 	
 	public String getName();
+	
 }

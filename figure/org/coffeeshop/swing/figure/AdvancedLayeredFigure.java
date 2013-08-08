@@ -135,4 +135,21 @@ public class AdvancedLayeredFigure extends LayeredFigure implements Viewable {
 
 	}
 
+	public boolean remove(Figure layer) {
+
+		int i = getIndex(layer);
+
+		if (i == -1)
+			return false;
+		
+		super.remove(layer);
+		
+		alpha.remove(i);
+		offsets.remove(i);
+		
+		return true;
+		
+
+	}
+	
 }

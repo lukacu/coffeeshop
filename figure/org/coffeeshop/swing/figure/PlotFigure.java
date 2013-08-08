@@ -1,5 +1,6 @@
 package org.coffeeshop.swing.figure;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
@@ -22,12 +23,14 @@ public class PlotFigure extends VectorFigure {
 	
 	private double customWidth = 0, customHeight = 0;
 	
-	private Rectangle2D bounds = new Rectangle2D.Float();
+	protected Rectangle2D bounds = new Rectangle2D.Float();
 	
 	private Vector<PlotObject> objects = new Vector<PlotFigure.PlotObject>(); 
 	
-	private String name;
+	private String name, title;
 
+	private Color borderColor = Color.GRAY;
+	
 	public PlotFigure() {
 		this(null);
 		name = "Plot " + Integer.toHexString(hashCode());
@@ -41,10 +44,11 @@ public class PlotFigure extends VectorFigure {
 		
 		if (object == null) return;
 		
-		objects.add(object);
+		if (!objects.contains(object))
+			objects.add(object);
 		
-		Rectangle2D.union(bounds, object.getBounds(), bounds);
-		
+		recalculateBounds();
+
 	}
 	
 	public void removeObject(PlotObject object) {
@@ -58,6 +62,12 @@ public class PlotFigure extends VectorFigure {
 		}
 
 	}	
+	
+	public boolean containsObject(PlotObject object) {
+		
+		return objects.contains(object);
+		
+	}
 	
 	@Override
 	public int getWidth(FigureObserver observer) {
@@ -116,10 +126,16 @@ public class PlotFigure extends VectorFigure {
 		double scaleY = (customHeight == 0) ? 1 : customHeight / bounds.getHeight();
 		
 		double offsetX = bounds.getX();
-		double offsetY = bounds.getY() - bounds.getHeight() * customHeight;
-		
+		double offsetY = bounds.getY() - customHeight;
+	
 		plotToFigure.setTransform(scaleX, 0, 0, -scaleY, -offsetX,
 				-offsetY);
+		
+		if (borderColor != null) {
+			g.setColor(borderColor);
+			
+			g.draw(plotToFigure.createTransformedShape(bounds));
+		}
 		
 		for (PlotObject object : objects) {
 			
@@ -127,9 +143,16 @@ public class PlotFigure extends VectorFigure {
 			
 		}
 		
+		if (title != null) {
+			g.setColor(Color.GRAY);
+			int height = g.getFontMetrics().getHeight();
+			
+			g.drawString(title, 10, height + 2);
+		}
+		
 	}
 	
-	private void recalculateBounds() {
+	protected void recalculateBounds() {
 		
 		bounds = new Rectangle2D.Double();
 		
@@ -138,7 +161,6 @@ public class PlotFigure extends VectorFigure {
 			Rectangle2D.union(bounds, object.getBounds(), bounds);
 			
 		}
-		
 	}
 	
 	public boolean isEmpty() {
@@ -147,6 +169,22 @@ public class PlotFigure extends VectorFigure {
 	
 	public int size() {
 		return objects.size();
+	}
+	
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	
+	public String getTitle() {
+		return title;
+	}
+	
+	public Color getBorderColor() {
+		return borderColor;
+	}
+	
+	public void setBorderColor(Color borderColor) {
+		this.borderColor = borderColor;
 	}
 	
 }

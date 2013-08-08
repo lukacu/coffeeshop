@@ -9,6 +9,8 @@ import java.awt.Point;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.beans.Transient;
 import java.util.Vector;
 
@@ -17,6 +19,10 @@ import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 
 import org.coffeeshop.awt.Colors;
+import org.coffeeshop.settings.PropertiesSettings;
+import org.coffeeshop.settings.Settings;
+import org.coffeeshop.settings.SettingsChangedEvent;
+import org.coffeeshop.settings.SettingsListener;
 import org.coffeeshop.swing.figure.AdvancedLayeredFigure;
 import org.coffeeshop.swing.figure.ButtonAction;
 import org.coffeeshop.swing.figure.FigureObserver;
@@ -205,16 +211,41 @@ public class Timeline extends JPanel {
 
 	}
 
-	private class PlotTrack extends PlotFigure implements TimelineTrack {
+	private class PlotTrack extends PlotFigure implements TimelineTrack, SettingsListener {
 
+		private double maxHeight = 0; 
+		
+		public PlotTrack(String name) {
+			super(name);
+			
+			maxHeight = settings.getDouble(name + "@max", 0);
+			
+			setTitle(settings.getString(name + "@title", name));
+		}
+		
 		@Override
 		public void addObject(PlotObject object) {
-			super.addObject(object);
 
-			if (object != null && size() == 1) {
+			if (object == null || containsObject(object)) {
+				
+				updateTrackLayout();
+				
+				setCustomWidth(getOriginalWidth() * getZoom());
+				
+				timeline.repaint();
+				
+				return;
+			}
+
+			super.addObject(object);
+				
+			if (size() == 1) {
 				
 				container.add(this);
+				settings.addSettingsListener(this);
 				updateTrackLayout();
+				
+				setCustomWidth(getOriginalWidth() * getZoom());
 				
 			}
 			
@@ -227,12 +258,42 @@ public class Timeline extends JPanel {
 
 			if (object != null && size() == 0) {
 				
-				//container.add(this);
+				container.remove(this);
+				settings.removeSettingsListener(this);
 				updateTrackLayout();
 				
 			}
 			
 			timeline.repaint();
+		}
+
+		@Override
+		public void settingsChanged(SettingsChangedEvent e) {
+			
+			if (!e.getKey().startsWith(getName()))
+				return;
+			
+			String key = e.getKey();
+			
+			if (key == getName() + "@max") {
+				maxHeight = e.getDouble(0);
+				recalculateBounds();
+			} else if (key == getName() + "@max")
+				setTitle(e.getString(getName()));
+			
+			container.remove(this);
+			updateTrackLayout();
+			
+		}
+		
+		@Override
+		protected void recalculateBounds() {
+			
+			super.recalculateBounds();
+			
+			if (maxHeight != 0)
+				bounds.setRect(bounds.getX(), bounds.getCenterY(), bounds.getWidth(), maxHeight);
+			
 		}
 		
 	}
@@ -335,6 +396,8 @@ public class Timeline extends JPanel {
 		
 		for (PlotTrack track : tracks) {
 			
+			if (track.isEmpty()) continue;
+			
 			container.setOffset(track, 0, current);
 			
 			track.setCustomHeight(total / container.size());
@@ -379,10 +442,18 @@ public class Timeline extends JPanel {
 	
 	private Vector<PlotTrack> tracks = new Vector<PlotTrack>();
 	
+	private Settings settings;
+
 	public Timeline(int length) {
+		this(length, null);
+	}
+	
+	public Timeline(int length, Settings settings) {
 
 		super(new BorderLayout());
 
+		this.settings = settings == null ? new PropertiesSettings() : settings;
+		
 		width = Math.max(1, length);
 
 		timeline = new FigurePanel();
@@ -467,6 +538,13 @@ public class Timeline extends JPanel {
 				if (source == null || clicks != 1)
 					return null;
 
+				if ((modifiers & MouseEvent.SHIFT_DOWN_MASK) != 0) {
+					TimelineTrack track = getTrack(position, null);
+					System.out.println(track.getName());
+					return null;
+				}
+				
+				
 				setPosition((int) (position.x / zoom));
 
 				timeline.repaint();
@@ -638,13 +716,19 @@ public class Timeline extends JPanel {
 	public TimelineTrack getTrack(String name) {
 		
 		for (TimelineTrack track : tracks) {
-			if (track.getName() == name)
+			if (track.getName().equals(name))
 				return track;
 		}
 		
-		PlotTrack track = new PlotTrack();
+		PlotTrack track = new PlotTrack(name);
 
 		tracks.add(track);
+		
+		updateTrackLayout();
+		
+		updateLength();
+		
+		timeline.revalidate();
 		
 		return track;
 		
@@ -667,7 +751,8 @@ public class Timeline extends JPanel {
 		this.width = Math.max(1, length);
 		
 		updateLength();
-		
+		updateTrackLayout();
+
 		timeline.revalidate();
 		
 	}
@@ -676,6 +761,30 @@ public class Timeline extends JPanel {
 		
 		return width;
 		
+	}
+	
+	public TimelineTrack getTrack(Point p, Point2D within) {
+		
+		Point spos = timeline.pointScreenToFigure(p);
+		
+		spos.x /= zoom;
+		
+		for (PlotTrack track : tracks) {
+			Point2D offset = container.getOffset(track);
+			
+			double x = spos.x - offset.getX();
+			double y = spos.y - offset.getY();
+			
+			if (y > 0 && y < track.getCustomHeight()) {
+				//if (within != null)
+				//	within.setLocation(x, y)
+				
+				return track;
+			}
+		
+		}
+		
+		return null;
 	}
 	
 }

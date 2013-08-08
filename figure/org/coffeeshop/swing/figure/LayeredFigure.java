@@ -32,6 +32,7 @@ public class LayeredFigure extends AbstractFigure implements Viewable {
 	}
 	
 	public void add(Figure figure) {
+		
 		figures.add(figure);
 		hidden.add(false);
 		
@@ -187,5 +188,18 @@ public class LayeredFigure extends AbstractFigure implements Viewable {
 		return true;
 	}
 	
+	public boolean remove(Figure layer) {
+		
+		int i = getIndex(layer);
+
+		if (i == -1)
+			return false;
+		
+		figures.remove(i);
+		hidden.remove(i);
+		
+		return true;
+
+	}
 	
 }
