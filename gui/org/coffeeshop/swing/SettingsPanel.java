@@ -17,7 +17,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
@@ -40,20 +39,17 @@ import org.coffeeshop.dialogs.SettingsNode;
 import org.coffeeshop.dialogs.SettingsValue;
 import org.coffeeshop.settings.PrefixProxySettings;
 import org.coffeeshop.settings.Settings;
-import org.coffeeshop.settings.SettingsChangedEvent;
-import org.coffeeshop.settings.SettingsListener;
 import org.coffeeshop.string.StringUtils;
 import org.coffeeshop.string.parsers.BooleanStringParser;
 import org.coffeeshop.string.parsers.BoundedIntegerStringParser;
 import org.coffeeshop.string.parsers.EnumeratedStringParser;
 import org.coffeeshop.string.parsers.EnumeratedSubsetStringParser;
-import org.coffeeshop.string.parsers.FileStringParser;
 import org.coffeeshop.string.parsers.IntegerStringParser;
 import org.coffeeshop.string.parsers.ParseException;
 import org.coffeeshop.string.parsers.StringParser;
 import org.coffeeshop.string.parsers.StringStringParser;
 
-public class SettingsPanel extends JPanel {
+public class SettingsPanel extends ScrollablePanel {
 
 	public interface SettingsRenderer {
 		
@@ -158,9 +154,9 @@ public class SettingsPanel extends JPanel {
 	private class ChangeListenerCombo implements ItemListener {
 
 		private String key;
-		private JComboBox combo;
+		private JComboBox<Object> combo;
 		
-		public ChangeListenerCombo(String key, JComboBox combo) {
+		public ChangeListenerCombo(String key, JComboBox<Object> combo) {
 			this.key = key;
 			this.combo = combo;
 		}
@@ -184,10 +180,10 @@ public class SettingsPanel extends JPanel {
 	private class ChangeListenerList implements ListSelectionListener {
 
 		private String key;
-		private JList list;
+		private JList<Object> list;
 		private String separator;
 		
-		public ChangeListenerList(String key, JList list, String separator) {
+		public ChangeListenerList(String key, JList<Object> list, String separator) {
 			this.key = key;
 			this.list = list;
 			this.separator = separator;
@@ -298,33 +294,36 @@ public class SettingsPanel extends JPanel {
 	
 	private JComponent buildGroup(SettingsGroup group) {
 		
-		JPanel panel = new JPanel(new StackLayout(Orientation.VERTICAL, 2, 5, true));
+		JPanel groupPanel = new JPanel(new StackLayout(Orientation.VERTICAL, 2, 5, true));
 		
 		if (!StringUtils.empty(group.getTitle())) {
-			panel.setBorder(new TitledBorder(group.getTitle()));
+			groupPanel.setBorder(new TitledBorder(group.getTitle()));
 		}
 		
 		for (SettingsNode n : group) {
 			
 			if (n instanceof SettingsGroup) {
 				JComponent c = buildGroup((SettingsGroup) n);
-				panel.add(c);
+				groupPanel.add(c);
 				continue;
 			}
 			
 			if (n instanceof SettingsMap) {
 				SettingsMap map = (SettingsMap) n;
-				JTable table = new JTable(new SettingsTableModel(new PrefixProxySettings(settings, map.getNamespace())));
-				JComponent c = new JScrollPane(table);
-				panel.add(c);
+				JPanel panel = new JPanel(new BorderLayout());
+				panel.add(new JLabel(map.getTitle()), BorderLayout.NORTH);
+				panel.add(new JScrollPane(
+						new SettingsTable(new PrefixProxySettings(settings,
+								map.getNamespace()))), BorderLayout.CENTER);
+				groupPanel.add(panel);
 				continue;
 			}
 			
 			JComponent c = buildComponent((SettingsValue) n);
-			panel.add(c);
+			groupPanel.add(c);
 		}
 		
-		return panel;
+		return groupPanel;
 	}
 	
 	private JComponent buildComponent(SettingsValue value) {
@@ -414,7 +413,7 @@ public class SettingsPanel extends JPanel {
 			
 			panel.add(new JLabel(value.getTitle()), BorderLayout.NORTH);
 			
-			JList list = new JList(bi.getValues());
+			JList<Object> list = new JList<Object>(bi.getValues());
 			
 			list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			
@@ -461,7 +460,7 @@ public class SettingsPanel extends JPanel {
 			
 			panel.add(new JLabel(value.getTitle()), BorderLayout.NORTH);
 			
-			JComboBox combo = new JComboBox(bi.getValues());
+			JComboBox<Object> combo = new JComboBox<Object>(bi.getValues());
 			
 			combo.addItemListener(new ChangeListenerCombo(value.getName(), combo));
 			
