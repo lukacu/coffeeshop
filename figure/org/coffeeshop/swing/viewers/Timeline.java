@@ -368,6 +368,7 @@ public class Timeline extends JPanel {
 
 		}
 
+		timeline.repaint();
 	}
 
 	public synchronized int getPosition() {
