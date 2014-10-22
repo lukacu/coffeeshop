@@ -6,7 +6,7 @@ public class PrefixProxySettings extends ProxySettings {
 	
 	public PrefixProxySettings(Settings parent, String prefix) {
 		super(parent);
-		this.prefix = prefix;
+		this.prefix = prefix;		
 	}
 
 	@Override

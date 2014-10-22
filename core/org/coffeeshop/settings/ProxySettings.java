@@ -1,7 +1,32 @@
 package org.coffeeshop.settings;
 
+import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.Set;
+
+class ProxyWeakSettingsListener implements SettingsListener {
+	
+	WeakReference<Settings> reference;
+	
+	public ProxyWeakSettingsListener(Settings proxy) {
+		
+		reference = new WeakReference<Settings>(proxy);
+		
+	}
+	
+	
+	@Override
+	public void settingsChanged(SettingsChangedEvent e) {
+		
+		Settings settings = reference.get();
+		
+		if (settings == null) return;
+		
+		settings.notifySettingsChanged(e.getKey(), e.getOldValue(), e.getValue());
+		
+	}
+		
+}
 
 public class ProxySettings extends Settings {
 
@@ -10,6 +35,10 @@ public class ProxySettings extends Settings {
 	public ProxySettings(Settings parent) {
 		super(parent);
 		this.parent = parent;
+		
+		if (this.parent != null)
+			this.parent.addSettingsListener(new ProxyWeakSettingsListener(this));
+		
 	}
 
 	protected String internalKey(String key) {
@@ -83,7 +112,7 @@ public class ProxySettings extends Settings {
 			String newValue) {
 
 		String eKey = externalKey(key);
-		
+
 		if (eKey != null)
 			super.notifySettingsChanged(eKey, oldValue, newValue);
 	}
