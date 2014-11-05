@@ -1,8 +1,9 @@
 package org.coffeeshop.swing.viewers;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 
-import org.coffeeshop.swing.figure.PlotFigure.PlotObject;
+import org.coffeeshop.swing.figure.PlotObject;
 
 public interface TimelineTrack {
 
@@ -21,5 +22,7 @@ public interface TimelineTrack {
 	public void removeObject(PlotObject object);	
 	
 	public String getName();
+	
+	public String getToolTip(Point2D point);
 	
 }

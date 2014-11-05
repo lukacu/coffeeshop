@@ -11,6 +11,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
+import java.awt.geom.Point2D.Double;
 import java.beans.Transient;
 import java.util.Vector;
 
@@ -32,6 +33,7 @@ import org.coffeeshop.swing.figure.FigurePanel.Button;
 import org.coffeeshop.swing.figure.LayeredFigure;
 import org.coffeeshop.swing.figure.MoveAction;
 import org.coffeeshop.swing.figure.PlotFigure;
+import org.coffeeshop.swing.figure.PlotObject;
 import org.coffeeshop.swing.figure.VectorFigure;
 import org.coffeeshop.swing.figure.WheelAction;
 
@@ -278,7 +280,7 @@ public class Timeline extends JPanel {
 			if (key == getName() + "@max") {
 				maxHeight = e.getDouble(0);
 				recalculateBounds();
-			} else if (key == getName() + "@max")
+			} else if (key == getName() + "@title")
 				setTitle(e.getString(getName()));
 			
 			container.remove(this);
@@ -294,6 +296,17 @@ public class Timeline extends JPanel {
 			if (maxHeight != 0)
 				bounds.setRect(bounds.getX(), bounds.getCenterY(), bounds.getWidth(), maxHeight);
 			
+		}
+
+		@Override
+		public String getToolTip(Point2D point) {
+			
+			for (PlotObject obj : this) {
+				String text = obj.getToolTip(point);
+				if (text != null) return text;
+			}
+			
+			return null;
 		}
 		
 	}
@@ -541,7 +554,7 @@ public class Timeline extends JPanel {
 
 				if ((modifiers & MouseEvent.SHIFT_DOWN_MASK) != 0) {
 					TimelineTrack track = getTrack(position, null);
-					System.out.println(track.getName());
+					
 					return null;
 				}
 				
@@ -585,6 +598,33 @@ public class Timeline extends JPanel {
 			}
 		});
 		
+		timeline.setButtonAction(Button.NONE, new ButtonAction() {
+
+			@Override
+			public void onRelease(FigurePanel source, Point position,
+					int modifiers) {
+
+			}
+
+			@Override
+			public void onPress(FigurePanel source, Point position,
+					int modifiers) {
+
+			}
+
+			@Override
+			public Object onClick(FigurePanel source, Point position,
+					int clicks, int modifiers) {
+				Point2D within = new Point2D.Double();
+				
+				TimelineTrack track = getTrack(position, within);
+				
+				String text = track.getToolTip(within);
+				
+				return text;
+			}
+		});
+		
 		timeline.setMoveAction(Button.NONE, new MoveAction() {
 
 			@Override
@@ -592,6 +632,8 @@ public class Timeline extends JPanel {
 					int modifiers) {
 				return new Cursor(Cursor.DEFAULT_CURSOR);
 			}
+			
+			
 		});
 
 		timeline.setMoveAction(Button.RIGHT, new MoveAction() {
@@ -777,8 +819,8 @@ public class Timeline extends JPanel {
 			double y = spos.y - offset.getY();
 			
 			if (y > 0 && y < track.getCustomHeight()) {
-				//if (within != null)
-				//	within.setLocation(x, y)
+				if (within != null)
+					within.setLocation(x, y);
 				
 				return track;
 			}

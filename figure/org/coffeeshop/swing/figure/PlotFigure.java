@@ -4,28 +4,20 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.util.Iterator;
 import java.util.Vector;
 
 import org.coffeeshop.swing.figure.FigureObserver;
 import org.coffeeshop.swing.figure.VectorFigure;
 
-public class PlotFigure extends VectorFigure {
+public class PlotFigure extends VectorFigure implements Iterable<PlotObject> {
 
-	public static interface PlotObject {
-		
-		public String getName();
-		
-		public void paint(Graphics2D g, float scale, AffineTransform pretransform);
-		
-		public Rectangle2D getBounds();
-		
-	}
-	
+
 	private double customWidth = 0, customHeight = 0;
 	
 	protected Rectangle2D bounds = new Rectangle2D.Float();
 	
-	private Vector<PlotObject> objects = new Vector<PlotFigure.PlotObject>(); 
+	private Vector<PlotObject> objects = new Vector<PlotObject>(); 
 	
 	private String name, title;
 
@@ -185,6 +177,11 @@ public class PlotFigure extends VectorFigure {
 	
 	public void setBorderColor(Color borderColor) {
 		this.borderColor = borderColor;
+	}
+
+	@Override
+	public Iterator<org.coffeeshop.swing.figure.PlotObject> iterator() {
+		return objects.iterator();
 	}
 	
 }
