@@ -619,6 +619,9 @@ public class Timeline extends JPanel {
 				
 				TimelineTrack track = getTrack(position, within);
 				
+				if (track == null)
+					return null;
+				
 				String text = track.getToolTip(within);
 				
 				return text;
@@ -814,6 +817,9 @@ public class Timeline extends JPanel {
 		
 		for (PlotTrack track : tracks) {
 			Point2D offset = container.getOffset(track);
+			
+			if (offset == null)
+				continue;
 			
 			double x = spos.x - offset.getX();
 			double y = spos.y - offset.getY();
