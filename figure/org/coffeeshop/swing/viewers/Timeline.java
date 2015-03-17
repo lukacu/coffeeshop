@@ -828,6 +828,9 @@ public class Timeline extends JPanel {
 		for (PlotTrack track : tracks) {
 			Point2D offset = container.getOffset(track);
 			
+			if (offset == null)
+				continue;
+			
 			double x = spos.x - offset.getX();
 			double y = spos.y - offset.getY();
 			
