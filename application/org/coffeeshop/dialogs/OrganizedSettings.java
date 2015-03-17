@@ -17,17 +17,24 @@ public class OrganizedSettings implements SettingsGroup {
 
 		private String title;
 		
+		private String prefix;
+		
 		private Vector<SettingsNode> nodes = new Vector<SettingsNode>();
+
+		public InternalSettingsGroup(String title, String prefix) {
+			this.title = title;
+			this.prefix = prefix;
+		}		
 		
 		public InternalSettingsGroup(String title) {
-			this.title = title;
+			this(title, "");
 		}
 
 		@Override
 		public SettingsValue attachValue(String name, String title,
 				StringParser type, String value) {
 
-			SettingsValue v = new SettingsValue(name, title, type, value);
+			SettingsValue v = new SettingsValue(prefix + name, title, type, value);
 			nodes.add(v);
 			
 			return v;
@@ -60,7 +67,7 @@ public class OrganizedSettings implements SettingsGroup {
 
 		@Override
 		public SettingsMap attachMap(String namespace, String title) {
-			SettingsMap v = new SettingsMap(title, namespace);
+			SettingsMap v = new SettingsMap(title, prefix + namespace);
 			nodes.add(v);
 			
 			return v;
@@ -95,7 +102,11 @@ public class OrganizedSettings implements SettingsGroup {
 		return g;
 	}
 
-	
+	public SettingsGroup createSubgroup(String title, String prefix) {
+		InternalSettingsGroup g = new InternalSettingsGroup(title, prefix);
+		nodes.add(g);
+		return g;
+	}
 	
 	@Override
 	public String getTitle() {
