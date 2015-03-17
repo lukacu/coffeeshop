@@ -13,9 +13,51 @@ import javax.swing.ImageIcon;
 
 public class ImageStore {
 
+	public interface ImageProvider {
+		
+		public Image loadImage(String name);
+		
+	}
+	
+	private static class ResourceImageProvider implements ImageProvider {
+
+		private Class<?> anchor;
+		
+		public ResourceImageProvider(Class<?> anchor) {
+			this.anchor = anchor;
+		}
+		
+		@Override
+		public Image loadImage(String name) {
+			
+			try {
+
+				InputStream str = anchor.getResourceAsStream(name);
+				
+				if (str == null)
+					return null;
+				
+				Image img = ImageIO.read(str);
+				
+				if (img == null)
+					return null;
+				
+				return img;
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+				return null;
+			} catch (NullPointerException e) {
+				return null;
+			}
+		}
+		
+	}
+	
+	
 	private static Hashtable<String, Image> storage = new Hashtable<String, Image>();
 	
-	private static List<Class<?>> anchors = new Vector<Class<?>>();
+	private static List<ImageProvider> providers = new Vector<ImageProvider>();
 	
 	static {
 		
@@ -25,13 +67,14 @@ public class ImageStore {
 	
 	public static void registerAnchorClass(Class<?> anchor) {
 		
-		if (anchors.contains(anchor))
-			return;
-		
-		anchors.add(anchor);
+		providers.add(new ResourceImageProvider(anchor));
 		
 	}
 	
+	public static void registerImageProvider(ImageProvider provider) {
+		
+		providers.add(provider);
+	}
 	
 	public static Icon getIcon(String name) {
 		
@@ -72,27 +115,19 @@ public class ImageStore {
 		if (i != null)
 			return i;
 		
-		for (Class<?> cls : anchors) {
+		for (ImageProvider provider : providers) {
 		
 			try {
 
-				InputStream str = cls.getResourceAsStream(name);
-				
-				if (str == null)
-					continue;
-				
-				Image img = ImageIO.read(str);
+				Image img = provider.loadImage(name);
 				
 				if (img == null)
-					return null;
+					continue;
 				
 				storage.put(name, img);
 				
 				return img;
-				
-			} catch (IOException e) {
-				e.printStackTrace();
-				break;
+							
 			} catch (NullPointerException e) {
 	
 			}
