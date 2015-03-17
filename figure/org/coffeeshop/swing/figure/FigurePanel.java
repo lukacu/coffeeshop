@@ -1044,6 +1044,8 @@ public class FigurePanel extends JComponent implements Scrollable {
 			
 				Point p = pointScreenToFigure(e.getPoint());
 				
+				if (p == null) return null;
+				
 				Object o = noButtonAction.onClick(FigurePanel.this, p, 0, e.getModifiersEx());
 				
 				if (o == null)
