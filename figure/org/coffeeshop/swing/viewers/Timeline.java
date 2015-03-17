@@ -619,6 +619,9 @@ public class Timeline extends JPanel {
 				
 				TimelineTrack track = getTrack(position, within);
 				
+				if (track == null)
+					return null;
+				
 				String text = track.getToolTip(within);
 				
 				return text;
@@ -775,6 +778,16 @@ public class Timeline extends JPanel {
 		
 		return track;
 		
+	}
+	
+	public boolean isTrack(String name) {
+		
+		for (TimelineTrack track : tracks) {
+			if (track.getName().equals(name))
+				return true;
+		}
+		
+		return false;
 	}
 	
 	@Override
