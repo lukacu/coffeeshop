@@ -65,7 +65,18 @@ public class SimpleDialog extends JDialog {
 		
 		getContentPane().add(buttons, BorderLayout.SOUTH);
 
-		SettingsPanel panel = new SettingsPanel(settings, structure);;
+		SettingsPanel panel = new SettingsPanel(settings, structure) {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void build(OrganizedSettings settings) {
+				setLayout(new BorderLayout());
+				
+				add(buildGroup(settings, false), BorderLayout.CENTER);
+			}
+			
+		};
 		
 		getContentPane().add(panel, BorderLayout.CENTER);
 

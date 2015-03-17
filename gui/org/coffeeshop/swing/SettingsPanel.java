@@ -283,27 +283,26 @@ public class SettingsPanel extends ScrollablePanel {
 		
 	}
 	
-	private void build(OrganizedSettings settings) {
+	protected void build(OrganizedSettings settings) {
 		
-		//setLayout(new StackLayout(Orientation.HORIZONTAL));
 		setLayout(new BorderLayout());
 		
-		add(buildGroup(settings), BorderLayout.CENTER);
+		add(buildGroup(settings, true), BorderLayout.CENTER);
 		
 	}
 	
-	private JComponent buildGroup(SettingsGroup group) {
+	protected JComponent buildGroup(SettingsGroup group, boolean border) {
 		
 		JPanel groupPanel = new JPanel(new StackLayout(Orientation.VERTICAL, 2, 5, true));
 		
-		if (!StringUtils.empty(group.getTitle())) {
+		if (!StringUtils.empty(group.getTitle()) && border) {
 			groupPanel.setBorder(new TitledBorder(group.getTitle()));
 		}
 		
 		for (SettingsNode n : group) {
 			
 			if (n instanceof SettingsGroup) {
-				JComponent c = buildGroup((SettingsGroup) n);
+				JComponent c = buildGroup((SettingsGroup) n, true);
 				groupPanel.add(c);
 				continue;
 			}
@@ -483,7 +482,7 @@ public class SettingsPanel extends ScrollablePanel {
 			
 			panel.add(new JLabel(value.getTitle()), BorderLayout.NORTH);
 			
-			JTextArea area = new JTextArea((String)bi.parse(settings.getString(value.getName(), "")));
+			JTextArea area = new JTextArea((String)bi.parse(settings.getString(value.getName(), value.getDefault())));
 			
 			area.getDocument().addDocumentListener(new ChangeListenerTextField(value.getName(), area, true));
 			
@@ -505,7 +504,7 @@ public class SettingsPanel extends ScrollablePanel {
 		
 		panel.add(new JLabel(value.getTitle()), BorderLayout.NORTH);
 		
-		JTextField line = new JTextField(settings.getString(value.getName(), ""));
+		JTextField line = new JTextField(settings.getString(value.getName(), value.getDefault()));
 		
 		line.getDocument().addDocumentListener(new ChangeListenerTextField(value.getName(), line, false));
 		
