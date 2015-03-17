@@ -1,9 +1,11 @@
 package org.coffeeshop.swing;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 
 import javax.swing.Action;
 
@@ -11,19 +13,39 @@ import org.coffeeshop.string.StringUtils;
 
 public class ActionSetManager {
 
-	private Hashtable<String, ActionSet> sets = new Hashtable<String, ActionSet>();
+	private Hashtable<String, Set<Action>> sets = new Hashtable<String, Set<Action>>();
 	
-	public ActionSet newSet(String name, Action ... actions) {
+	public void add(String name, Action ... actions) {
 		
-		if (sets.containsKey(name) || StringUtils.empty(name)) 
-			throw new IllegalArgumentException("Name already exists or empty");
+		if (StringUtils.empty(name)) 
+			throw new IllegalArgumentException("Name is empty");
 		
-		ActionSet set = new ActionSet(actions);
-		
-		sets.put(name, set);
-		
-		return set;
+		if (sets.containsKey(name)) {
+			Set<Action> set = sets.get(name);
+			set.addAll(Arrays.asList(actions));			
+		} else {
+			Set<Action> set = new HashSet<Action>(Arrays.asList(actions));			
+			sets.put(name, set);			
+		}
+	
 	}	
+	
+	public Action add(Action action, String name) {
+		
+		if (StringUtils.empty(name)) 
+			throw new IllegalArgumentException("Name is empty");
+		
+		if (sets.containsKey(name)) {
+			Set<Action> set = sets.get(name);
+			set.add(action);			
+		} else {
+			Set<Action> set = new HashSet<Action>();
+			set.add(action);
+			sets.put(name, set);			
+		}
+		
+		return action;
+	}
 	
 	public void enableAll() {
 		enable(collectAll());
@@ -34,58 +56,58 @@ public class ActionSetManager {
 	}
 	
 	public void enableSet(String name) {
-		ActionSet set = sets.get(name);
+		Set<Action> set = sets.get(name);
 
 		if (set == null)
-			throw new IllegalArgumentException("Unknown group name");
+			return;
 		
-		enable(set.getAll());
+		enable(set);
 	}
 	
 	public void disableSet(String name) {
-		ActionSet set = sets.get(name);
+		Set<Action> set = sets.get(name);
 
 		if (set == null)
-			throw new IllegalArgumentException("Unknown group name");
+			return;
 		
-		disable(set.getAll());
+		disable(set);
 	}
 	
 	public void enableAllBut(String name) {
-		ActionSet set = sets.get(name);
+		Set<Action> set = sets.get(name);
 
 		if (set == null)
 			throw new IllegalArgumentException("Unknown group name");
 		
 		Collection<Action> all = collectAll();
 		
-		all.removeAll(set.getAll());
+		all.removeAll(set);
 		
 		enable(all);
 	}
 	
 	public void disableAllBut(String name) {
-		ActionSet set = sets.get(name);
+		Set<Action> set = sets.get(name);
 
 		if (set == null)
 			throw new IllegalArgumentException("Unknown group name");
 		
 		Collection<Action> all = collectAll();
 		
-		all.removeAll(set.getAll());
+		all.removeAll(set);
 		
 		disable(all);
 	}
 	
 	private Collection<Action> collectAll() {
 		
-		Enumeration<ActionSet> sets =  this.sets.elements();
+		Enumeration<Set<Action>> sets =  this.sets.elements();
 		
 		HashSet<Action> actions = new HashSet<Action>();
 		
 		while (sets.hasMoreElements()) {
-			ActionSet set = sets.nextElement();
-			actions.addAll(set.getAll());
+			Set<Action> set = sets.nextElement();
+			actions.addAll(set);
 		}
 		
 		return actions;

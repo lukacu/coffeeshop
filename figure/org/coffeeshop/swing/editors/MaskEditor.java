@@ -458,9 +458,9 @@ public class MaskEditor extends JFrame {
 		menu.addSeparator();
 		menu.add(saveSelection);
 		
-		actionManager.newSet("selection.mode", modeReplace, modeAdd, modeIntersect);
+		actionManager.add("selection.mode", modeReplace, modeAdd, modeIntersect);
 		
-		actionManager.newSet("save", saveSelection);
+		actionManager.add("save", saveSelection);
 		
 		return menu;
 		
