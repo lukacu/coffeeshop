@@ -461,11 +461,11 @@ public class SettingsPanel extends ScrollablePanel {
 			
 			JComboBox<Object> combo = new JComboBox<Object>(bi.getValues());
 			
+			combo.setRenderer(new ObjectFacade.FacadeListCellRenderer());
+			
 			combo.addItemListener(new ChangeListenerCombo(value.getName(), combo));
 			
-			combo.setSelectedItem(settings.getString(value.getName(), null));
-			
-			combo.setRenderer(new ObjectFacade.FacadeListCellRenderer());
+			combo.setSelectedIndex(bi.findValue(settings.getString(value.getName(), null)));			
 			
 			components.put(getName(), combo);
 			

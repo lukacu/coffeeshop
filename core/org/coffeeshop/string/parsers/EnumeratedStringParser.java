@@ -243,4 +243,16 @@ public class EnumeratedStringParser implements StringParser {
 				
 	}
 	
+	public int findValue(String name) {
+		
+		if (name == null) return -1;
+		
+		for (int i = 0; i < validOptionStringsArray.length; i++) {
+			if (validOptionStringsArray[i].equals(name))
+				return i;
+		}
+		
+		return -1;
+	}
+	
 }
