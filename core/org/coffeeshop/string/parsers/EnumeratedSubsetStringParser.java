@@ -29,9 +29,8 @@
 
 package org.coffeeshop.string.parsers;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.StringTokenizer;
-
 
 public class EnumeratedSubsetStringParser extends EnumeratedStringParser implements StringParser {
 
@@ -109,7 +108,7 @@ public class EnumeratedSubsetStringParser extends EnumeratedStringParser impleme
 		
 		StringTokenizer tokens = new StringTokenizer(arg, separator);
 		
-		HashSet<Object> subset = new HashSet<Object>();
+		LinkedHashSet<Object> subset = new LinkedHashSet<Object>();
 		
 		while (tokens.hasMoreTokens()) {
 			
