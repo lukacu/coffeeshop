@@ -78,8 +78,12 @@ public class SimpleDialog extends JDialog {
 			
 		};
 		
+		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		
 		getContentPane().add(panel, BorderLayout.CENTER);
 
+		setMinimumSize(new Dimension(400, 400));
+		
 		pack();
 		
 		centerToOwner();
@@ -94,23 +98,25 @@ public class SimpleDialog extends JDialog {
 	
 	public void centerToOwner() {
 		
-		Dimension w = getSize();
+		Dimension size = getSize();
 		
 		Rectangle reference = null;
 		
 		if (getOwner() != null) {
+			
 			reference = getOwner().getBounds();
+			
 		} else {
 
-		GraphicsEnvironment ge = GraphicsEnvironment
-				.getLocalGraphicsEnvironment();
-
-		reference = ge.getDefaultScreenDevice().getDefaultConfiguration()
-				.getBounds();
+			GraphicsEnvironment ge = GraphicsEnvironment
+					.getLocalGraphicsEnvironment();
+	
+			reference = ge.getDefaultScreenDevice().getDefaultConfiguration()
+					.getBounds();
 
 		}
 
-		setLocation((reference.width - w.width - reference.x) / 2 + reference.x, (reference.height - w.height - reference.y) / 2 + reference.y);
+		setLocation((reference.width - size.width) / 2 + reference.x, (reference.height - size.height) / 2 + reference.y);
 
 	}
 }
