@@ -48,8 +48,8 @@ public abstract class RecentDocumentsSplash extends Splash {
 					Object value, int index, boolean isSelected,
 					boolean cellHasFocus) {
 				File file = (File) value;
-				JLabel label = new JLabel(file.getName());
-				label.setToolTipText(file.getAbsolutePath());
+				JLabel label = new JLabel(file.getName() + " [" + file.getParent() + "]");
+				label.setToolTipText("Open: " + file.getAbsolutePath());
 				return label;
 			}
 		});
