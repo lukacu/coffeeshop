@@ -8,6 +8,7 @@ import java.awt.event.ItemListener;
 import java.util.HashMap;
 import java.util.Set;
 
+import javax.swing.DefaultListSelectionModel;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -412,13 +413,27 @@ public class SettingsPanel extends ScrollablePanel {
 			
 			panel.add(new JLabel(value.getTitle()), BorderLayout.NORTH);
 			
-			JList<Object> list = new JList<Object>(bi.getValues());
+			final JList<Object> list = new JList<Object>(bi.getValues());
 			
 			list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			
 			list.addListSelectionListener(new ChangeListenerList(value.getName(), list, bi.getSeparator()));
 			
 			list.setCellRenderer(new ObjectFacade.FacadeListCellRenderer());
+			
+			list.setSelectionModel(new DefaultListSelectionModel() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void setSelectionInterval(int index0, int index1) {
+					if (list.isSelectedIndex(index0)) {
+						list.removeSelectionInterval(index0, index1);
+					} else {
+						list.addSelectionInterval(index0, index1);
+					}
+				}
+			});
 			
 			try {
 				
