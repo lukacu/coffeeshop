@@ -192,7 +192,7 @@ public class SettingsTable extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	private Action add = new ToolTipAction("Add",
-			ImageStore.getIcon("add-16.png")) {
+			ImageStore.getIcon("add", "new")) {
 
 		private static final long serialVersionUID = 1L;
 
@@ -205,7 +205,7 @@ public class SettingsTable extends JPanel {
 	};
 	
 	private Action remove = new ToolTipAction("Remove",
-			ImageStore.getIcon("delete-16.png")) {
+			ImageStore.getIcon("remove", "clear", "delete")) {
 
 		private static final long serialVersionUID = 1L;
 

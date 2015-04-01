@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
@@ -54,6 +56,36 @@ public class ImageStore {
 		
 	}
 	
+	public static class AliasImageProvider implements ImageProvider {
+
+		Map<Object, Object> aliases;
+		
+		public AliasImageProvider(InputStream in) throws IOException {
+			
+			Properties properties = new Properties();
+			properties.load(in);
+			
+			aliases = properties;
+			
+		}
+		
+		public AliasImageProvider(Map<String, String> aliases) {
+			
+			this.aliases = new Hashtable<Object, Object>(aliases);
+			
+		}
+		
+		@Override
+		public Image loadImage(String name) {
+			
+			if (aliases.containsKey(name)) {
+				return ImageStore.getImage((String) aliases.get(name));
+			}
+			
+			return null;
+		}
+
+	}
 	
 	private static Hashtable<String, Image> storage = new Hashtable<String, Image>();
 	

@@ -34,7 +34,7 @@ public class AdvancedLayeredFigureViewer extends PersistentWindow {
 
 	private static final long serialVersionUID = 1L;
 
-	private ToolTipAction zoomNormal = new ToolTipAction("Zoom 100%", "zoom-normal-16.png") {
+	private ToolTipAction zoomNormal = new ToolTipAction("Zoom 100%", "zoom-normal") {
 
 		private static final long serialVersionUID = 1L;
 
@@ -47,7 +47,7 @@ public class AdvancedLayeredFigureViewer extends PersistentWindow {
 
 	};
 
-	private ToolTipAction zoomIn = new ToolTipAction("Zoom in", "zoom-in-16.png") {
+	private ToolTipAction zoomIn = new ToolTipAction("Zoom in", "zoom-in") {
 
 		private static final long serialVersionUID = 1L;
 
@@ -68,7 +68,7 @@ public class AdvancedLayeredFigureViewer extends PersistentWindow {
 
 	};
 	
-	private ToolTipAction zoomOut = new ToolTipAction("Zoom out", "zoom-out-16.png") {
+	private ToolTipAction zoomOut = new ToolTipAction("Zoom out", "zoom-out") {
 
 		private static final long serialVersionUID = 1L;
 
@@ -205,7 +205,7 @@ public class AdvancedLayeredFigureViewer extends PersistentWindow {
 
 		setLayout(new BorderLayout());
 
-		setIconImage(ImageStore.getImage("image-16.png"));
+		setIconImage(ImageStore.getImage("viewer-icon", "icon"));
 
 		menu.setFloatable(false);
 

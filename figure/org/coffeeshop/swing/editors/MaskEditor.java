@@ -422,13 +422,11 @@ public class MaskEditor extends JFrame {
 	public MaskEditor() {
 		super("Mask editor");
 		
-		ImageStore.registerAnchorClass(MaskEditor.class);
-		
 		setLayout(new BorderLayout());
 		
 		panel = new FigurePanel();
 		
-		setIconImage(ImageStore.getImage("image-16.png"));
+		setIconImage(ImageStore.getImage("editor-icon", "icon"));
 		
 		add(panel, BorderLayout.CENTER);
 		
