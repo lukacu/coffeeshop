@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.Vector;
 
 import javax.swing.Action;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;

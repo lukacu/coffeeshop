@@ -39,6 +39,7 @@ import org.coffeeshop.dialogs.SettingsMap;
 import org.coffeeshop.dialogs.SettingsNode;
 import org.coffeeshop.dialogs.SettingsValue;
 import org.coffeeshop.settings.PrefixProxySettings;
+import org.coffeeshop.settings.PropertiesSettings;
 import org.coffeeshop.settings.Settings;
 import org.coffeeshop.string.StringUtils;
 import org.coffeeshop.string.parsers.BooleanStringParser;
@@ -62,6 +63,8 @@ public class SettingsPanel extends ScrollablePanel {
 	
 	private HashMap<String, JComponent> components = new HashMap<String, JComponent>();
 
+	private PropertiesSettings temporary = new PropertiesSettings();
+	
 	private Settings settings;
 	
 	private OrganizedSettings structure;
@@ -84,9 +87,9 @@ public class SettingsPanel extends ScrollablePanel {
 				return;
 
 			try {
-				settings.setString(key, spinner.getValue().toString());
+				temporary.setString(key, spinner.getValue().toString());
 			} catch (RuntimeException ex) {
-				spinner.setValue(settings.getInt(key, defaultValue));
+				spinner.setValue(temporary.getInt(key, defaultValue));
 			}
 		}
 		
@@ -115,9 +118,9 @@ public class SettingsPanel extends ScrollablePanel {
 				return;
 			
 			try {
-				settings.setInt(key, slider.getValue());
+				temporary.setInt(key, slider.getValue());
 			} catch (RuntimeException ex) {
-				slider.setValue(settings.getInt(key, defaultValue));
+				slider.setValue(temporary.getInt(key, defaultValue));
 			}
 			
 			label.setText(Integer.toString(slider.getValue()));
@@ -144,9 +147,9 @@ public class SettingsPanel extends ScrollablePanel {
 				return;
 
 			try {
-				settings.setBoolean(key, box.isSelected());
+				temporary.setBoolean(key, box.isSelected());
 			} catch (RuntimeException ex) {
-				box.setSelected(settings.getBoolean(key, defaultValue));
+				box.setSelected(temporary.getBoolean(key, defaultValue));
 			}
 		}
 		
@@ -170,9 +173,9 @@ public class SettingsPanel extends ScrollablePanel {
 			try {
 				Object obj = combo.getSelectedItem();
 				if (obj != null)
-					settings.setString(key, combo.getSelectedItem().toString());
+					temporary.setString(key, combo.getSelectedItem().toString());
 			} catch (RuntimeException ex) {
-				combo.setSelectedItem(settings.getString(key, null));
+				combo.setSelectedItem(temporary.getString(key, null));
 			}
 		}
 		
@@ -210,7 +213,7 @@ public class SettingsPanel extends ScrollablePanel {
 			}
 			
 			try {
-				settings.setString(key, value);
+				temporary.setString(key, value);
 			} catch (RuntimeException ex) {
 				//list.setSelectedItem(settings.getString(key));
 			}
@@ -267,7 +270,7 @@ public class SettingsPanel extends ScrollablePanel {
 				
 			}
 			
-			settings.setString(key, value);
+			temporary.setString(key, value);
 			
 		}
 		
@@ -280,8 +283,39 @@ public class SettingsPanel extends ScrollablePanel {
 		
 		this.structure = structure;
 		
+		cache(structure);
+				
 		build(structure);
 		
+	}
+	
+	public void commit() {
+		
+		for (String key : temporary.getKeys()) {
+			
+			settings.setString(key, temporary.getString(key));
+			
+		}
+
+	}
+	
+	private void cache(SettingsGroup group) {
+		
+			for (SettingsNode n : group) {
+			
+				if (n instanceof SettingsGroup) {
+					cache((SettingsGroup) n);
+					continue;
+				} else if (n instanceof SettingsValue) {
+					String key = ((SettingsValue)n).getName();
+					if (settings.containsKey(key)) {
+						temporary.setString(key, settings.getString(key));
+					} else {
+						temporary.setString(key, ((SettingsValue)n).getDefault());
+					}
+				}
+				
+			}
 	}
 	
 	protected void build(OrganizedSettings settings) {
@@ -313,7 +347,7 @@ public class SettingsPanel extends ScrollablePanel {
 				JPanel panel = new JPanel(new BorderLayout());
 				panel.add(new JLabel(map.getTitle()), BorderLayout.NORTH);
 				panel.add(new JScrollPane(
-						new SettingsTable(new PrefixProxySettings(settings,
+						new SettingsTable(new PrefixProxySettings(temporary,
 								map.getNamespace()))), BorderLayout.CENTER);
 				groupPanel.add(panel);
 				continue;
@@ -332,7 +366,7 @@ public class SettingsPanel extends ScrollablePanel {
 		
 		if (p instanceof SettingsRenderer) {
 			
-			return ((SettingsRenderer) p).renderComponent(getName(), settings);
+			return ((SettingsRenderer) p).renderComponent(getName(), temporary);
 			
 		}
 		
@@ -344,7 +378,7 @@ public class SettingsPanel extends ScrollablePanel {
 			
 			JSpinner spinner = new JSpinner(new SpinnerNumberModel());
 			
-			spinner.setValue(settings.getInt(value.getName(), 0));
+			spinner.setValue(temporary.getInt(value.getName(), 0));
 			
 			//spinner.setValue(settings.getString(value.getName()));
 			
@@ -361,7 +395,7 @@ public class SettingsPanel extends ScrollablePanel {
 			
 			JCheckBox box = new JCheckBox(value.getTitle());
 
-			box.setSelected(settings.getBoolean(value.getName(), false));
+			box.setSelected(temporary.getBoolean(value.getName(), false));
 			
 			box.addChangeListener(new ChangeListenerCheckbox(value.getName(), box, false));
 
@@ -386,7 +420,7 @@ public class SettingsPanel extends ScrollablePanel {
 			if (bi.getMax() < 0)
 				defval = bi.getMax();
 			
-			int val = Math.min(bi.getMax(), Math.max(bi.getMin(), settings.getInt(value.getName(), defval)));
+			int val = Math.min(bi.getMax(), Math.max(bi.getMin(), temporary.getInt(value.getName(), defval)));
 
 			JSlider slider = new JSlider(bi.getMin(), bi.getMax(), val);
 			
@@ -438,13 +472,13 @@ public class SettingsPanel extends ScrollablePanel {
 			try {
 				
 				@SuppressWarnings("unchecked")
-				Set<Object> subset = (Set<Object>) bi.parse(settings.getString(value.getName(), ""));
+				Set<Object> subset = (Set<Object>) bi.parse(temporary.getString(value.getName(), ""));
 					
+				Object[] values = bi.getValues();
 				if (!subset.isEmpty()) {
 					int[] indices = new int[subset.size()];
 					int j = 0;
-					Object[] values = bi.getValues();
-
+					
 					for (int i = 0; i < values.length; i++) {
 				
 						if (subset.contains(values[i])) {
@@ -480,7 +514,7 @@ public class SettingsPanel extends ScrollablePanel {
 			
 			combo.addItemListener(new ChangeListenerCombo(value.getName(), combo));
 			
-			combo.setSelectedIndex(bi.findValue(settings.getString(value.getName(), null)));			
+			combo.setSelectedIndex(bi.findValue(temporary.getString(value.getName(), value.getDefault())));			
 			
 			components.put(getName(), combo);
 			
@@ -497,7 +531,7 @@ public class SettingsPanel extends ScrollablePanel {
 			
 			panel.add(new JLabel(value.getTitle()), BorderLayout.NORTH);
 			
-			JTextArea area = new JTextArea((String)bi.parse(settings.getString(value.getName(), value.getDefault())));
+			JTextArea area = new JTextArea((String)bi.parse(temporary.getString(value.getName(), value.getDefault())));
 			
 			area.getDocument().addDocumentListener(new ChangeListenerTextField(value.getName(), area, true));
 			
@@ -519,7 +553,7 @@ public class SettingsPanel extends ScrollablePanel {
 		
 		panel.add(new JLabel(value.getTitle()), BorderLayout.NORTH);
 		
-		JTextField line = new JTextField(settings.getString(value.getName(), value.getDefault()));
+		JTextField line = new JTextField(temporary.getString(value.getName(), value.getDefault()));
 		
 		line.getDocument().addDocumentListener(new ChangeListenerTextField(value.getName(), line, false));
 		

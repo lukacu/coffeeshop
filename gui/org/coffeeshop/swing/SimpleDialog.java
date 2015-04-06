@@ -25,12 +25,16 @@ public class SimpleDialog extends JDialog {
 
 	private boolean confirm = false;
 	
+	private SettingsPanel panel;
+	
 	private Action ok = new AbstractAction("OK") {
 		
 		private static final long serialVersionUID = 1L;
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
+			
+			panel.commit();
 			
 			confirm = true;
 			SimpleDialog.this.setVisible(false);
@@ -65,7 +69,7 @@ public class SimpleDialog extends JDialog {
 		
 		getContentPane().add(buttons, BorderLayout.SOUTH);
 
-		SettingsPanel panel = new SettingsPanel(settings, structure) {
+		panel = new SettingsPanel(settings, structure) {
 			
 			private static final long serialVersionUID = 1L;
 
