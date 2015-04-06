@@ -29,12 +29,16 @@
 
 package org.coffeeshop.string.parsers;
 
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.StringTokenizer;
+import java.util.Vector;
+
+import org.coffeeshop.string.StringUtils;
 
 public class EnumeratedSubsetStringParser extends EnumeratedStringParser implements StringParser {
 
-	private String separator = ",";
+	private String separator = Character.toString(EnumeratedStringParser.CONSTRUCTOR_VALUE_SEPARATOR);
 	
 	/**
 	 * Constructs a new instance of EnumeratedSubsetStringParser.
@@ -50,7 +54,7 @@ public class EnumeratedSubsetStringParser extends EnumeratedStringParser impleme
 	 */
 	public EnumeratedSubsetStringParser(String validOptionValues, boolean caseSensitive, String separator) throws IllegalArgumentException {
 		super(validOptionValues, caseSensitive, true);
-		this.separator = separator != null ? separator : ",";
+		if (!StringUtils.empty(separator)) this.separator = separator;
 	}
 
 	/**
@@ -59,7 +63,7 @@ public class EnumeratedSubsetStringParser extends EnumeratedStringParser impleme
 	 */
 	public EnumeratedSubsetStringParser(Class<?> validOptionValues, boolean caseSensitive, String separator) throws IllegalArgumentException {
 		super(validOptionValues, caseSensitive);
-		this.separator = separator != null ? separator : ",";
+		if (!StringUtils.empty(separator)) this.separator = separator;
 	}
 
 	/**
@@ -68,7 +72,7 @@ public class EnumeratedSubsetStringParser extends EnumeratedStringParser impleme
 	 */
 	public EnumeratedSubsetStringParser(Iterable<?> values, boolean caseSensitive, String separator) throws IllegalArgumentException {
 		super(values, caseSensitive);
-		this.separator = separator != null ? separator : ",";
+		if (!StringUtils.empty(separator)) this.separator = separator;
 	}
 	
 	public EnumeratedSubsetStringParser(String validOptionValues, boolean caseSensitive) throws IllegalArgumentException {
@@ -125,6 +129,20 @@ public class EnumeratedSubsetStringParser extends EnumeratedStringParser impleme
 		
 		return separator;
 		
+	}
+	
+	public String join(Collection<?> values) {
+		
+		Vector<String> list = new Vector<String>();
+		
+		for (Object value : values) {
+			String svalue = value.toString();
+			if (isValidOptionName(svalue))
+				list.add(svalue);
+			
+		}
+		
+		return StringUtils.implodeFromList(list, separator);
 	}
 	
 }
