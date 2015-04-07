@@ -310,7 +310,7 @@ public class SettingsPanel extends ScrollablePanel {
 					String key = ((SettingsValue)n).getName();
 					if (settings.containsKey(key)) {
 						temporary.setString(key, settings.getString(key));
-					} else {
+					} else if (((SettingsValue)n).getDefault() != null) {
 						temporary.setString(key, ((SettingsValue)n).getDefault());
 					}
 				}
