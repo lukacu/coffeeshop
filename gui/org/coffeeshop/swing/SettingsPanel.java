@@ -313,6 +313,15 @@ public class SettingsPanel extends ScrollablePanel {
 					} else {
 						temporary.setString(key, ((SettingsValue)n).getDefault());
 					}
+				} else if (n instanceof SettingsMap) {
+					
+					String namespace = ((SettingsMap)n).getNamespace();
+					
+					for (String key : settings.getKeys()) {
+						if (key.startsWith(namespace))
+							temporary.setString(key, settings.getString(key));
+					}
+					
 				}
 				
 			}
