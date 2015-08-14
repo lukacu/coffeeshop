@@ -11,8 +11,11 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
-import java.awt.geom.Point2D.Double;
 import java.beans.Transient;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -335,8 +338,14 @@ public class Timeline extends JPanel {
 
 		this.zoom = Math.max(minZoom, Math.min(maxZoom, zoom));
 
-		for (PlotTrack track : tracks)
+		Iterator<Entry<String, PlotTrack>> iterator = tracks.entrySet().iterator();
+		
+		while (iterator.hasNext()) {
+			
+			PlotTrack track = iterator.next().getValue();
+			
 			track.setCustomWidth(track.getOriginalWidth() * this.zoom);
+		}
 
 		timeline.revalidate();
 
@@ -408,7 +417,10 @@ public class Timeline extends JPanel {
 		
 		double current = timescaleHeight;
 		
-		for (PlotTrack track : tracks) {
+		Iterator<Entry<String, PlotTrack>> iterator = tracks.entrySet().iterator();
+		
+		while (iterator.hasNext()) {
+			PlotTrack track = iterator.next().getValue();
 			
 			if (track.isEmpty()) continue;
 			
@@ -454,7 +466,7 @@ public class Timeline extends JPanel {
 
 	private AdvancedLayeredFigure container = new AdvancedLayeredFigure();
 	
-	private Vector<PlotTrack> tracks = new Vector<PlotTrack>();
+	private Map<String, PlotTrack> tracks = new LinkedHashMap<String, PlotTrack>();
 	
 	private Settings settings;
 
@@ -520,7 +532,7 @@ public class Timeline extends JPanel {
 
 				} else {
 
-					int move = (modifiers & KeyEvent.CTRL_DOWN_MASK) == 0 ? vector.y
+					int move = (modifiers & KeyEvent.CTRL_DOWN_MASK) == 0 ? vector.y / 2
 							: (vector.y > 0 ? 1 : -1);
 
 					setPosition((int) (getPosition() + move));
@@ -761,14 +773,13 @@ public class Timeline extends JPanel {
 
 	public TimelineTrack getTrack(String name) {
 		
-		for (TimelineTrack track : tracks) {
-			if (track.getName().equals(name))
-				return track;
-		}
+		PlotTrack track = tracks.get(name);
 		
-		PlotTrack track = new PlotTrack(name);
+		if (track != null) return track;
+		
+		track = new PlotTrack(name);
 
-		tracks.add(track);
+		tracks.put(name, track);
 		
 		updateTrackLayout();
 		
@@ -781,13 +792,8 @@ public class Timeline extends JPanel {
 	}
 	
 	public boolean isTrack(String name) {
-		
-		for (TimelineTrack track : tracks) {
-			if (track.getName().equals(name))
-				return true;
-		}
-		
-		return false;
+
+		return tracks.containsKey(name);
 	}
 	
 	@Override
@@ -825,7 +831,10 @@ public class Timeline extends JPanel {
 		
 		spos.x /= zoom;
 		
-		for (PlotTrack track : tracks) {
+		Iterator<Entry<String, PlotTrack>> iterator = tracks.entrySet().iterator();
+		
+		while (iterator.hasNext()) {
+			PlotTrack track = iterator.next().getValue();
 			Point2D offset = container.getOffset(track);
 			
 			if (offset == null)
