@@ -4,6 +4,8 @@ package org.coffeeshop.swing;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.MouseInfo;
 import java.awt.Rectangle;
@@ -14,15 +16,14 @@ import java.util.Collection;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.InputMap;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 
-import org.coffeeshop.awt.StackLayout;
-import org.coffeeshop.awt.StackLayout.Orientation;
 import org.coffeeshop.swing.ImagePanel;
 
 public class Splash {
@@ -30,6 +31,19 @@ public class Splash {
 	private Window window;
 	
 	private Object result = null;
+	
+	private static class SimpleToolBar extends JToolBar {
+		
+		private static final long serialVersionUID = 1L;
+		
+		@Override
+		protected void paintComponent(Graphics g) {
+	        Graphics2D g2d = (Graphics2D) g;
+	        g2d.setColor(getBackground());
+	        g2d.fillRect(0, 0, getWidth() - 1, getHeight() - 1);
+		}
+		
+	}
 	
 	private class Window extends JDialog {
 		
@@ -62,16 +76,9 @@ public class Splash {
 			JPanel sidebar = new JPanel(new BorderLayout());
 			
 			JComponent sidebarComponent = createSidebarComponent();
-			
-			/*if (orientation == Orientation.VERTICAL) {
-				//sidebar.setPreferredSize(new Dimension(400, splashImage.getHeight(null)));
-			} else  {
-				sidebar.setPreferredSize(new Dimension(splashImage.getWidth(null), 200));
-			}*/
-			
-			JPanel buttons = new JPanel(new StackLayout(horizontal ? 
-					Orientation.VERTICAL : Orientation.HORIZONTAL, 5, 5, horizontal));
 
+			JToolBar buttons = new SimpleToolBar();
+			
 			Color background = getBackground();
 			
 			if (System.getProperty("splash.background") != null) {
@@ -85,20 +92,23 @@ public class Splash {
 				sidebar.add(sidebarComponent, BorderLayout.CENTER);
 			}
 			
-			buttons.setBackground(background);
-
 			Collection<Action> actions = createActions();
 
+			buttons.add(ComponentSnippets.transparentPanel());
+			buttons.add(Box.createHorizontalGlue());
 			if (actions != null && actions.size() > 0) {
 
 				for (Action action : actions) {
-					buttons.add(new JButton(action));
+					buttons.add(action);
 				}
 				
 				buttons.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 				sidebar.add(buttons, BorderLayout.SOUTH);
 			}
 	
+			buttons.setFloatable(false);
+			buttons.setBackground(background);
+			
 			root.add(sidebar, horizontal ? BorderLayout.EAST : BorderLayout.SOUTH);
 			
 			setContentPane(root);
@@ -143,7 +153,7 @@ public class Splash {
 		
 		window.setTitle(title);
 		
-		Image icon = ImageStore.getImage("icon.png", "icon-16.png", "icon-32.png", "icon-46.png");
+		Image icon = ImageStore.getImage("icon-splash", "icon");
 		
 		if (icon != null)
 			window.setIconImage(icon);

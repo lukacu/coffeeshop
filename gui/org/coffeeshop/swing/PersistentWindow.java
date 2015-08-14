@@ -12,8 +12,8 @@ import java.util.Vector;
 import javax.swing.JFrame;
 
 import org.coffeeshop.application.Application;
+import org.coffeeshop.settings.PrefixProxySettings;
 import org.coffeeshop.settings.Settings;
-import org.coffeeshop.settings.PropertiesSettings;
 import org.coffeeshop.settings.WriteableSettings;
 import org.coffeeshop.string.StringUtils;
 
@@ -88,17 +88,17 @@ public abstract class PersistentWindow extends JFrame {
 		try {
 
 			// TODO: split the Application from PersistentWindow
-			Settings settings = Application.getApplicationSettings();
+			Settings settings = new PrefixProxySettings(Application.getApplicationSettings(), getIdentifier() + ".");
 
 			Point loc = this.getLocation();
 			Dimension dim = this.getSize();
 			int state = this.getExtendedState();
 
-			loc.x = settings.getInt(persistId + ".x", loc.x);
-			loc.y = settings.getInt(persistId + ".y", loc.y);
-			dim.width = settings.getInt(persistId + ".width", dim.width);
-			dim.height = settings.getInt(persistId + ".height", dim.height);
-			state = settings.getInt(persistId + ".state", state);
+			loc.x = settings.getInt("x", loc.x);
+			loc.y = settings.getInt("y", loc.y);
+			dim.width = settings.getInt("width", dim.width);
+			dim.height = settings.getInt("height", dim.height);
+			state = settings.getInt("state", state);
 
 			this.setLocation(loc);
 			this.setSize(dim);
@@ -133,22 +133,23 @@ public abstract class PersistentWindow extends JFrame {
 			}
 
 			public void windowClosing(WindowEvent e) {
+
 				try {
 
-					Settings settings = Application.getApplicationSettings();
+					Settings settings = new PrefixProxySettings(Application.getApplicationSettings(), getIdentifier() + ".");
 
 					Point loc = getLocation();
 					Dimension dim = getSize();
 					int state = getExtendedState();
 
-					settings.setInt(persistId + ".x", loc.x);
-					settings.setInt(persistId + ".y", loc.y);
-					settings.setInt(persistId + ".width", dim.width);
-					settings.setInt(persistId + ".height", dim.height);
-					settings.setInt(persistId + ".state", state);
+					settings.setInt("x", loc.x);
+					settings.setInt("y", loc.y);
+					settings.setInt("width", dim.width);
+					settings.setInt("height", dim.height);
+					settings.setInt("state", state);
 
 					try {
-						saveState(persistId, settings, true);
+						saveState(settings, true);
 					} catch (Exception ex) {
 					}
 				} catch (RuntimeException ex) {
@@ -173,8 +174,7 @@ public abstract class PersistentWindow extends JFrame {
 
 					}
 
-					
-					
+
 					if (openedWindows.isEmpty() && exitOnAllClosed)
 						System.exit(0);
 				}
@@ -185,7 +185,7 @@ public abstract class PersistentWindow extends JFrame {
 
 	protected abstract void defaultState();
 
-	protected void saveState(String persistId, WriteableSettings settings,
+	protected void saveState(WriteableSettings settings,
 			boolean closing) {
 
 	};
@@ -206,4 +206,10 @@ public abstract class PersistentWindow extends JFrame {
 
 	}
 
+	public String getIdentifier() {
+		
+		return persistId;
+		
+	}
+	
 }

@@ -24,6 +24,9 @@ public class AdvancedLayeredFigure extends LayeredFigure implements Viewable {
 
 	@Override
 	public void add(Figure figure) {
+		if (figure == null)
+			throw new IllegalArgumentException("Figure must not be null");
+		
 		super.add(figure);
 		
 		alpha.add(1.0f);
