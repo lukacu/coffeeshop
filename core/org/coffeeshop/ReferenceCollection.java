@@ -10,6 +10,14 @@ import java.util.Vector;
 
 public class ReferenceCollection<T> extends AbstractCollection<T> {
     
+	/**
+	 * Interface that determines if the element should be added to the
+	 * collection with a weak interface.
+	 */
+	public static interface Weak {
+		
+	}
+	
 	private static class StrongReference<T> extends WeakReference<T> {
 	    private final T referent;
 
@@ -37,13 +45,20 @@ public class ReferenceCollection<T> extends AbstractCollection<T> {
     }
     
     /**
-     * Add a strong reference of an object
+     * Add a reference of an object (by default the reference is strong, if the
+     * object implements {@link Weak} interface then the reference is weak.
      */
     public synchronized boolean add(T element) {
     	
-    	Reference<T> ref = new StrongReference<T>(element);
+    	if (element instanceof Weak) {
+    		
+    		return addWeak(element);
+    		
+    	} else {
     	
-        return items.add(ref);
+	    	return addStrong(element);
+	    	
+    	}
         
     }
 
@@ -56,6 +71,20 @@ public class ReferenceCollection<T> extends AbstractCollection<T> {
     public synchronized boolean addWeak(T element) {
     	
     	WeakReference<T> ref = new WeakReference<T>(element);
+    	
+        return items.add(ref);
+        
+    }
+    
+    /**
+     * Add a strong reference of an object
+     * 
+     * @param element
+     * @return
+     */
+    public synchronized boolean addStrong(T element) {
+    	
+    	Reference<T> ref = new StrongReference<T>(element);
     	
         return items.add(ref);
         
