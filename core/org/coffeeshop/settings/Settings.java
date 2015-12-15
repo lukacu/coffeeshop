@@ -26,7 +26,7 @@
 
 package org.coffeeshop.settings;
 
-import java.util.Vector;
+import org.coffeeshop.ReferenceCollection;
 
 /**
  * 
@@ -96,7 +96,7 @@ public abstract class Settings extends AbstractReadonlySettings implements Write
 	}
 
     /** The listeners. */
-    private Vector<SettingsListener> listeners = new Vector<SettingsListener>();
+    private ReferenceCollection<SettingsListener> listeners = new ReferenceCollection<SettingsListener>();
 	
     /**
      * Adds settings listener to the internal list. Listener is subscribed to

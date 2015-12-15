@@ -1,46 +1,45 @@
 package org.coffeeshop.settings;
 
-import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.Set;
 
-class ProxyWeakSettingsListener implements SettingsListener {
-	
-	WeakReference<Settings> reference;
-	
-	public ProxyWeakSettingsListener(Settings proxy) {
-		
-		reference = new WeakReference<Settings>(proxy);
-		
-	}
-	
-	
-	@Override
-	public void settingsChanged(SettingsChangedEvent e) {
-		
-		Settings settings = reference.get();
-		
-		if (settings == null) return;
-		
-		settings.notifySettingsChanged(e.getKey(), e.getOldValue(), e.getValue());
-		
-	}
-		
-}
+import org.coffeeshop.ReferenceCollection.Weak;
 
 public class ProxySettings extends Settings {
 
 	private Settings parent;
+	
+	class ProxyWeakSettingsListener implements SettingsListener, Weak {
+		
+		@Override
+		public void settingsChanged(SettingsChangedEvent e) {
+			
+			parentUpdated(e);
+			
+		}
+			
+	}	
+	
+	private ProxyWeakSettingsListener listener = new ProxyWeakSettingsListener();
 	
 	public ProxySettings(Settings parent) {
 		super(parent);
 		this.parent = parent;
 		
 		if (this.parent != null)
-			this.parent.addSettingsListener(new ProxyWeakSettingsListener(this));
+			this.parent.addSettingsListener(listener);
 		
 	}
 
+	protected void parentUpdated(SettingsChangedEvent e) {
+		
+		String key = externalKey(e.getKey());
+		
+		if (key != null)
+			notifySettingsChanged(key, e.getOldValue(), e.getValue());
+		
+	}
+	
 	protected String internalKey(String key) {
 		return key;
 	}

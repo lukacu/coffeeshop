@@ -176,6 +176,22 @@ public class PropertiesSettings extends Settings implements StoreableSettings {
         
         notifySettingsAfterLoad();
     }
+
+    /**
+     * Loads settings from input stream.
+     * 
+     * @param stream input stream
+     * 
+     * @see Properties#load(java.io.InputStream)
+     */
+    public void loadSettings(InputStream stream) throws IOException {
+    	
+    	notifySettingsBeforeLoad();
+
+        storage.load(stream);
+        
+        notifySettingsAfterLoad();
+    }
     
     /**
      * Store settings.

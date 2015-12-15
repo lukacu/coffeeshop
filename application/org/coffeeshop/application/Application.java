@@ -28,6 +28,8 @@ package org.coffeeshop.application;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -84,10 +86,34 @@ public abstract class Application {
 	public static File applicationStorageDirectory(Application a) {
 		return new File(OperatingSystem.getSystemConfigurationDirectory(), a.getUnixName());
 	}
+
+	/**
+	 * Attempt to load default settings from the location of the application class.
+	 * 
+	 * @return {@link ReadableSettings} object or <code>null</code>.
+	 */
+	private ReadableSettings loadDefaults() {
+		InputStream stream = this.getClass().getResourceAsStream("defaults.ini");
+
+		if (stream == null) return null;
+		
+		PropertiesSettings settings = new PropertiesSettings();
+		try {
+			settings.loadSettings(stream);
+			
+			return settings;
+
+		} catch (IOException e) {
+			
+			return null;
+			
+		}
+	}
 	
 	private class ApplicationSettingsImpl extends Settings implements SettingsSetter {
 
 		private static final String PASSTHROUGH_ARGUMENTS_ID = "__coffeeshop.passthrough";
+
 		
 		private class DefaultElement {
 			
@@ -143,8 +169,10 @@ public abstract class Application {
 		private PropertiesSettings storage = null;
 		
 		public ApplicationSettingsImpl(Application a) {
-			super((ReadableSettings)null);
-			this.storage = Application.getApplication().getSettingsManager().getSettings(Application.getApplication().getSubname().toLowerCase() + ".ini", null);
+			
+			super(null);
+			
+			this.storage = Application.getApplication().getSettingsManager().getSettings(Application.getApplication().getSubname().toLowerCase() + ".ini", loadDefaults());
 		}
 		
 		public boolean addDefaultElement(String key, String value, String description, String shortFlag, String longFlag, StringParser parser) {
@@ -439,7 +467,6 @@ public abstract class Application {
 	 * @return short application description
 	 */
 	public abstract String getShortDescription();
-	
 	
 	protected abstract void defineDefaults(SettingsSetter setter);
 	
