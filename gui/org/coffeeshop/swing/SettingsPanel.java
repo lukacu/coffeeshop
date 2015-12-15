@@ -1,12 +1,14 @@
 package org.coffeeshop.swing;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.Vector;
 
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JCheckBox;
@@ -21,7 +23,6 @@ import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
-import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -29,7 +30,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.text.JTextComponent;
 
 import org.coffeeshop.awt.StackLayout;
 import org.coffeeshop.awt.StackLayout.Orientation;
@@ -38,9 +38,12 @@ import org.coffeeshop.dialogs.SettingsGroup;
 import org.coffeeshop.dialogs.SettingsMap;
 import org.coffeeshop.dialogs.SettingsNode;
 import org.coffeeshop.dialogs.SettingsValue;
+import org.coffeeshop.settings.CachedSettings;
 import org.coffeeshop.settings.PrefixProxySettings;
-import org.coffeeshop.settings.PropertiesSettings;
 import org.coffeeshop.settings.Settings;
+import org.coffeeshop.settings.SettingsChangedEvent;
+import org.coffeeshop.settings.SettingsListener;
+import org.coffeeshop.settings.Value;
 import org.coffeeshop.string.StringUtils;
 import org.coffeeshop.string.parsers.BooleanStringParser;
 import org.coffeeshop.string.parsers.BoundedIntegerStringParser;
@@ -51,194 +54,377 @@ import org.coffeeshop.string.parsers.ParseException;
 import org.coffeeshop.string.parsers.StringParser;
 import org.coffeeshop.string.parsers.StringStringParser;
 
-public class SettingsPanel extends ScrollablePanel {
-
-	public interface SettingsRenderer {
+public class SettingsPanel extends ScrollablePanel implements SettingsEditor {
+	
+	public class ValueProxy extends Value {
 		
-		public JComponent renderComponent(String name, Settings settings);
+		private String name;
+		
+		private String defaultValue;
+		
+		private ValueProxy(String name, String defaultValue) {
+			
+			this.name = name;
+			this.defaultValue = defaultValue;
+			
+		}
+				
+		public void setValue(String value) {
+			
+			settings.setString(name, value);
+			
+			if (strategy == CommitStrategy.ALWAYS)
+				settings.commit();
+			
+		}
+
+		@Override
+		public String getValue() {
+			return settings.getString(name, defaultValue);
+		}
+		
+	}
+	
+	public static interface SettingsRenderer {
+		
+		public JComponent renderComponent(ValueProxy value);
+		
+		public void updateComponent(JComponent component);
+		
+	}
+	
+	private static interface SettingsComponent {
+		
+		public void update();
+		
+	}
+	
+	private static class CustomSettingsComponent implements SettingsComponent {
+		
+		private JComponent component;
+		
+		private SettingsRenderer renderer;
+
+		public CustomSettingsComponent(SettingsRenderer renderer, ValueProxy value) {
+			super();
+			this.component = renderer.renderComponent(value);
+			this.renderer = renderer;
+		}
+		
+		public void update() {
+			
+			renderer.updateComponent(component);
+			
+		}
+		
+	}
+	
+	private class SettingsPanelListener implements SettingsListener {
+
+		@Override
+		public void settingsChanged(SettingsChangedEvent e) {
+		
+			SettingsComponent component = components.get(e.getKey());
+			
+			if (component == null) 
+				return;
+
+			component.update();
+	
+		}
 		
 	}
 	
 	private static final long serialVersionUID = 1L;
 	
-	private HashMap<String, JComponent> components = new HashMap<String, JComponent>();
+	private HashMap<String, SettingsComponent> components = new HashMap<String, SettingsComponent>();
 
-	private PropertiesSettings temporary = new PropertiesSettings();
+	private Vector<SettingsEditor> children = new Vector<SettingsEditor>();
 	
-	private Settings settings;
+	private CachedSettings settings;
 	
-	private OrganizedSettings structure;
+	private SettingsListener listener = new SettingsPanelListener();
 	
-	private class ChangeListenerSpinner implements ChangeListener {
+	private CommitStrategy strategy;
+	
+	private class IntegerEditor extends JSpinner implements ChangeListener, SettingsComponent {
 
-		private String key;
-		private int defaultValue; 
-		private JSpinner spinner;
+		private static final long serialVersionUID = 1L;
 		
-		public ChangeListenerSpinner(String key, JSpinner spinner, int defaultValue) {
-			this.key = key;
-			this.defaultValue = defaultValue;
-			this.spinner = spinner;
+		private ValueProxy value;
+
+		public IntegerEditor(ValueProxy value) {
+			super();
+			this.value = value;
+			update();
+			addChangeListener(this);
 		}
 		
 		@Override
 		public void stateChanged(ChangeEvent e) {
-			if (e.getSource() != spinner)
+			if (e.getSource() != this)
 				return;
 
 			try {
-				temporary.setString(key, spinner.getValue().toString());
+				value.setValue(getValue().toString());
 			} catch (RuntimeException ex) {
-				spinner.setValue(temporary.getInt(key, defaultValue));
+				update();
 			}
+		}
+
+		@Override
+		public void update() {
+			setValue(value.getInt());
 		}
 		
 	}
 	
-	private class ChangeListenerSlider implements ChangeListener {
+	private class BoundedIntegerEditor extends JPanel implements ChangeListener, SettingsComponent {
 
-		private String key;
-		private int defaultValue; 
+		private static final long serialVersionUID = 1L;
+		
+		private ValueProxy value;
 		private JSlider slider;
 		private JLabel label;
 		
-		public ChangeListenerSlider(String key, JSlider slider, JLabel label, int defaultValue) {
-			this.key = key;
-			this.slider = slider;
-			this.defaultValue = defaultValue;
-			this.label = label;
+		public BoundedIntegerEditor(BoundedIntegerStringParser parser, ValueProxy value) {
+			
+			super(new BorderLayout());
+			
+			this.value = value;
+			
+			slider = new JSlider(parser.getMin(), parser.getMax(), parser.getMin());
+			
+			label = new JLabel();
+			
+			add(slider, BorderLayout.CENTER);
+			
+			label.setMinimumSize(new Dimension(50, 1));
+			
+			add(label, BorderLayout.EAST);
+			
+			update();
+			
+			slider.addChangeListener(this);
+			
 		}
 		
+		
+		@Override
+		public void update() {
+			
+			int val = Math.min(slider.getMaximum(), Math.max(slider.getMinimum(), value.getInt()));
+
+			slider.setValue(val);
+			label.setText(Integer.toString(slider.getValue()));
+			
+		}
+
 		@Override
 		public void stateChanged(ChangeEvent e) {
-			if (e.getSource() != slider)
+			if (e.getSource() != this)
 				return;
 
 			if (slider.getValueIsAdjusting())
 				return;
 			
-			try {
-				temporary.setInt(key, slider.getValue());
-			} catch (RuntimeException ex) {
-				slider.setValue(temporary.getInt(key, defaultValue));
-			}
-			
-			label.setText(Integer.toString(slider.getValue()));
+			value.setValue(Integer.toString(slider.getValue()));
+			label.setText(value.getString());
 			
 		}
 		
 	}
 	
-	private class ChangeListenerCheckbox implements ChangeListener {
-
-		private String key;
-		private boolean defaultValue; 
-		private JCheckBox box;
+	private class BooleanEditor extends JCheckBox implements ChangeListener, SettingsComponent {
 		
-		public ChangeListenerCheckbox(String key, JCheckBox box, boolean defaultValue) {
-			this.key = key;
-			this.box = box;
-			this.defaultValue = defaultValue;
+		private static final long serialVersionUID = 1L;
+		
+		private ValueProxy value;
+		
+		public BooleanEditor(String name, ValueProxy value) {
+			
+			super(name);
+			this.value = value;
+			update();
+			addChangeListener(this);
 		}
 		
 		@Override
-		public void stateChanged(ChangeEvent e) {
-			if (e.getSource() != box)
-				return;
-
-			try {
-				temporary.setBoolean(key, box.isSelected());
-			} catch (RuntimeException ex) {
-				box.setSelected(temporary.getBoolean(key, defaultValue));
-			}
-		}
-		
-	}
-	
-	private class ChangeListenerCombo implements ItemListener {
-
-		private String key;
-		private JComboBox<Object> combo;
-		
-		public ChangeListenerCombo(String key, JComboBox<Object> combo) {
-			this.key = key;
-			this.combo = combo;
+		public void update() {
+			
+			setSelected(value.getBoolean());
+			
 		}
 
 		@Override
-		public void itemStateChanged(ItemEvent e) {
-			if (e.getSource() != combo)
+		public void stateChanged(ChangeEvent e) {
+			if (e.getSource() != this)
 				return;
 
-			try {
-				Object obj = combo.getSelectedItem();
-				if (obj != null)
-					temporary.setString(key, combo.getSelectedItem().toString());
-			} catch (RuntimeException ex) {
-				combo.setSelectedItem(temporary.getString(key, null));
-			}
+			value.setValue(Boolean.toString(isSelected()));
+			
 		}
 		
 	}
 	
-	private class ChangeListenerList implements ListSelectionListener {
+	private class EnumeratedSubsetEditor extends JList<Object> implements ListSelectionListener, SettingsComponent {
 
-		private String key;
-		private JList<Object> list;
-		private String separator;
+		private static final long serialVersionUID = 1L;
 		
-		public ChangeListenerList(String key, JList<Object> list, String separator) {
-			this.key = key;
-			this.list = list;
-			this.separator = separator;
+		private ValueProxy value;
+		private EnumeratedSubsetStringParser parser;
+		
+		public EnumeratedSubsetEditor(EnumeratedSubsetStringParser parser, ValueProxy value) {
+			super(parser.getValues());
+			this.parser = parser;
+			this.value = value;
+			
+			setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			
+			addListSelectionListener(this);
+			
+			setCellRenderer(new ObjectFacade.FacadeListCellRenderer());
+			
+			setSelectionModel(new DefaultListSelectionModel() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void setSelectionInterval(int index0, int index1) {
+					if (isSelectedIndex(index0)) {
+						removeSelectionInterval(index0, index1);
+					} else {
+						addSelectionInterval(index0, index1);
+					}
+				}
+			});
+			
+			update();
+		}
+		
+		@Override
+		public void update() {
+
+			try {
+				
+				@SuppressWarnings("unchecked")
+				Set<Object> subset = (Set<Object>) parser.parse(value.getString());
+					
+				Object[] values = parser.getValues();
+				if (!subset.isEmpty()) {
+					int[] indices = new int[subset.size()];
+					int j = 0;
+					
+					for (int i = 0; i < values.length; i++) {
+				
+						if (subset.contains(values[i])) {
+							indices[j++] = i;
+						}
+					}
+					
+					setSelectedIndices(indices);
+					
+				}
+			} catch (ParseException e) {
+
+			}
+			
+			
 		}
 
 		@Override
 		public void valueChanged(ListSelectionEvent e) {
 			
-			if (e.getSource() != list)
+			if (e.getSource() != this)
 				return;
 			
-			int[] selection = list.getSelectedIndices();
+			int[] selection = getSelectedIndices();
 			
-			String value = "";
+			String encoded = "";
 			
 			if (selection.length > 0) {
-				value = list.getModel().getElementAt(selection[0]).toString();
+				encoded = getModel().getElementAt(selection[0]).toString();
 		
 				
 				for (int i = 1; i < selection.length; i++) {
-					value += separator + list.getModel().getElementAt(selection[i]).toString();
+					encoded += parser.getSeparator() + getModel().getElementAt(selection[i]).toString();
 				}
 			}
 			
-			try {
-				temporary.setString(key, value);
-			} catch (RuntimeException ex) {
-				//list.setSelectedItem(settings.getString(key));
-			}
+			value.setValue(encoded);
+
 		}
 		
 	}
 	
-	
-	private class ChangeListenerTextField implements DocumentListener {
+	private class EnumeratedEditor extends JComboBox<Object> implements ItemListener, SettingsComponent {
 
-		private String key;
-		private JTextComponent field;
-		private boolean multiline;
+		private static final long serialVersionUID = 1L;
 		
-		public ChangeListenerTextField(String key, JTextComponent field, boolean multiline) {
-			this.key = key;
-			this.field = field;
-			this.multiline = multiline;
+		private ValueProxy value;
+		private EnumeratedStringParser parser;
+		
+		public EnumeratedEditor(EnumeratedStringParser parser, ValueProxy value) {
+			super(parser.getValues());
+			setRenderer(new ObjectFacade.FacadeListCellRenderer());
+			
+			this.value = value;
+			this.parser = parser;
+			update();
+			
+			addItemListener(this);
+		}
+		
+		@Override
+		public void update() {
+	
+			setSelectedIndex(parser.findValue(value.getString()));			
+			
+		}
+
+		@Override
+		public void itemStateChanged(ItemEvent e) {
+			if (e.getSource() != this)
+				return;
+
+				Object obj = getSelectedItem();
+				if (obj != null)
+					value.setValue(getSelectedItem().toString());
+
+		}
+		
+		
+	}
+
+	private class MultilineTextEditor extends JTextArea implements DocumentListener, SettingsComponent {
+
+		private static final long serialVersionUID = 1L;
+		
+		private ValueProxy value;
+		private StringStringParser parser;
+		
+		public MultilineTextEditor(StringStringParser parser, ValueProxy value) {
+			super();
+			this.value = value;
+			this.parser = parser;
+			
+			update();
+			getDocument().addDocumentListener(this);
+			
+		}
+		
+		@Override
+		public void update() {
+			
+			setText((String) parser.parse(value.getString()));
+			
 		}
 
 		@Override
 		public void changedUpdate(DocumentEvent e) {
 			
 			try {
-				update(field.getText());
+				update(getText());
 			} catch (RuntimeException ex) {}
 			
 		}
@@ -246,87 +432,108 @@ public class SettingsPanel extends ScrollablePanel {
 		@Override
 		public void insertUpdate(DocumentEvent e) {
 			try {
-				update(field.getText());
+				update(getText());
 			} catch (RuntimeException ex) {}
 		}
 
 		@Override
 		public void removeUpdate(DocumentEvent e) {
 			try {
-				update(field.getText());
+				update(getText());
 			} catch (RuntimeException ex) {}
 		}
 		
 		private void update(String text) {
 			
-			String value;
-			if (multiline) {
-				
-				value = text.replace("\\", "\\\\").replace("\n", "\\n");
-				
-			} else {
-				
-				value = text.replace("\n", "");
-				
-			}
-			
-			temporary.setString(key, value);
-			
+			value.setValue(text.replace("\\", "\\\\").replace("\n", "\\n"));
+								
 		}
+		
 		
 	}
 	
-	public SettingsPanel(Settings settings, OrganizedSettings structure) {
+	private class TextEditor extends JTextField implements DocumentListener, SettingsComponent {
+
+		private static final long serialVersionUID = 1L;
+		
+		private ValueProxy value;
+
+		public TextEditor(ValueProxy value) {
+			
+			super();
+			this.value = value;
+
+			update();
+			getDocument().addDocumentListener(this);
+			
+		}
+		
+		@Override
+		public void update() {
+			
+			setText(value.getString());
+			
+		}
+
+		@Override
+		public void changedUpdate(DocumentEvent e) {
+			
+			try {
+				update(getText());
+			} catch (RuntimeException ex) {}
+			
+		}
+
+		@Override
+		public void insertUpdate(DocumentEvent e) {
+			try {
+				update(getText());
+			} catch (RuntimeException ex) {}
+		}
+
+		@Override
+		public void removeUpdate(DocumentEvent e) {
+			try {
+				update(getText());
+			} catch (RuntimeException ex) {}
+		}
+		
+		private void update(String text) {
+			
+			value.setValue(text.replace("\n", ""));
+		
+		}
+		
+		
+	}
+	
+	public SettingsPanel(Settings settings, OrganizedSettings structure, CommitStrategy strategy) {
+		
 		super();
 		
-		this.settings = settings;
+		this.settings = new CachedSettings(settings);
 		
-		this.structure = structure;
-		
-		cache(structure);
+		this.strategy = strategy;
 				
 		build(structure);
+		
+		settings.addSettingsListener(listener);
+	}
+	
+	public SettingsPanel(Settings settings, OrganizedSettings structure) {
+		this(settings, structure, CommitStrategy.MANUAL);
 		
 	}
 	
 	public void commit() {
 		
-		for (String key : temporary.getKeys()) {
-			
-			settings.setString(key, temporary.getString(key));
-			
-		}
+		settings.commit();
 
-	}
-	
-	private void cache(SettingsGroup group) {
+		for (SettingsEditor child : children)
+			child.commit();
 		
-			for (SettingsNode n : group) {
-			
-				if (n instanceof SettingsGroup) {
-					cache((SettingsGroup) n);
-					continue;
-				} else if (n instanceof SettingsValue) {
-					String key = ((SettingsValue)n).getName();
-					if (settings.containsKey(key)) {
-						temporary.setString(key, settings.getString(key));
-					} else if (((SettingsValue)n).getDefault() != null) {
-						temporary.setString(key, ((SettingsValue)n).getDefault());
-					}
-				} else if (n instanceof SettingsMap) {
-					
-					String namespace = ((SettingsMap)n).getNamespace();
-					
-					for (String key : settings.getKeys()) {
-						if (key.startsWith(namespace))
-							temporary.setString(key, settings.getString(key));
-					}
-					
-				}
-				
-			}
 	}
-	
+
 	protected void build(OrganizedSettings settings) {
 		
 		setLayout(new BorderLayout());
@@ -356,8 +563,8 @@ public class SettingsPanel extends ScrollablePanel {
 				JPanel panel = new JPanel(new BorderLayout());
 				panel.add(new JLabel(map.getTitle()), BorderLayout.NORTH);
 				panel.add(new JScrollPane(
-						new SettingsTable(new PrefixProxySettings(temporary,
-								map.getNamespace()))), BorderLayout.CENTER);
+						new SettingsTable(new PrefixProxySettings(settings,
+								map.getNamespace()), strategy)), BorderLayout.CENTER);
 				groupPanel.add(panel);
 				continue;
 			}
@@ -375,8 +582,17 @@ public class SettingsPanel extends ScrollablePanel {
 		
 		if (p instanceof SettingsRenderer) {
 			
-			return ((SettingsRenderer) p).renderComponent(getName(), temporary);
+			JPanel panel = new JPanel(new BorderLayout());
 			
+			panel.add(new JLabel(value.getTitle()), BorderLayout.NORTH);
+			
+			CustomSettingsComponent component = new CustomSettingsComponent(((SettingsRenderer) p), new ValueProxy(value.getName(), value.getDefault()));
+				
+			panel.add(component.component, BorderLayout.CENTER);
+			
+			registerComponent(value.getName(), component);
+			
+			return panel;
 		}
 		
 		if (p instanceof IntegerStringParser) {
@@ -385,32 +601,22 @@ public class SettingsPanel extends ScrollablePanel {
 			
 			panel.add(new JLabel(value.getTitle()), BorderLayout.WEST);
 			
-			JSpinner spinner = new JSpinner(new SpinnerNumberModel());
+			IntegerEditor component = new IntegerEditor(new ValueProxy(value.getName(), value.getDefault()));
 			
-			spinner.setValue(temporary.getInt(value.getName(), 0));
+			panel.add(component, BorderLayout.EAST);
 			
-			//spinner.setValue(settings.getString(value.getName()));
-			
-			spinner.addChangeListener(new ChangeListenerSpinner(value.getName(), spinner, 0));
-			
-			components.put(getName(), spinner);
-			
-			panel.add(spinner, BorderLayout.EAST);
+			registerComponent(value.getName(), component);
 			
 			return panel;
 		}
 		
 		if (p instanceof BooleanStringParser) {
 			
-			JCheckBox box = new JCheckBox(value.getTitle());
-
-			box.setSelected(temporary.getBoolean(value.getName(), false));
+			BooleanEditor editor = new BooleanEditor(value.getTitle(), new ValueProxy(value.getName(), value.getDefault()));
 			
-			box.addChangeListener(new ChangeListenerCheckbox(value.getName(), box, false));
+			registerComponent(value.getName(), editor);
 
-			components.put(getName(), box);
-
-			return box;
+			return editor;
 		}
 		
 		if (p instanceof BoundedIntegerStringParser) {
@@ -421,29 +627,11 @@ public class SettingsPanel extends ScrollablePanel {
 			
 			panel.add(new JLabel(value.getTitle()), BorderLayout.NORTH);
 
-			int defval = 0;
+			BoundedIntegerEditor editor = new BoundedIntegerEditor(bi, new ValueProxy(value.getName(), value.getDefault()));
 			
-			if (bi.getMin() > 0)
-				defval = bi.getMin();
-
-			if (bi.getMax() < 0)
-				defval = bi.getMax();
+			registerComponent(value.getName(), editor);
 			
-			int val = Math.min(bi.getMax(), Math.max(bi.getMin(), temporary.getInt(value.getName(), defval)));
-
-			JSlider slider = new JSlider(bi.getMin(), bi.getMax(), val);
-			
-			JLabel current = new JLabel(Integer.toString(val));
-			
-			slider.addChangeListener(new ChangeListenerSlider(value.getName(), slider, current, defval));
-			
-			components.put(getName(), slider);
-			
-			panel.add(slider, BorderLayout.CENTER);
-			
-			current.setMinimumSize(new Dimension(50, 1));
-			
-			panel.add(current, BorderLayout.EAST);
+			panel.add(editor, BorderLayout.CENTER);
 			
 			return panel;
 		}		
@@ -456,55 +644,11 @@ public class SettingsPanel extends ScrollablePanel {
 			
 			panel.add(new JLabel(value.getTitle()), BorderLayout.NORTH);
 			
-			final JList<Object> list = new JList<Object>(bi.getValues());
+			EnumeratedSubsetEditor editor = new EnumeratedSubsetEditor(bi, new ValueProxy(value.getName(), value.getDefault()));
 			
-			list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			registerComponent(value.getName(), editor);
 			
-			list.addListSelectionListener(new ChangeListenerList(value.getName(), list, bi.getSeparator()));
-			
-			list.setCellRenderer(new ObjectFacade.FacadeListCellRenderer());
-			
-			list.setSelectionModel(new DefaultListSelectionModel() {
-
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public void setSelectionInterval(int index0, int index1) {
-					if (list.isSelectedIndex(index0)) {
-						list.removeSelectionInterval(index0, index1);
-					} else {
-						list.addSelectionInterval(index0, index1);
-					}
-				}
-			});
-			
-			try {
-				
-				@SuppressWarnings("unchecked")
-				Set<Object> subset = (Set<Object>) bi.parse(temporary.getString(value.getName(), ""));
-					
-				Object[] values = bi.getValues();
-				if (!subset.isEmpty()) {
-					int[] indices = new int[subset.size()];
-					int j = 0;
-					
-					for (int i = 0; i < values.length; i++) {
-				
-						if (subset.contains(values[i])) {
-							indices[j++] = i;
-						}
-					}
-					
-					list.setSelectedIndices(indices);
-					
-				}
-			} catch (ParseException e) {
-
-			}
-			
-			components.put(getName(), list);
-			
-			panel.add(new JScrollPane(list), BorderLayout.SOUTH);
+			panel.add(new JScrollPane(editor), BorderLayout.SOUTH);
 			
 			return panel;
 		}
@@ -517,17 +661,11 @@ public class SettingsPanel extends ScrollablePanel {
 			
 			panel.add(new JLabel(value.getTitle()), BorderLayout.NORTH);
 			
-			JComboBox<Object> combo = new JComboBox<Object>(bi.getValues());
+			EnumeratedEditor editor = new EnumeratedEditor(bi, new ValueProxy(value.getName(), value.getDefault()));
+		
+			registerComponent(value.getName(), editor);
 			
-			combo.setRenderer(new ObjectFacade.FacadeListCellRenderer());
-			
-			combo.addItemListener(new ChangeListenerCombo(value.getName(), combo));
-			
-			combo.setSelectedIndex(bi.findValue(temporary.getString(value.getName(), value.getDefault())));			
-			
-			components.put(getName(), combo);
-			
-			panel.add(combo, BorderLayout.SOUTH);
+			panel.add(editor, BorderLayout.SOUTH);
 			
 			return panel;
 		}	
@@ -540,41 +678,62 @@ public class SettingsPanel extends ScrollablePanel {
 			
 			panel.add(new JLabel(value.getTitle()), BorderLayout.NORTH);
 			
-			JTextArea area = new JTextArea((String)bi.parse(temporary.getString(value.getName(), value.getDefault())));
+			MultilineTextEditor editor = new MultilineTextEditor(bi, new ValueProxy(value.getName(), value.getDefault()));
 			
-			area.getDocument().addDocumentListener(new ChangeListenerTextField(value.getName(), area, true));
+			registerComponent(value.getName(), editor);
 			
-			components.put(getName(), area);
-			
-			panel.add(new JScrollPane(area), BorderLayout.CENTER);
+			panel.add(new JScrollPane(editor), BorderLayout.CENTER);
 
 			return panel;
 		}
-		
-	/*	if (p instanceof FileStringParser) {
-			
-			
-			
-			
-		}*/
 		
 		JPanel panel = new JPanel(new BorderLayout());
 		
 		panel.add(new JLabel(value.getTitle()), BorderLayout.NORTH);
 		
-		JTextField line = new JTextField(temporary.getString(value.getName(), value.getDefault()));
+		TextEditor editor = new TextEditor(new ValueProxy(value.getName(), value.getDefault()));
+
+		registerComponent(value.getName(), editor);
 		
-		line.getDocument().addDocumentListener(new ChangeListenerTextField(value.getName(), line, false));
-		
-		components.put(getName(), line);
-		
-		panel.add(line, BorderLayout.SOUTH);
+		panel.add(editor, BorderLayout.SOUTH);
 		
 		return panel;
 		
 	}
 	
-	private void registerSettingsComponent(String name, Component component) {
+	private void registerComponent(String name, SettingsComponent component) {
+		
+		components.put(name, component);
+		
+		JComponent target = null;
+		
+		if (component instanceof CustomSettingsComponent) {
+			
+			target = ((CustomSettingsComponent) component).component;
+			
+		} else {
+			
+			target = ((JComponent) component);
+			
+		}
+		
+		
+		target.addFocusListener(new FocusListener() {
+			
+			@Override
+			public void focusLost(FocusEvent e) {
+				
+				if (strategy == CommitStrategy.FOCUS)
+					commit();
+				
+			}
+			
+			@Override
+			public void focusGained(FocusEvent e) {
+
+			}
+			
+		});
 		
 	}
 	

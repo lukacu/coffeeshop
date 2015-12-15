@@ -11,6 +11,7 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import org.coffeeshop.Callback;
+import org.coffeeshop.ReferenceCollection;
 
 public class MenuList extends JMenu {
 
@@ -20,7 +21,7 @@ public class MenuList extends JMenu {
 	
 	private Vector<JMenuItem> items = new Vector<JMenuItem>();
 	
-	private Vector<Callback> listeners = new Vector<Callback>();
+	private ReferenceCollection<Callback> listeners = new ReferenceCollection<Callback>();
 	
 	private class ItemAction extends AbstractAction {
 

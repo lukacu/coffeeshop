@@ -13,11 +13,13 @@ import javax.swing.JTable;
 import javax.swing.JToolBar;
 import javax.swing.table.AbstractTableModel;
 
+import org.coffeeshop.ReferenceCollection.Weak;
+import org.coffeeshop.settings.CachedSettings;
 import org.coffeeshop.settings.Settings;
 import org.coffeeshop.settings.SettingsChangedEvent;
 import org.coffeeshop.settings.SettingsListener;
 
-class SettingsTableModel extends AbstractTableModel {
+class SettingsTableModel extends AbstractTableModel implements SettingsListener, Weak {
 
 	private static final long serialVersionUID = 1L;
 
@@ -37,36 +39,7 @@ class SettingsTableModel extends AbstractTableModel {
 		
 		Collections.sort(keys);
 		
-		settings.addSettingsListener(new SettingsListener() {
-			
-			@Override
-			public void settingsChanged(SettingsChangedEvent e) {
-				
-				int row = keys.indexOf(e.getKey());
-				
-				if (row > -1) {
-
-					if (e.getValue() == null) {
-						
-						keys.remove(row);
-						fireTableRowsDeleted(row, row);
-						
-					} else {
-					
-						fireTableRowsUpdated(row, row);
-					}
-
-				} else {
-
-					keys.add(e.getKey());
-
-					fireTableRowsInserted(keys.size()-1, keys.size()-1);
-					
-				}
-
-			}
-			
-		});
+		settings.addSettingsListener(this);
 		
 	}
 	
@@ -183,10 +156,36 @@ class SettingsTableModel extends AbstractTableModel {
 		}
 		
 	}
+
+	@Override
+	public void settingsChanged(SettingsChangedEvent e) {
+		
+		int row = keys.indexOf(e.getKey());
+		
+		if (row > -1) {
+
+			if (e.getValue() == null) {
+				
+				keys.remove(row);
+				fireTableRowsDeleted(row, row);
+				
+			} else {
+			
+				fireTableRowsUpdated(row, row);
+			}
+
+		} else {
+
+			keys.add(e.getKey());
+			fireTableRowsInserted(keys.size()-1, keys.size()-1);
+			
+		}
+
+	}
 	
 }
 
-public class SettingsTable extends JPanel {
+public class SettingsTable extends JPanel implements SettingsEditor {
 
 	private static final long serialVersionUID = 1L;
 
@@ -223,12 +222,34 @@ public class SettingsTable extends JPanel {
 	
 	private SettingsTableModel model;
 	
+	private CachedSettings settings;
+	
 	public SettingsTable(Settings settings) {
+		
+		this(settings, CommitStrategy.MANUAL);
+		
+	}
+	
+	public SettingsTable(Settings settings, CommitStrategy strategy) {
 		
 		super(new BorderLayout());
 		
+		this.settings = new CachedSettings(settings);
+
 		table = new JTable(new SettingsTableModel(settings));
 		model = (SettingsTableModel) table.getModel();
+		
+		if (strategy != CommitStrategy.MANUAL) {
+			
+			this.settings.addSettingsListener(new SettingsListener() {
+				
+				@Override
+				public void settingsChanged(SettingsChangedEvent e) {
+					commit();
+				}
+			});
+			
+		}
 		
 		add(new JScrollPane(table), BorderLayout.CENTER);
 		
@@ -241,6 +262,13 @@ public class SettingsTable extends JPanel {
 		add(bar, BorderLayout.NORTH);
 		
 		setPreferredSize(new Dimension(200, 200));
+		
+	}
+
+	@Override
+	public void commit() {
+		
+		settings.commit();
 		
 	}
 	

@@ -53,10 +53,10 @@ public class SimpleDialog extends JDialog {
 			
 		}
 	};
-	
-	public SimpleDialog(Frame owner, Settings settings, OrganizedSettings structure) {
+
+	public SimpleDialog(Frame owner, String title, SettingsPanel panel) {
 		
-		super(owner, structure.getTitle(), true);
+		super(owner, title, true);
 
 		getContentPane().setLayout(new BorderLayout());
 		
@@ -69,18 +69,7 @@ public class SimpleDialog extends JDialog {
 		
 		getContentPane().add(buttons, BorderLayout.SOUTH);
 
-		panel = new SettingsPanel(settings, structure) {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void build(OrganizedSettings settings) {
-				setLayout(new BorderLayout());
-				
-				add(buildGroup(settings, false), BorderLayout.CENTER);
-			}
-			
-		};
+		this.panel = panel;
 		
 		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		
@@ -91,6 +80,23 @@ public class SimpleDialog extends JDialog {
 		pack();
 		
 		centerToOwner();
+		
+	}
+	
+	public SimpleDialog(Frame owner, Settings settings, OrganizedSettings structure) {
+		
+		this(owner, structure.getTitle(), new SettingsPanel(settings, structure) {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void build(OrganizedSettings settings) {
+				setLayout(new BorderLayout());
+				
+				add(buildGroup(settings, false), BorderLayout.CENTER);
+			}
+			
+		});
 		
 	}
 	
