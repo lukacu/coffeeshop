@@ -1,6 +1,7 @@
 package org.coffeeshop.settings;
 
 import java.util.HashMap;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import org.coffeeshop.string.StringUtils;
@@ -33,8 +34,42 @@ public class CachedSettings extends ProxySettings {
 		}
 		
 		cache.put(key, value);
+		notifySettingsChanged(key, old, value);
 		
 		return old;
+	}
+	
+	@Override
+	protected String getProperty(String key) {
+		
+		if (!cache.containsKey(key)) {
+			return super.getProperty(key);
+		} else {
+			return cache.get(key);
+		}
+		
+	}
+	
+	@Override
+	public Set<String> getKeys() {
+
+		Set<String> keys = super.getKeys();
+		
+		keys.addAll(cache.keySet());
+		
+		return keys;
+		
+	}
+	
+	@Override
+	public Set<String> getAllKeys() {
+		
+		Set<String> keys = super.getAllKeys();
+		
+		keys.addAll(cache.keySet());
+		
+		return keys;
+		
 	}
 	
 	public void commit() {

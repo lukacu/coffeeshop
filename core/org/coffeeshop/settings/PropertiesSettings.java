@@ -23,6 +23,7 @@
  */
 package org.coffeeshop.settings;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -310,4 +311,5 @@ public class PropertiesSettings extends Settings implements StoreableSettings {
         }
     	
     }
+
 }

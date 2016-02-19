@@ -26,6 +26,8 @@
 
 package org.coffeeshop.settings;
 
+import java.util.Collection;
+
 import org.coffeeshop.ReferenceCollection;
 
 /**
@@ -132,5 +134,15 @@ public abstract class Settings extends AbstractReadonlySettings implements Write
         }
     	
     }
+    
+
+	@Override
+	public void removeAll(Collection<String> keys) {
+		
+		for (String k : keys) {
+			remove(k);
+		}
+		
+	}
     
 }

@@ -158,6 +158,7 @@ public class SettingsPanel extends ScrollablePanel implements SettingsEditor {
 			this.value = value;
 			update();
 			addChangeListener(this);
+			setEditor(new JSpinner.NumberEditor(this));
 		}
 		
 		@Override

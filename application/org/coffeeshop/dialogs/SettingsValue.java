@@ -11,12 +11,12 @@ public class SettingsValue implements SettingsNode {
 	
 	private StringParser parser;
 
-	public SettingsValue(String name, String title, StringParser parser, String def) {
+	public SettingsValue(String name, String title, StringParser parser, Object def) {
 		super();
 		this.name = name;
 		this.parser = parser;
 		this.title = title;
-		this.def = def;
+		this.def = def == null ? "" : def.toString();
 	}
 
 	public String getName() {

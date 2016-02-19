@@ -95,7 +95,6 @@ class SettingsTableModel extends AbstractTableModel implements SettingsListener,
 
 				if (!key.isEmpty())
 					settings.setString(key, settings.getString(key, ""));
-				
 			}
 			
 		}

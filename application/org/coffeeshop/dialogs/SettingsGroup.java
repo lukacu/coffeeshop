@@ -6,7 +6,7 @@ public interface SettingsGroup extends Iterable<SettingsNode>, SettingsNode {
 
 	public SettingsGroup createSubgroup(String title);
 
-	public SettingsValue attachValue(String name, String title, StringParser type, String value);
+	public SettingsValue attachValue(String name, String title, StringParser type, Object value);
 	
 	public SettingsValue attachValue(String name, String title, StringParser type);
 

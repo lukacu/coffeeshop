@@ -32,9 +32,11 @@ public class OrganizedSettings implements SettingsGroup {
 
 		@Override
 		public SettingsValue attachValue(String name, String title,
-				StringParser type, String value) {
+				StringParser type, Object value) {
 
-			SettingsValue v = new SettingsValue(prefix + name, title, type, value);
+			String def = value == null ? "" : value.toString();
+			
+			SettingsValue v = new SettingsValue(prefix + name, title, type, def);
 			nodes.add(v);
 			
 			return v;
@@ -81,7 +83,7 @@ public class OrganizedSettings implements SettingsGroup {
 
 	@Override
 	public SettingsValue attachValue(String name, String title,
-			StringParser type, String uvalue) {
+			StringParser type, Object uvalue) {
 
 		SettingsValue v = new SettingsValue(name, title, type, uvalue);
 		nodes.add(v);

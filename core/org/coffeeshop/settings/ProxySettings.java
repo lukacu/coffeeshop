@@ -33,10 +33,7 @@ public class ProxySettings extends Settings {
 
 	protected void parentUpdated(SettingsChangedEvent e) {
 		
-		String key = externalKey(e.getKey());
-		
-		if (key != null)
-			notifySettingsChanged(key, e.getOldValue(), e.getValue());
+		notifySettingsChanged(e.getKey(), e.getOldValue(), e.getValue());
 		
 	}
 	
@@ -63,6 +60,11 @@ public class ProxySettings extends Settings {
 		
 		parent.remove(internalKey(key));
 		
+	}
+	
+	@Override
+	public boolean containsKey(String key) {
+		return parent.containsKey(internalKey(key));
 	}
 
 	@Override

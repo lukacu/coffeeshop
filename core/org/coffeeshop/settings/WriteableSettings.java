@@ -26,6 +26,8 @@
 
 package org.coffeeshop.settings;
 
+import java.util.Collection;
+
 // TODO: javadoc
 public interface WriteableSettings {
 
@@ -46,4 +48,7 @@ public interface WriteableSettings {
 	public void setString(String key, String value);
 	
 	public void remove(String key);
+	
+	public void removeAll(Collection<String> keys);
+	
 }
