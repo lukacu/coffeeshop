@@ -30,6 +30,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 /**
  * This class provides static some handy static methods for streams usage.
@@ -104,6 +105,23 @@ public class Streams {
 	    	out.write(b,0,len);
 	    }
 	   
+	}
+
+	public static String getStreamAsString(InputStream in) throws IOException {
+		
+		return getStreamAsString(in, Charset.defaultCharset());
+		
+	}
+		
+	
+	public static String getStreamAsString(InputStream in, Charset charset) throws IOException {
+		
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    
+	    copyStream(in, out);
+	    
+	    return new String(out.toByteArray(), charset);
+	    
 	}
 	
 }
