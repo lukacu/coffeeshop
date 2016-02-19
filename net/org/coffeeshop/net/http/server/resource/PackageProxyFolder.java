@@ -11,36 +11,29 @@ public class PackageProxyFolder extends ProxyFolder {
 
 	private Class<?> origin;
 	
-	public PackageProxyFolder(String name, Folder parent, ProxyFilter filter, Class<?> origin) {
-		super(name, parent, filter);
+	public PackageProxyFolder(String name, Folder parent, Class<?> origin) {
+		super(name, parent);
 
 		this.origin = origin;
 		
 	}
 
 	@Override
-	protected Resource getProxy(String s) {
-
-		final InputStream in = origin.getResourceAsStream(s);
+	protected void execute(HttpRequest request, HttpResponse response,
+			String virtualPath) throws Exception {
+		final InputStream in = origin.getResourceAsStream(virtualPath);
 		
-		if (in == null)
-			return null;
+		if (in == null) {
+			response.setHttpResult(404);
+			return;
+		}
 		
-		return new Resource(s) {
-			
-			@Override
-			public void execute(HttpRequest request, HttpResponse response)
-					throws Exception {
-				
-				OutputStream out = response.getOutputStream();
-				
-				Streams.copyStream(in, out);
-				
-				in.close();
-				
-			}
-		};
+		OutputStream out = response.getOutputStream();
+		
+		Streams.copyStream(in, out);
+		
+		in.close();
 		
 	}
-	
+		
 }

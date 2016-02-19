@@ -3,8 +3,11 @@ package org.coffeeshop.net.http.server.resource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 
 import org.coffeeshop.io.Streams;
+import org.coffeeshop.net.html.SimpleHtmlDocument;
+import org.coffeeshop.net.html.Snippets;
 import org.coffeeshop.net.http.server.HttpRequest;
 import org.coffeeshop.net.http.server.HttpResponse;
 import org.coffeeshop.net.http.server.MimeTypes;
@@ -13,21 +16,53 @@ public class DirectoryProxyFolder extends ProxyFolder {
 
 	private File directory;
 	
-	private class FileResource extends Resource {
+	public DirectoryProxyFolder(String name, Folder parent, File directory) {
+		super(name, parent);
 
-		private File file;
+		if (directory == null || !directory.isDirectory())
+			throw new IllegalArgumentException("Not a directory");
 		
-		protected FileResource(String name, File file) {
-			super(name);
+		this.directory = directory;
+	}
 
-			this.file = file;
-			
+	@Override
+	protected void execute(HttpRequest request, HttpResponse response,
+			String virtualPath) throws Exception {
+		
+		File file = new File(directory, virtualPath.replace(SEPARATOR, File.separator));
+		
+		if (!file.exists()) {
+			response.setHttpResult(404);
+			return;
 		}
 
-		@Override
-		public void execute(HttpRequest request, HttpResponse response)
-				throws Exception {
-		
+		if (file.isDirectory()) {
+			String prefix = getFullName() + virtualPath;
+			
+			HashMap<String, String> listing = new HashMap<String, String>();
+			
+			if (getParent() != null) {
+				listing.put("..", "..");
+			}
+			
+			for (File child : file.listFiles()) {
+				
+				listing.put(child.getName(), prefix + SEPARATOR + child.getName());
+				
+			}
+			
+			SimpleHtmlDocument document = new SimpleHtmlDocument("Listing for " + request.getLocation());
+			
+			document.append(Snippets.htmlTitle("Listing for " + request.getLocation()));
+			document.append(Snippets.htmlLinkList(listing, true));
+			document.append("<hr />");
+			document.append(Snippets.htmlParagraph("<em>" + request.getServerInformation().getName() + "</em>"));
+			document.writeToStream(response.getOutputStream());
+			
+			return;
+		}
+
+		if (file.isFile() && file.canRead()) {
 			OutputStream out = response.getOutputStream();
 			
 			FileInputStream in = new FileInputStream(file);
@@ -38,30 +73,9 @@ public class DirectoryProxyFolder extends ProxyFolder {
 			
 			in.close();
 
+			return;
 		}
-
-	}
-	
-	public DirectoryProxyFolder(String name, Folder parent, ProxyFilter filter, File directory) {
-		super(name, parent, filter);
-
-		if (directory == null || !directory.isDirectory())
-			throw new IllegalArgumentException("Not a directory");
 		
-		this.directory = directory;
-	}
-
-	@Override
-	protected Resource getProxy(String s) {
-
-		//s.replace("..", "");		
-		
-		File f = new File(directory, s);
-
-		if (!f.exists())
-			return null;
-		
-		return new FileResource(s, f);
 		
 	}
 

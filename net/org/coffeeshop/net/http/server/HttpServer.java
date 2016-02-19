@@ -131,6 +131,15 @@ public class HttpServer implements HttpServerInformation {
 		acceptor.start();
 	}
 
+	public void stop() {
+		
+		if (acceptor != null) {
+			acceptor.interrupt();
+			acceptor = null;
+		}
+		
+	}
+	
 	public ReadableSettings getConfiguration() {
 		return configuration;
 	}
@@ -206,6 +215,10 @@ public class HttpServer implements HttpServerInformation {
 
 	public int getPort() {
 		return port;
+	}
+	
+	public InetAddress getAddress() {
+		return address;
 	}
 	
 }

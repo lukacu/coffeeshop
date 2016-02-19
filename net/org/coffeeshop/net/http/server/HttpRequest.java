@@ -7,10 +7,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 import org.coffeeshop.string.StringUtils;
 
@@ -70,9 +74,7 @@ public class HttpRequest {
 
 	private HashMap<String, HttpFileUpload> postFiles = new HashMap<String, HttpFileUpload>();
 
-	private String ipaddress;
-
-	private byte[] byteipaddress;
+	private InetAddress ipaddress;
 
 	private HashMap<String, Object> cookies = new HashMap<String, Object>();
 
@@ -81,6 +83,8 @@ public class HttpRequest {
 	private boolean keepAlive = false;
 	
 	private HttpServerInformation serverInfo;
+	
+	private String contentType = "";
 	
 	/**
 	 * The constructor with the serverthread, so we can read the webserver
@@ -125,21 +129,14 @@ public class HttpRequest {
 	 * 
 	 * @return the ipnumber of the client as a string
 	 */
-	public String getIP() {
+	public InetAddress getRemoteAddress() {
 		return ipaddress;
 	}
 
-	/**
-	 * this method returns the ip-number as a long
-	 * 
-	 * @return the ipnumber of the client requesting this page
-	 */
-	public long getIP4() {
-		if (byteipaddress.length >= 4)
-			return byteipaddress[3] << 24 + byteipaddress[2] << 16 + byteipaddress[1] << 8 + byteipaddress[0];
-		return 0;
+	public String getContentType() {
+		return contentType;
 	}
-
+	
 	/**
 	 * this method returns the value of a GET variable. WARNING: if the variable
 	 * is used multiple times in the form the LAST
@@ -155,7 +152,7 @@ public class HttpRequest {
 			return def;
 		Object o = get.get(id);
 		if (o instanceof ArrayList) {
-			ArrayList arr = (ArrayList) o;
+			List<?> arr = (List<?>) o;
 			return (String) arr.get(arr.size() - 1);
 		}
 		return (String) o;
@@ -179,7 +176,7 @@ public class HttpRequest {
 			return def;
 		Object o = get.get(id);
 		if (o instanceof ArrayList) {
-			ArrayList arr = (ArrayList) o;
+			List<?> arr = (List<?>) o;
 			if (index >= arr.size())
 				return def;
 			return (String) arr.get(index);
@@ -215,6 +212,14 @@ public class HttpRequest {
 		return 1;
 	}
 
+	public Set<String> getGetKeys() {
+		return Collections.unmodifiableSet(get.keySet());
+	}
+	
+	public Set<String> getPostKeys() {
+		return Collections.unmodifiableSet(post.keySet());
+	}
+	
 	/**
 	 * this method returns a the value of a POST variable
 	 * 
@@ -229,7 +234,7 @@ public class HttpRequest {
 			return def;
 		Object o = post.get(id);
 		if (o instanceof ArrayList) {
-			ArrayList arr = (ArrayList) o;
+			List<?> arr = (List<?>) o;
 			return (String) arr.get(arr.size() - 1);
 		}
 		return (String) o;
@@ -253,7 +258,7 @@ public class HttpRequest {
 			return def;
 		Object o = post.get(id);
 		if (o instanceof ArrayList) {
-			ArrayList arr = (ArrayList) o;
+			List<?> arr = (List<?>) o;
 			if (index >= arr.size())
 				return def;
 			return (String) arr.get(index);
@@ -284,7 +289,7 @@ public class HttpRequest {
 			return 0;
 		Object o = post.get(id);
 		if (o instanceof ArrayList)
-			return ((ArrayList) o).size();
+			return ((ArrayList<?>) o).size();
 		return 1;
 	}
 
@@ -318,7 +323,7 @@ public class HttpRequest {
 			return def;
 		Object o = cookies.get(id);
 		if (o instanceof ArrayList) {
-			ArrayList arr = (ArrayList) o;
+			List<?> arr = (List<?>) o;
 			return (String) arr.get(arr.size() - 1);
 		}
 		return (String) o;
@@ -343,7 +348,7 @@ public class HttpRequest {
 			return def;
 		Object o = cookies.get(id);
 		if (o instanceof ArrayList) {
-			ArrayList arr = (ArrayList) o;
+			List<?> arr = (List<?>) o;
 			if (index >= arr.size())
 				return def;
 			return (String) arr.get(index);
@@ -364,7 +369,7 @@ public class HttpRequest {
 			return 0;
 		Object o = cookies.get(id);
 		if (o instanceof ArrayList)
-			return ((ArrayList) o).size();
+			return ((ArrayList<?>) o).size();
 		return 1;
 	}
 
@@ -530,8 +535,7 @@ public class HttpRequest {
 	 */
 	public int init(InputStream input, Socket socket, boolean keepAliveRequest)
 			throws IOException {
-		this.ipaddress = socket.getInetAddress().getHostAddress();
-		this.byteipaddress = socket.getInetAddress().getAddress();
+		this.ipaddress = socket.getInetAddress();
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(input));
 
@@ -575,11 +579,11 @@ public class HttpRequest {
 			boolean handledPost = false;
 
 			if (httpHeaders.containsKey("content-type:")) {
-				String test = (String) httpHeaders.get("content-type:");
+				contentType = (String) httpHeaders.get("content-type:");
 
-				if (test.toLowerCase().startsWith("multipart/form-data")) {
+				if (contentType.compareToIgnoreCase("multipart/form-data") == 0) {
 					String boundary = "--"
-							+ test.replaceAll(
+							+ contentType.replaceAll(
 									"^.*boundary=\"?([^\";,]+)\"?.*$", "$1");
 					int blength = boundary.length();
 					boolean done = false;
@@ -656,7 +660,6 @@ public class HttpRequest {
 								// read the data until we much the content
 								// boundary
 								line = null;
-								boolean matched = false;
 								char testa[] = new char[blength + 2];
 								char boundarya[] = ("\r\n" + boundary)
 										.toCharArray();
@@ -721,20 +724,28 @@ public class HttpRequest {
 
 						handledPost = true;
 					} // boundry != null
-				} // multi-form part
+				} else if (contentType.compareToIgnoreCase("application/x-www-form-urlencoded") == 0) { 
+					
+					rawPostString = reader.readLine();
+					
+					HttpUtils.parseString(rawPostString, post, true);
+					
+					handledPost = true;
+				}
+				
+				if (!handledPost) {
+					
+					char[] buffer = new char[len];
+
+					reader.read(buffer);
+					
+					rawPostString = new String(buffer);
+					
+				}
+				
 			} // Headers contains content-type?
 
-			if (!handledPost) {
-				line = "";
-				for (int i = 0; i < len; i++) {
-					int c = input.read();
-					if (c < 0)
-						break;
-					line += (char) c;
-				}
-				rawPostString = line;
-				HttpUtils.parseString(rawPostString, post, true);
-			} // handledPost?
+			
 		} // POST?
 
 		// go and retrieves the cookies

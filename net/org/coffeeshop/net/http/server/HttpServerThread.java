@@ -3,6 +3,7 @@ package org.coffeeshop.net.http.server;
 import java.io.*;
 import java.net.*;
 
+import org.coffeeshop.application.Application;
 import org.coffeeshop.net.http.server.resource.Resource;
 
 class HttpServerThread extends Thread {
@@ -151,6 +152,7 @@ class HttpServerThread extends Thread {
 							
 						} catch (Exception e) {
 	
+							Application.getApplicationLogger().report(e);
 							HttpResponse.sendErrorMessage(response, HttpResponse.HTTP_INTERNAL_ERROR);
 							
 						}

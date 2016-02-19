@@ -2,6 +2,7 @@ package org.coffeeshop.net.http.server.resource;
 
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 
 import org.coffeeshop.net.html.SimpleHtmlDocument;
 import org.coffeeshop.net.html.Snippets;
@@ -10,9 +11,9 @@ import org.coffeeshop.net.http.server.HttpResponse;
 
 public class Folder extends Resource {
 
-	private Hashtable<String, Resource> children = new Hashtable<String, Resource>();
+	protected Hashtable<String, Resource> children = new Hashtable<String, Resource>();
 	
-	private String defaultChild = "index";
+	protected String defaultChild = "index";
 	
 	public String getDefaultChild() {
 		return defaultChild;
@@ -58,11 +59,14 @@ public class Folder extends Resource {
 			if (r == null)
 				return null;
 			
-			if (!Folder.class.isInstance(r))
-				return null;
-			
-			return ((Folder) r).get(s.substring(i+1));
+			if (Folder.class.isInstance(r))
+				return ((Folder) r).get(s.substring(i+1));
 	
+			if (VirtualResource.class.isInstance(r))
+				return r;
+			
+			return null;
+			
 		}
 			
 	}
@@ -86,11 +90,7 @@ public class Folder extends Resource {
 			listing.put("..", getParent().getFullName());
 		}
 		
-		for (Resource r : children.values()) {
-			
-			listing.put(r.getName(), r.getFullName());
-			
-		}
+		listChildren(listing);
 		
 		SimpleHtmlDocument document = new SimpleHtmlDocument("Listing for " + request.getLocation());
 		
@@ -102,4 +102,14 @@ public class Folder extends Resource {
 		
 	}
 
+	protected void listChildren(Map<String, String> listing) {
+		
+		for (Resource r : children.values()) {
+			
+			listing.put(r.getName(), r.getFullName());
+			
+		}
+		
+	}
+	
 }
