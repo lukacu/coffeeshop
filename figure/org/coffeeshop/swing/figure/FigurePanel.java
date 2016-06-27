@@ -22,9 +22,11 @@ import java.awt.event.MouseWheelListener;
 import java.awt.geom.Rectangle2D;
 import java.util.Map;
 
+import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
+import javax.swing.KeyStroke;
 import javax.swing.Scrollable;
 import javax.swing.SpringLayout;
 
@@ -168,6 +170,8 @@ public class FigurePanel extends JComponent implements Scrollable {
 
 		public void mouseClicked(MouseEvent e) {
 
+			requestFocusInWindow();
+			
 			Point p = container.pointScreenToFigure(e.getPoint());
 
 			if ((e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) {
@@ -257,6 +261,9 @@ public class FigurePanel extends JComponent implements Scrollable {
 		}
 
 		public void mousePressed(MouseEvent e) {
+			
+			requestFocusInWindow();
+			
 			Point p = container.pointScreenToFigure(e.getPoint());
 
 			if ((e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) {
@@ -418,10 +425,11 @@ public class FigurePanel extends JComponent implements Scrollable {
 		horizontalScrollbar.addMouseWheelListener(mouse);
 		container.addMouseWheelListener(mouse);
 		
-		addKeyListener(keys);
+		//addKeyListener(keys);
 
 	}
-
+	
+	
 	public void configure(Map<String, String> parameters) {
 
 		String s = parameters.get("magnification.max");
