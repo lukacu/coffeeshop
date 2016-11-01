@@ -82,12 +82,13 @@
 			</classpath>
 		</javac>
 	</target>
-	<target name="build-net" depends="build-core">
+	<target name="build-net" depends="build-core, build-application">
 		<echo message="Building net package" />
 		<javac debug="true" debuglevel="${debuglevel}" destdir="bin/net" source="${source}" target="${target}" includeantruntime="false">
 			<src path="net" />
 			<classpath>
 				<path location="bin/core" />
+				<path location="bin/application" />
 			</classpath>
 		</javac>
 	</target>
