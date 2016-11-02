@@ -9,7 +9,6 @@
 	</tstamp>
     <target name="ivy">
         <path id="ivy.lib.path">
-            <fileset dir="${user.home}/.ant/" includes="*.jar"/>
             <fileset dir="/usr/share/java/" includes="*.jar"/>
         </path>
         <taskdef resource="org/apache/ivy/ant/antlib.xml"
